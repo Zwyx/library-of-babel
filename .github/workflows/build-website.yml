@@ -1,0 +1,50 @@
+# The site is built on branch `dist`, in folder `docs`,
+# which makes the build compatible with Github Pages and Netlify
+
+name: Build website
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "build-website"
+  cancel-in-progress: true
+
+jobs:
+  build-website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: echo "nvmrc=$(cat .nvmrc)" >> $GITHUB_ENV
+        id: nvmrc
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "${{ env.nvmrc }}"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: |
+          git switch --orphan dist
+          git add docs
+          git config user.name "Zwyx - GitHub Actions"
+          git config user.email "29386932+Zwyx@users.noreply.github.com>"
+          git commit -m "Build website"
+          git push --set-upstream origin --force dist
+      #
+      # - name: Setup tmate session
+      #   if: ${{ always() }}
+      #   timeout-minutes: 30 # Run `sudo shutdown -h now` to terminate the session
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   uses: mxschmitt/action-tmate@v3
