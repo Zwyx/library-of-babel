@@ -4,6 +4,28 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title></title>
+		<link rel="icon" type="image/png" href="/Zwyx-220x220-rounded.png" />
+
+		<script type="text/javascript">
+			// Set the theme's class as soon as possible to prevent a flash of the wrong theme
+
+			var lightThemeName = "light";
+			var darkThemeName = "dark";
+
+			var theme;
+
+			try {
+				theme = localStorage.getItem("theme");
+			} catch {}
+
+			if (theme === lightThemeName || theme === darkThemeName) {
+				document.documentElement.classList.add(theme);
+			} else if (matchMedia("(prefers-color-scheme: dark)").matches) {
+				document.documentElement.classList.add(darkThemeName);
+			} else {
+				document.documentElement.classList.add(lightThemeName);
+			}
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>
