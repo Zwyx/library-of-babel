@@ -17,7 +17,7 @@ module.exports = {
 		ecmaVersion: "latest",
 		sourceType: "module",
 	},
-	plugins: ["react-refresh"],
+	plugins: ["react-refresh", "i18next"],
 	settings: {
 		react: {
 			version: "detect",
@@ -101,5 +101,9 @@ module.exports = {
 
 		// Check that components allow fast refresh
 		"react-refresh/only-export-components": "warn",
+
+		// ---------- i18next ----------
+
+		"i18next/no-literal-string": "warn",
 	},
 };

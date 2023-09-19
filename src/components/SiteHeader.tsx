@@ -1,4 +1,5 @@
-import { ThemeSelector } from "@/components/ThemeSelector";
+import { LanguageSelector } from "./LanguageSelector";
+import { ThemeSelector } from "./ThemeSelector";
 
 export const SiteHeader = () => {
 	return (
@@ -11,6 +12,7 @@ export const SiteHeader = () => {
 				<span className="flex-[10] text-center font-bold"></span>
 
 				<nav className="flex flex-1 items-center justify-end gap-1">
+					<LanguageSelector />
 					<ThemeSelector />
 				</nav>
 			</div>
