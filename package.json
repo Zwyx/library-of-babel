@@ -1,10 +1,10 @@
 {
-	"name": "template-typescript-react-tailwind-shadcnui",
+	"name": "library-of-babel",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "vite",
+		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
 		"build": "npm run lint && tsc && vite build",
 		"lint": "eslint src --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
@@ -12,6 +12,7 @@
 		"prettier": "prettier -w ."
 	},
 	"dependencies": {
+		"@radix-ui/react-dialog": "^1.0.5",
 		"@radix-ui/react-dropdown-menu": "^2.0.5",
 		"@radix-ui/react-slot": "^1.0.2",
 		"class-variance-authority": "^0.7.0",

@@ -1,8 +1,18 @@
 import { DeepReplace } from "@/lib/utils";
 
 export const en = {
+	headerMenu: {
+		libraryOfBabel: "The Library of Babel",
+		openMenu: "Open menu",
+		version: "version",
+	},
+
 	languageSelector: {
 		chooseLanguage: "Choose language",
+	},
+
+	siteHeader: {
+		libraryOfBabel: "The Library of Babel",
 	},
 
 	themeSelector: {
