@@ -21,7 +21,7 @@ export const HeaderMenu = () => {
 			<SheetTrigger asChild>
 				<Button
 					variant="ghost"
-					className="mr-2 flex-1 justify-start px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+					className="flex-1 justify-start px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
 				>
 					<LucideMenu className="h-6 w-6" />
 					<span className="sr-only">{t("openMenu")}</span>

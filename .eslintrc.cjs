@@ -71,6 +71,9 @@ module.exports = {
 		// Require method and property shorthand syntax for object literals; example: prevent `a = { b: b };` in favour of `a = { b };`
 		"object-shorthand": "warn",
 
+		// Disallow `let` when `const` is possible
+		"prefer-const": "warn",
+
 		// ---------- TypeScript ----------
 
 		// Enforce consistent usage of type imports
@@ -87,6 +90,9 @@ module.exports = {
 
 		// Disallow variable declarations from shadowing variables declared in the outer scope
 		"@typescript-eslint/no-shadow": "warn",
+
+		// Disallow unused var
+		"@typescript-eslint/no-unused-vars": "warn",
 
 		// ---------- React ----------
 
