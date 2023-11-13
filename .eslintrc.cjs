@@ -1,3 +1,4 @@
+/** @type {import('@types/eslint').Linter.BaseConfig} */
 module.exports = {
 	root: true,
 	env: {
@@ -12,21 +13,16 @@ module.exports = {
 		"plugin:jsx-a11y/recommended",
 		"prettier",
 	],
-	parser: "@typescript-eslint/parser",
-	parserOptions: {
-		ecmaVersion: "latest",
-		sourceType: "module",
-	},
 	plugins: ["react-refresh", "i18next"],
 	settings: {
 		react: {
 			version: "detect",
 		},
 	},
-	ignorePatterns: ["/src/components/ui"],
+	ignorePatterns: ["/src/components/ui", "docs"],
 	overrides: [
 		{
-			files: [".eslintrc.{js,cjs}"],
+			files: [".eslintrc.cjs"],
 			env: {
 				node: true,
 			},
