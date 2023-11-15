@@ -1,11 +1,21 @@
 import { Book, Page } from "@/components/BookPage";
+import { Pagination } from "@/components/Pagination";
 import { Button } from "@/components/ui/button";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
 export const Browse = () => {
 	const [value, setValue] = useState<string>("");
 	const [book, setBook] = useState<Book>([]);
+	const [pageNumber, setPageNumber] = useState<number>(1);
 
 	const toBase81 = (x: bigint): string => {
 		const time = Date.now();
@@ -82,10 +92,10 @@ export const Browse = () => {
 		const orig = BigInt(value).toString(29).padStart(1312000, "0");
 
 		const from = "0123456789abcdefghijklmnopqrs";
-		const to = " abcdefghijklmnopqrstuvwxyz,.";
+		const to = "·abcdefghijklmnopqrstuvwxyz,."; // We use a middle dot, because non-breaking spaces don't break (yep), and spaces are collapsed (until `white-space-collapse: break-spaces` is widely supported https://developer.mozilla.org/en-US/docs/Web/CSS/white-space-collapse)
 
 		const result: Book = [];
-		let page: Page = { key: crypto.randomUUID(), lines: [] };
+		let page: Page = { key: crypto.randomUUID(), pageNumber: 1, lines: [] };
 		let chars = "";
 
 		for (let i = 0; i < orig.length; i++) {
@@ -97,7 +107,11 @@ export const Browse = () => {
 
 				if ((i + 1) % 3200 === 0) {
 					result.push(page);
-					page = { key: crypto.randomUUID(), lines: [] };
+					page = {
+						key: crypto.randomUUID(),
+						pageNumber: (i + 1) / 3200 + 1,
+						lines: [],
+					};
 				}
 			}
 		}
@@ -122,14 +136,33 @@ export const Browse = () => {
 			</div>
 
 			<div className="mt-8">
-				There are about 1.5×10<sup>1918666</sup> books.
+				We estimate that there are 10<sup>80</sup> atoms in the observable
+				Universe. That's a number with 81 digits.
+			</div>
+
+			<div className="mt-8">
+				There are 29 exactly
+				<sup>1,312,000</sup> book in the library. That's about 1.5×10
+				<sup>1918666</sup>, a number with 1,918,667 digits.
 			</div>
 
 			<div className="mt-8">All this is visible on this website.</div>
 
-			<Textarea value={value} onChange={(e) => setValue(e.target.value)} />
+			<Dialog>
+				<DialogTrigger asChild>
+					<Button>Enter book ID</Button>
+				</DialogTrigger>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Book ID</DialogTitle>
+						<DialogDescription>Enter the book ID</DialogDescription>
+					</DialogHeader>
 
-			<Button onClick={convert}>Convert</Button>
+					<Textarea value={value} onChange={(e) => setValue(e.target.value)} />
+
+					<Button onClick={convert}>Submit</Button>
+				</DialogContent>
+			</Dialog>
 
 			<div className="whitespace-pre-wrap break-words">
 				{/* {BigInt(value).toString(29)} */}
@@ -145,11 +178,25 @@ export const Browse = () => {
 				{/* {toBase81(BigInt(value))} */}
 			</div>
 
-			<div className="max-w-[85ch] font-mono">
-				{book.map(({ key, lines }, i) => (
-					<Page key={key} number={i + 1} lines={lines} />
-				))}
-			</div>
+			<Pagination
+				className="my-4"
+				min={1}
+				max={410}
+				current={pageNumber}
+				onChange={setPageNumber}
+			/>
+
+			{!!book.length && (
+				<Page
+					pageNumber={pageNumber}
+					lines={book[pageNumber - 1].lines}
+					// showPageNumber
+				/>
+			)}
+
+			{/* {book.map(({ key, pageNumber, lines }) => (
+				<Page key={key} pageNumber={pageNumber} lines={lines} />
+			))} */}
 		</>
 	);
 };
