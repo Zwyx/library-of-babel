@@ -1,22 +1,17 @@
-import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { SiteHeader } from "./components/SiteHeader";
-
-const worker = new Worker(new URL("./lib/worker.ts", import.meta.url));
+import { TabBar } from "./components/TabBar";
 
 export const App = () => {
-	useEffect(() => {
-		worker.onmessage = (e: MessageEvent<string>) => {
-			console.info(`Message received from worker: ${e.data}`);
-		};
-
-		worker.postMessage("test");
-	}, []);
+	const { pathname } = useLocation();
 
 	return (
-		<div className="flex flex-col items-center">
+		<div className="flex h-[100svh] flex-col">
 			<SiteHeader />
-			<Outlet />
+			<div className="flex flex-col items-center gap-4 overflow-auto px-2 py-4">
+				<TabBar tab={pathname} />
+				<Outlet />
+			</div>
 		</div>
 	);
 };

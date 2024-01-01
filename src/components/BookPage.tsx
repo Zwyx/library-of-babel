@@ -1,5 +1,6 @@
+import { cn } from "@/lib/utils";
+
 export type Line = {
-	key: string;
 	chars: string;
 };
 
@@ -11,28 +12,35 @@ export type Page = {
 
 export type Book = Page[];
 
-export const Page = ({
+export const BookPage = ({
+	className,
 	pageNumber,
 	lines,
 	showPageNumber,
-}: Pick<Page, "pageNumber" | "lines"> & { showPageNumber?: boolean }) => (
-	<div className="mt-4 flex flex-col items-center font-mono">
+}: Pick<Page, "pageNumber" | "lines"> & {
+	className?: string;
+	showPageNumber?: boolean;
+}) => (
+	<div className={cn("my-2 flex flex-col items-center font-mono", className)}>
 		{showPageNumber && <span>Page {pageNumber}/410</span>}
 
 		<div className="mx-1 break-all rounded-md border p-2">
-			{lines.map(({ chars, key }) => (
-				<div key={key} className="max-lg:inline">
-					{chars.split("").map((char, i) =>
-						char === "·" ? (
-							<span key={key + char + i} className="opacity-30">
-								{char}
-							</span>
-						) : (
-							char
-						),
-					)}
-				</div>
-			))}
+			{
+				// it's ok to use indexes for lines' and chars' keys, as lines and chars are rendered statelessly
+				lines.map(({ chars }, lineIndex) => (
+					<div key={lineIndex} className="max-lg:inline">
+						{chars.split("").map((char, charIndex) =>
+							char === "·" ? (
+								<span key={charIndex} className="opacity-30">
+									{char}
+								</span>
+							) : (
+								char
+							),
+						)}
+					</div>
+				))
+			}
 		</div>
 	</div>
 );

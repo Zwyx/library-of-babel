@@ -7,7 +7,7 @@ https://github.com/tdjsnelling/babel/issues/3
 
 1.4901961271686638997436830140126466183867533903249683117... × 10^1918666
 
-Book ID = book content
+Book ID = book content reversed
 
 Human readable ID = `Room Wall Shelf Book Page` = `[long string] [1-4] [1-5] [1-32] [1-410]`
 
@@ -20,5 +20,6 @@ Compared to libraryofbabel.info:
 - books are ordered sequentially, not randomly
 - entire books can be searched, not only pages
 - IDs are shorter (they are 3200 [a-z0-9] chars at lob.info)
+- works entirely offline
 
 To share pages: if the search contains less than ~1000 characters, we'll be able to add the book number to the URL. If more, we can either copy the book ID, or use the pastebin API to share it (mentioning it won't be private).

@@ -25,7 +25,12 @@ export const Pagination = ({
 	const [value, setValue] = useState<string | number>(current);
 
 	return (
-		<div className={cn("flex gap-2", className)}>
+		<div
+			className={cn(
+				"sticky top-0 z-10 flex gap-2 rounded bg-background shadow-[0_0_16px_8px] shadow-background",
+				className,
+			)}
+		>
 			<Button
 				variant="secondary"
 				onClick={() => {

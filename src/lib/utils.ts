@@ -1,6 +1,10 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+const LOG_ACTIVE = true;
+
+export const lg = (...args: unknown[]) => LOG_ACTIVE && console.info(...args);
+
 // https://stackoverflow.com/questions/60437172/typescript-deep-replace-multiple-types
 type Replacement<M extends [unknown, unknown], T> = M extends unknown
 	? [T] extends [M[0]]

@@ -2,29 +2,43 @@ import { Link } from "react-router-dom";
 
 export const Home = () => {
 	return (
-		<>
-			<h1 className="mt-8">Welcome, visitor.</h1>
+		<div className="flex flex-col items-center gap-8">
+			<h1 className="text-xl font-semibold">Welcome, visitor.</h1>
 
-			<div className="mt-8">The Library of Babel contains all the books.</div>
-
-			<div className="mt-8">All the books that have ever been written.</div>
-
-			<div className="mt-8">All the books that will ever be written.</div>
-
-			<div className="mt-8">
-				And the vast majority of all the books that will never exist.
+			<div>
+				The Library of Babel contains <em>all the books</em>.
 			</div>
 
-			<div className="mt-8">
-				Your complete biography. The precise description of the future of the
-				human race.
+			<div>
+				Every books{" "}
+				<em>
+					that have <strong>ever been</strong> written
+				</em>
+				.
 			</div>
 
-			<div className="mt-8">Every possible book is in the library.</div>
+			<div>
+				Every books{" "}
+				<em>
+					that will <strong>ever be</strong> written
+				</em>
+				.
+			</div>
 
-			<Link className="mt-8" to="/browse">
-				Enter
-			</Link>
-		</>
+			<div>
+				And the vast majority of every books{" "}
+				<em>
+					that will <strong>never be</strong> written
+				</em>
+				.
+			</div>
+
+			<div>
+				Your complete biography, the solutions to the greatest mysteries in
+				Mankind's history, the precise description of our future.
+			</div>
+
+			<Link to="/library">Enter the library</Link>
+		</div>
 	);
 };
