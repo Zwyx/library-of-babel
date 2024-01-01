@@ -31,6 +31,7 @@ module.exports = {
 			},
 		},
 	],
+	reportUnusedDisableDirectives: true,
 	rules: {
 		// ---------- JavaScript ----------
 

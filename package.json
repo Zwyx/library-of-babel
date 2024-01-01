@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
 		"build": "npm run lint && tsc && vite build",
-		"lint": "eslint --report-unused-disable-directives --max-warnings 0 .",
+		"lint": "eslint --max-warnings 0 .",
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
 		"prettier": "prettier -w ."
