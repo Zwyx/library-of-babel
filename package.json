@@ -6,7 +6,7 @@
 	"scripts": {
 		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
 		"build": "npm run lint && tsc && vite build",
-		"lint": "eslint --max-warnings 0 .",
+		"lint": "eslint --max-warnings=0 .",
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
 		"prettier": "prettier -w ."
@@ -39,6 +39,7 @@
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-i18next": "^6.0.3",
 		"eslint-plugin-jsx-a11y": "^6.7.1",
+		"eslint-plugin-only-warn": "^1.1.0",
 		"eslint-plugin-react": "^7.33.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
 		"eslint-plugin-react-refresh": "^0.4.3",
