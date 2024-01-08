@@ -159,7 +159,7 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 		const randomTextTotalLength = PAGE_LENGTH - searchText.length;
 
 		const searchTextPosition = Math.floor(
-			Math.random() * randomTextTotalLength,
+			Math.random() * (randomTextTotalLength + 1),
 		);
 
 		for (let i = 0; i < searchTextPosition; i++) {
@@ -168,11 +168,7 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 			);
 		}
 
-		for (
-			let i = searchTextPosition + searchText.length;
-			i < randomTextTotalLength;
-			i++
-		) {
+		for (let i = searchTextPosition; i < randomTextTotalLength; i++) {
 			randomTextAfter += BASE_29_BOOK_ALPHABET.charAt(
 				Math.floor(Math.random() * BASE_29),
 			);
