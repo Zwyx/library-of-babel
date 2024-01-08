@@ -5,7 +5,7 @@ import {
 	LucideChevronLeft,
 	LucideChevronRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
@@ -23,6 +23,8 @@ export const Pagination = ({
 	onChange: (now: number) => void;
 }) => {
 	const [value, setValue] = useState<string | number>(current);
+
+	useEffect(() => setValue(current), [current]);
 
 	return (
 		<div

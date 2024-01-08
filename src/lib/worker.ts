@@ -2,7 +2,7 @@ import { Book, Page } from "@/components/BookPage";
 import { lg } from "./utils";
 
 const BOOK_LENGTH = 1312000;
-const PAGE_LENGTH = 3200;
+export const PAGE_LENGTH = 3200;
 
 const BASE_29 = 29;
 const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
@@ -155,8 +155,14 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 	let randomTextBefore = "";
 	let randomTextAfter = "";
 
-	if (options?.find === "pageWithRandom") {
-		const randomTextTotalLength = PAGE_LENGTH - searchText.length;
+	if (
+		options?.find === "pageWithRandom" ||
+		options?.find === "bookWithRandom"
+	) {
+		const resultLength =
+			options?.find === "pageWithRandom" ? PAGE_LENGTH : BOOK_LENGTH;
+
+		const randomTextTotalLength = resultLength - searchText.length;
 
 		const searchTextPosition = Math.floor(
 			Math.random() * (randomTextTotalLength + 1),

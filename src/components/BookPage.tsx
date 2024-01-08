@@ -82,7 +82,10 @@ export const BookPageComponent = ({
 						return (
 							<div
 								key={lineIndex}
-								className={cn("max-lg:inline", lineSelected && "bg-blue-200")}
+								className={cn(
+									"max-lg:inline",
+									lineSelected && "bg-blue-200 dark:bg-blue-900",
+								)}
 							>
 								{chars.split("").map((char, charIndex) => {
 									const charSelected = isCharSelected({
@@ -100,7 +103,7 @@ export const BookPageComponent = ({
 												char === "·" && "text-gray-300 dark:text-gray-500",
 												!lineSelected &&
 													charSelected &&
-													"inline-block bg-blue-200",
+													"inline-block bg-blue-200 dark:bg-blue-900",
 											)}
 										>
 											{char}

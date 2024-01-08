@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
 import { SEARCH_OPTIONS_KEY } from "@/lib/keys";
 import { cn } from "@/lib/utils";
-import { Message } from "@/lib/worker";
+import { Message, PAGE_LENGTH } from "@/lib/worker";
 import { LucideLoader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
@@ -70,6 +70,10 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 	const onWorkerMessage = ({ data }: MessageEvent<Book>) => {
 		setLoadingReal(false);
 		setBook(data);
+
+		if (typeof data.searchTextStart === "number") {
+			setPageNumber(Math.floor(data.searchTextStart / PAGE_LENGTH) + 1);
+		}
 	};
 
 	useEffect(() => {
