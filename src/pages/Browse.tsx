@@ -14,10 +14,12 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
+import { SEARCH_OPTIONS_KEY } from "@/lib/keys";
 import { cn } from "@/lib/utils";
 import { Message } from "@/lib/worker";
 import { LucideLoader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
 
 const INVALID_TEXT_REGEX = /[^ abcdefghijklmnopqrstuvwxyz,.]/g;
 
@@ -27,9 +29,9 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 	const [text, setText] = useState<string>("");
 	const [invalidTextDialogOpen, setInvalidTextDialogOpen] =
 		useState<boolean>(false);
-	const [searchOptions, setSearchOptions] = useState<
-		"firstBook" | "pageWithRandom"
-	>("firstBook");
+	const [searchOptions, setSearchOptions] = useLocalStorage<
+		"firstBook" | "pageWithRandom" | "bookWithRandom"
+	>(SEARCH_OPTIONS_KEY, "firstBook");
 	const [loadingReal, setLoadingReal] = useState<boolean>(false);
 	const [loadingMin, setLoadingMin] = useState<boolean>(false);
 	const [book, setBook] = useState<Book>();
@@ -115,6 +117,13 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 							<RadioGroupItem value="pageWithRandom" id="pageWithRandom" />
 							<Label htmlFor="pageWithRandom">
 								Find a page containing the search text
+							</Label>
+						</div>
+
+						<div className="flex items-center space-x-2">
+							<RadioGroupItem value="bookWithRandom" id="bookWithRandom" />
+							<Label htmlFor="bookWithRandom">
+								Find a book containing the search text
 							</Label>
 						</div>
 					</RadioGroup>

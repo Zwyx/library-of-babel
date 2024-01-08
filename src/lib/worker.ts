@@ -197,7 +197,7 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 };
 
 export interface SearchOptions {
-	find: "firstBook" | "pageWithRandom";
+	find: "firstBook" | "pageWithRandom" | "bookWithRandom";
 }
 
 export interface Message {
