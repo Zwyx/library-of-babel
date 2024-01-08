@@ -107,7 +107,7 @@ const getBookFromContent = (
 	content: string[],
 	alphabet: "bigint" | "book",
 ): Book => {
-	const book: Book = [];
+	const pages: Page[] = [];
 
 	let page: Page = { key: crypto.randomUUID(), pageNumber: 1, lines: [] };
 	let chars = "";
@@ -125,7 +125,7 @@ const getBookFromContent = (
 			chars = "";
 
 			if ((i + 1) % 3200 === 0) {
-				book.push(page);
+				pages.push(page);
 				page = {
 					key: crypto.randomUUID(),
 					pageNumber: (i + 1) / 3200 + 1,
@@ -135,7 +135,7 @@ const getBookFromContent = (
 		}
 	}
 
-	return book;
+	return { pages };
 };
 
 const getBookFromId = (bookId: string): Book => {
@@ -149,7 +149,7 @@ const getBookFromId = (bookId: string): Book => {
 	return book;
 };
 
-const findBook = (searchText: string, options?: SearchOptions) => {
+const findBook = (searchText: string, options?: SearchOptions): Book => {
 	const time = Date.now();
 
 	let randomTextBefore = "";
@@ -189,7 +189,11 @@ const findBook = (searchText: string, options?: SearchOptions) => {
 
 	lg(`'findBook' took ${Date.now() - time}ms`);
 
-	return book;
+	return {
+		...book,
+		searchTextStart: randomTextBefore.length,
+		searchTextEnd: randomTextBefore.length + searchText.length - 1,
+	};
 };
 
 export interface SearchOptions {

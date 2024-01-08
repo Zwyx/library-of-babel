@@ -20,7 +20,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 	>("firstBook");
 	const [loadingReal, setLoadingReal] = useState<boolean>(false);
 	const [loadingMin, setLoadingMin] = useState<boolean>(false);
-	const [book, setBook] = useState<Book>([]);
+	const [book, setBook] = useState<Book>();
 	const [pageNumber, setPageNumber] = useState<number>(1);
 
 	const loading = loadingReal || loadingMin;
@@ -111,7 +111,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 				/>
 			</Button>
 
-			{!book.length ? (
+			{!book ? (
 				// this is to set the width of the text area
 				<BookPage
 					className="invisible"
@@ -133,8 +133,10 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 					/>
 
 					<BookPage
-						lines={book[pageNumber - 1]?.lines}
+						lines={book.pages[pageNumber - 1].lines}
 						pageNumber={pageNumber}
+						searchTextStart={book.searchTextStart}
+						searchTextEnd={book.searchTextEnd}
 					/>
 				</>
 			)}
