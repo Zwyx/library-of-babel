@@ -37,24 +37,16 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 
 	const loading = loadingReal || loadingMin;
 
-	const getContent = (fixInvalid = false) => {
-		let data = text
+	const getContent = () => {
+		const data = text
 			.normalize("NFD")
 			.replace(/[\u0300-\u036f]/g, "")
-			.toLowerCase();
+			.toLowerCase()
+			.replace(INVALID_TEXT_REGEX, "");
 
-		const invalid = data.match(INVALID_TEXT_REGEX);
-
-		if (invalid) {
-			console.log(fixInvalid);
-			if (!fixInvalid) {
-				setInvalidTextDialogOpen(true);
-				return;
-			}
-
-			data = data.replace(INVALID_TEXT_REGEX, "");
-
-			setText(data);
+		if (!data.length) {
+			setInvalidTextDialogOpen(true);
+			return;
 		}
 
 		setLoadingReal(true);
@@ -129,11 +121,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 				</>
 			)}
 
-			<Button
-				className="my-4"
-				disabled={!text || loading}
-				onClick={() => getContent()}
-			>
+			<Button className="my-4" disabled={!text || loading} onClick={getContent}>
 				<span className={cn(loading && "invisible")}>
 					{mode === "search" ? "Find a book" : "Retrieve the book"}
 				</span>
@@ -156,8 +144,8 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 					</DialogHeader>
 
 					<div>
-						The search text contains invalid characters. Would you like them to
-						be automatically removed?
+						The search text contains only invalid characters, please enter valid
+						ones.
 					</div>
 
 					<div>
@@ -167,13 +155,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 
 					<DialogFooter>
 						<DialogClose asChild>
-							<Button variant="secondary">No</Button>
-						</DialogClose>
-
-						<DialogClose asChild>
-							<Button onClick={() => getContent(true)}>
-								Yes, remove invalid characters
-							</Button>
+							<Button variant="secondary">Close</Button>
 						</DialogClose>
 					</DialogFooter>
 				</DialogContent>
