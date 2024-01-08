@@ -33,7 +33,10 @@ export const BookPageComponent = ({
 						<div key={lineIndex} className="max-lg:inline">
 							{chars.split("").map((char, charIndex) =>
 								char === "·" ? (
-									<span key={charIndex} className="opacity-30">
+									<span
+										key={charIndex}
+										className="text-gray-300 dark:text-gray-500"
+									>
 										{char}
 									</span>
 								) : (

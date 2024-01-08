@@ -2,6 +2,7 @@ import { Book, Page } from "@/components/BookPage";
 import { lg } from "./utils";
 
 const BOOK_LENGTH = 1312000;
+const PAGE_LENGTH = 3200;
 
 const BASE_29 = 29;
 const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
@@ -102,11 +103,10 @@ const fromBase81 = (text: string): bigint => {
 	return parts[0][0] * parts[1][1] + parts[1][0];
 };
 
-const idToContent = (bookId: string): Book => {
-	const time = Date.now();
-
-	const idBase29Bigint = toBase29(fromBase81(bookId)).split("").reverse();
-
+const getBookFromContent = (
+	content: string[],
+	alphabet: "bigint" | "book",
+): Book => {
 	const book: Book = [];
 
 	let page: Page = { key: crypto.randomUUID(), pageNumber: 1, lines: [] };
@@ -114,9 +114,11 @@ const idToContent = (bookId: string): Book => {
 
 	for (let i = 0; i < BOOK_LENGTH; i++) {
 		chars +=
-			BASE_29_BOOK_ALPHABET[
-				BASE_29_BIGINT_ALPHABET.indexOf(idBase29Bigint[i] || "0")
-			];
+			alphabet === "bigint"
+				? BASE_29_BOOK_ALPHABET[
+						BASE_29_BIGINT_ALPHABET.indexOf(content[i] || "0")
+				  ]
+				: content[i] || BASE_29_BOOK_ALPHABET[0];
 
 		if ((i + 1) % 80 === 0) {
 			page.lines.push({ chars });
@@ -133,22 +135,83 @@ const idToContent = (bookId: string): Book => {
 		}
 	}
 
-	lg(`took ${Date.now() - time}ms`);
+	return book;
+};
+
+const getBookFromId = (bookId: string): Book => {
+	const time = Date.now();
+
+	const idBase29Bigint = toBase29(fromBase81(bookId)).split("").reverse();
+	const book = getBookFromContent(idBase29Bigint, "bigint");
+
+	lg(`'getBookFromId' took ${Date.now() - time}ms`);
 
 	return book;
 };
 
-export interface Message {
-	operation: "idToContent";
-	data: string;
+const findBook = (searchText: string, options?: SearchOptions) => {
+	const time = Date.now();
+
+	let randomTextBefore = "";
+	let randomTextAfter = "";
+
+	if (options?.find === "pageWithRandom") {
+		const randomTextTotalLength = PAGE_LENGTH - searchText.length;
+
+		const searchTextPosition = Math.floor(
+			Math.random() * randomTextTotalLength,
+		);
+
+		for (let i = 0; i < searchTextPosition; i++) {
+			randomTextBefore += BASE_29_BOOK_ALPHABET.charAt(
+				Math.floor(Math.random() * BASE_29),
+			);
+		}
+
+		for (
+			let i = searchTextPosition + searchText.length;
+			i < randomTextTotalLength;
+			i++
+		) {
+			randomTextAfter += BASE_29_BOOK_ALPHABET.charAt(
+				Math.floor(Math.random() * BASE_29),
+			);
+		}
+	}
+
+	const book = getBookFromContent(
+		`${randomTextBefore}${searchText.replace(
+			/ /g,
+			BASE_29_BOOK_ALPHABET[0],
+		)}${randomTextAfter}`.split(""),
+		"book",
+	);
+
+	lg(`'findBook' took ${Date.now() - time}ms`);
+
+	return book;
+};
+
+export interface SearchOptions {
+	find: "firstBook" | "pageWithRandom";
 }
 
-onmessage = ({ data: { operation, data } }: MessageEvent<Message>) => {
+export interface Message {
+	operation: "getBookFromId" | "findBook";
+	data: string;
+	options?: SearchOptions;
+}
+
+onmessage = ({ data: { operation, data, options } }: MessageEvent<Message>) => {
 	let result;
 
 	switch (operation) {
-		case "idToContent":
-			result = idToContent(data);
+		case "getBookFromId":
+			result = getBookFromId(data);
+			break;
+
+		case "findBook":
+			result = findBook(data, options);
 	}
 
 	postMessage(result);

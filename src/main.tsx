@@ -11,7 +11,6 @@ import { Home } from "./pages/Home.tsx";
 import { Library } from "./pages/Library.tsx";
 import { Questions } from "./pages/Questions.tsx";
 import { Random } from "./pages/Random.tsx";
-import { Search } from "./pages/Search.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -28,11 +27,11 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "/browse",
-				element: <Browse />,
+				element: <Browse mode="browse" />,
 			},
 			{
 				path: "/search",
-				element: <Search />,
+				element: <Browse mode="search" />,
 			},
 			{
 				path: "/random",
