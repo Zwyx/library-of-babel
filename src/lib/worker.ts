@@ -139,7 +139,7 @@ const idToContent = (bookId: string): Book => {
 };
 
 export interface Message {
-	operation: "idtoContent";
+	operation: "idToContent";
 	data: string;
 }
 
@@ -147,7 +147,7 @@ onmessage = ({ data: { operation, data } }: MessageEvent<Message>) => {
 	let result;
 
 	switch (operation) {
-		case "idtoContent":
+		case "idToContent":
 			result = idToContent(data);
 	}
 
