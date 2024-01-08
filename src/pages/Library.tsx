@@ -20,23 +20,13 @@ export const Library = () => {
 				<sup>1918666</sup>, a number with <strong>1,918,667 digits</strong>.
 			</div>
 
-			<div>There are all visible here.</div>
+			<div>All these books are accessible here.</div>
 
-			<div>To find a book, either:</div>
+			<div>To find a book, try to search for text:</div>
 
-			<div className="flex flex-wrap justify-center gap-3">
-				<Button asChild>
-					<Link to="/browse">Enter a book ID</Link>
-				</Button>
-
-				<Button asChild>
-					<Link to="/search">Search for text</Link>
-				</Button>
-
-				<Button asChild>
-					<Link to="/random">Pick a random book</Link>
-				</Button>
-			</div>
+			<Button asChild>
+				<Link to="/search">Search for text</Link>
+			</Button>
 		</div>
 	);
 };

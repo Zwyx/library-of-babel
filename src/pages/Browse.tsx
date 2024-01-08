@@ -6,9 +6,11 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
+	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
+	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -17,7 +19,7 @@ import { useWorkerContext } from "@/lib/WorkerContext.const";
 import { SEARCH_OPTIONS_KEY } from "@/lib/keys";
 import { cn } from "@/lib/utils";
 import { Message, PAGE_LENGTH } from "@/lib/worker";
-import { LucideLoader2 } from "lucide-react";
+import { LucideLoader2, LucideSettings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
@@ -31,7 +33,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 		useState<boolean>(false);
 	const [searchOptions, setSearchOptions] = useLocalStorage<
 		"firstBook" | "pageWithRandom" | "bookWithRandom"
-	>(SEARCH_OPTIONS_KEY, "firstBook");
+	>(SEARCH_OPTIONS_KEY, "bookWithRandom");
 	const [loadingReal, setLoadingReal] = useState<boolean>(false);
 	const [loadingMin, setLoadingMin] = useState<boolean>(false);
 	const [book, setBook] = useState<Book>();
@@ -90,7 +92,11 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 				<Textarea
 					className="w-full resize-none"
 					value={text}
-					placeholder={mode === "search" ? "Search text" : "Book ID"}
+					placeholder={
+						mode === "search" ? "Enter search text" : "Enter book ID"
+					}
+					// eslint-disable-next-line jsx-a11y/no-autofocus
+					autoFocus
 					onChange={(e) => setText(e.target.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
@@ -102,50 +108,80 @@ export const Browse = ({ mode }: { mode: "browse" | "search" }) => {
 				<Privacy />
 			</div>
 
-			{mode === "search" && (
-				<>
-					<RadioGroup
-						value={searchOptions}
-						onValueChange={(newValue) =>
-							setSearchOptions(newValue as typeof searchOptions)
-						}
-					>
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem value="firstBook" id="firstBook" />
-							<Label htmlFor="firstBook">
-								Find the first book containing the search text
-							</Label>
-						</div>
+			<div className="flex w-full flex-wrap items-center justify-between">
+				<div className="h-5 w-5" />
 
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem value="pageWithRandom" id="pageWithRandom" />
-							<Label htmlFor="pageWithRandom">
-								Find a page containing the search text
-							</Label>
-						</div>
+				<Button
+					className="my-4"
+					disabled={!text || loading}
+					onClick={getContent}
+				>
+					<span className={cn(loading && "invisible")}>
+						{mode === "search" ? "Find a book" : "Retrieve the book"}
+					</span>
 
-						<div className="flex items-center space-x-2">
-							<RadioGroupItem value="bookWithRandom" id="bookWithRandom" />
-							<Label htmlFor="bookWithRandom">
-								Find a book containing the search text
-							</Label>
-						</div>
-					</RadioGroup>
-				</>
-			)}
+					<LucideLoader2
+						className={cn(
+							"absolute h-4 w-4 animate-spin",
+							!loading && "invisible",
+						)}
+					/>
+				</Button>
 
-			<Button className="my-4" disabled={!text || loading} onClick={getContent}>
-				<span className={cn(loading && "invisible")}>
-					{mode === "search" ? "Find a book" : "Retrieve the book"}
-				</span>
+				{mode === "search" && (
+					<Dialog>
+						<DialogTrigger asChild>
+							<Button variant="ghost" title="Search settings">
+								<LucideSettings className="h-5 w-5" />
+							</Button>
+						</DialogTrigger>
 
-				<LucideLoader2
-					className={cn(
-						"absolute h-4 w-4 animate-spin",
-						!loading && "invisible",
-					)}
-				/>
-			</Button>
+						<DialogContent className="max-h-full overflow-auto">
+							<DialogHeader>
+								<DialogTitle>Search settings</DialogTitle>
+								<DialogDescription>
+									Select how to find the text you search. Click 'Find a book'
+									after changing this setting.
+								</DialogDescription>
+							</DialogHeader>
+
+							<RadioGroup
+								value={searchOptions}
+								onValueChange={(newValue) =>
+									setSearchOptions(newValue as typeof searchOptions)
+								}
+							>
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem value="firstBook" id="firstBook" />
+									<Label htmlFor="firstBook">
+										Find the first book containing the search text
+									</Label>
+								</div>
+
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem value="pageWithRandom" id="pageWithRandom" />
+									<Label htmlFor="pageWithRandom">
+										Find a page containing the search text
+									</Label>
+								</div>
+
+								<div className="flex items-center space-x-2">
+									<RadioGroupItem value="bookWithRandom" id="bookWithRandom" />
+									<Label htmlFor="bookWithRandom">
+										Find a book containing the search text
+									</Label>
+								</div>
+							</RadioGroup>
+
+							<DialogFooter>
+								<DialogClose asChild>
+									<Button variant="secondary">Close</Button>
+								</DialogClose>
+							</DialogFooter>
+						</DialogContent>
+					</Dialog>
+				)}
+			</div>
 
 			<Dialog
 				open={invalidTextDialogOpen}
