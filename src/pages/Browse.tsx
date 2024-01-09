@@ -139,15 +139,18 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 				setLoadingBookIdReal(false);
 				navigator.clipboard
 					.writeText(data.result)
-					.then(() => {
-						if (!showCopyBookIdSuccess) {
-							setTimeout(() => {
-								setShowCopyBookIdSuccess(true);
-								setTimeout(() => setShowCopyBookIdSuccess(false), 2000);
-							}, 200);
-						}
-					})
-					.catch(alert);
+					.then(
+						() => {
+							if (!showCopyBookIdSuccess) {
+								setTimeout(() => {
+									setShowCopyBookIdSuccess(true);
+									setTimeout(() => setShowCopyBookIdSuccess(false), 2000);
+								}, 200);
+							}
+						},
+						() => alert("error"),
+					)
+					.catch(() => alert("something went wrong"));
 			}
 		},
 		[showCopyBookIdSuccess],

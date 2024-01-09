@@ -117,7 +117,7 @@ export const BookPageComponent = ({
 												"bg-[radial-gradient(circle,_#bbb_0,_transparent_.1rem)] dark:bg-[radial-gradient(circle,_#555_0,_transparent_.1rem)]",
 											!lineSelected &&
 												charSelected &&
-												"inline-block bg-blue-200 dark:bg-blue-900",
+												"inline-block bg-blue-200 dark:bg-blue-800",
 										)}
 									>
 										{char}
