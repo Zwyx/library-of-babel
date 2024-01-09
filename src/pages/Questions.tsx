@@ -6,8 +6,9 @@ export const Questions = () => {
 				anyway: it is simply cut into multiple volumes.)
 			</div>
 			<div>
-				It's works offline. Nothing is sent to any server. It's the only
-				existing library of Babel like that.
+				{
+					"It's works offline. Nothing is sent to any server. It's the only existing library of Babel like that."
+				}
 			</div>
 			What you enter, and the books you read, never leave your device.
 		</div>

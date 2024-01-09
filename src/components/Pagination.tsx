@@ -14,12 +14,14 @@ export const Pagination = ({
 	min,
 	max,
 	current,
+	loading,
 	onChange,
 }: {
 	className?: string;
 	min: number;
 	max: number;
 	current: number;
+	loading?: boolean;
 	onChange: (now: number) => void;
 }) => {
 	const [value, setValue] = useState<string | number>(current);
@@ -35,6 +37,7 @@ export const Pagination = ({
 		>
 			<Button
 				variant="secondary"
+				disabled={loading || current === 1}
 				onClick={() => {
 					onChange(min);
 					setValue(min);
@@ -45,6 +48,7 @@ export const Pagination = ({
 
 			<Button
 				variant="secondary"
+				disabled={loading || current === 1}
 				onClick={() => {
 					const newValue = current - 1;
 
@@ -62,6 +66,7 @@ export const Pagination = ({
 				min={min}
 				max={max}
 				value={value}
+				disabled={loading}
 				onChange={(e) => {
 					const rawValue = e.target.value;
 					const int = parseInt(rawValue);
@@ -76,6 +81,7 @@ export const Pagination = ({
 
 			<Button
 				variant="secondary"
+				disabled={loading || current === 410}
 				onClick={() => {
 					const newValue = current + 1;
 
@@ -90,6 +96,7 @@ export const Pagination = ({
 
 			<Button
 				variant="secondary"
+				disabled={loading || current === 410}
 				onClick={() => {
 					onChange(max);
 					setValue(max);

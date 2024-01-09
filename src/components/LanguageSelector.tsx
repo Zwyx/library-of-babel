@@ -14,7 +14,7 @@ export const LanguageSelector = () => {
 	const { t, i18n } = useTranslation(["languageSelector"]);
 
 	const changeLanguage = (localeCode: I18nLocaleCode) => {
-		i18n.changeLanguage(localeCode);
+		void i18n.changeLanguage(localeCode);
 		localStorage.setItem(LOCALE_KEY, localeCode);
 	};
 

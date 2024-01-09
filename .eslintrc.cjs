@@ -85,6 +85,15 @@ module.exports = {
 		// Disallow variable declarations from shadowing variables declared in the outer scope
 		"@typescript-eslint/no-shadow": "warn",
 
+		// Enforce using the nullish coalescing operator instead of logical assignments or chaining
+		"@typescript-eslint/prefer-nullish-coalescing": [
+			"warn",
+			{
+				// `a || b` and `a ?? b` doesn't have the same signification if `a` is of type `boolean | undefined`
+				ignorePrimitives: true,
+			},
+		],
+
 		// ---------- React ----------
 
 		// Ensure React component can be updated with fast refresh
@@ -96,6 +105,6 @@ module.exports = {
 		// ---------- i18next ----------
 
 		// Warn when untranslated string are present in JSX
-		"i18next/no-literal-string": "warn",
+		// TODO: activate once translation ready "i18next/no-literal-string": "warn",
 	},
 };

@@ -10,9 +10,9 @@ export const WorkersAlert = () => {
 				<LucideAlertOctagon className="h-4 w-4" />
 				<AlertTitle>Missing feature</AlertTitle>
 				<AlertDescription>
-					Your device or browser doesn't support web workers, which are required
-					for this app to run. Please open the Library of Babel on another
-					device or browser.
+					{
+						"Your device or browser doesn't support web workers, which are required for this app to run. Please open the Library of Babel on another device or browser."
+					}
 				</AlertDescription>
 			</Alert>
 		)

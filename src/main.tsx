@@ -10,7 +10,6 @@ import { Browse } from "./pages/Browse.tsx";
 import { Home } from "./pages/Home.tsx";
 import { Library } from "./pages/Library.tsx";
 import { Questions } from "./pages/Questions.tsx";
-import { Random } from "./pages/Random.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -35,7 +34,7 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "/random",
-				element: <Random />,
+				element: <Browse mode="random" />,
 			},
 			{
 				path: "/questions",
@@ -45,7 +44,8 @@ const router = createBrowserRouter([
 	},
 ]);
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
 		<ThemeContextProvider>
 			<WorkerContextProvider>

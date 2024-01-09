@@ -1,25 +1,32 @@
 import { Book, Page } from "@/components/BookPage";
 import { lg } from "./utils";
 
-const BOOK_LENGTH = 1312000;
+export const BOOK_LENGTH = 1312000;
 export const PAGE_LENGTH = 3200;
+export const LINE_LENGTH = 80;
 
-const BASE_29 = 29;
-const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
-// We use a middle dot, because non-breaking spaces don't break (yep...),
-// and spaces are collapsed (until `white-space-collapse: break-spaces`
-// is widely supported, see https://developer.mozilla.org/en-US/docs/Web/CSS/white-space-collapse)
-const BASE_29_BOOK_ALPHABET = "·abcdefghijklmnopqrstuvwxyz,.";
+export const BASE_29 = 29;
+export const BASE_29_BIGINT = 29n;
+export const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
+export const BASE_29_BOOK_ALPHABET = " abcdefghijklmnopqrstuvwxyz,.";
 
-const BASE_81 = 81n;
-const BASE_81_ALPHABET =
+export const BASE_81_BIGINT = 81n;
+export const BASE_81_ALPHABET =
 	"!#$%&*+,-/0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ^_abcdefghijklmnopqrstuvwxyz|~";
 
 const toBase29 = (value: bigint): string => {
-	return value.toString(BASE_29);
+	const time = Date.now();
+
+	const result = value.toString(BASE_29);
+
+	lg(`'toBase29' took ${Date.now() - time}ms`);
+
+	return result;
 };
 
 const toBase81 = (value: bigint): string => {
+	const time = Date.now();
+
 	let result = "";
 
 	// Successive divisions method
@@ -40,30 +47,33 @@ const toBase81 = (value: bigint): string => {
 		}${result}`;
 	}
 
+	lg(`'toBase81' took ${Date.now() - time}ms`);
+
 	return result;
 };
 
-const fromBase81 = (text: string): bigint => {
+const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
+	const time = Date.now();
+
 	// let result = 0n;
 	//
 	// Successive multiplications method; 30s for 500,000 random digits from base 10, compared to 100ms for BigInt
 	// for (let i = 0; i < text.length; i++) {
-	// 	result =
-	// 		result * BASE_81 + BigInt(BASE_81_ALPHABET.indexOf(text.charAt(i)));
+	// 	result = result * base + BigInt(alphabet.indexOf(text.charAt(i)));
 	// }
 	//
 	// Digit power method; much slower that successive multiplications
 	// for (let i = text.length - 1; i >= 0; i--) {
 	// 	result +=
-	// 		BigInt(BASE_81_ALPHABET.indexOf(text.charAt(i))) *
-	// 		BASE_81 ** BigInt(text.length - 1 - i);
+	// 		BigInt(alphabet.indexOf(text.charAt(i))) *
+	// 		base ** BigInt(text.length - 1 - i);
 	// }
 	//
 	// Multiplier increase method; also slow
 	// let multiplier = 1n;
 	// for (let i = text.length - 1; i >= 0; i--) {
-	// 	result += BigInt(BASE_81_ALPHABET.indexOf(text.charAt(i))) * multiplier;
-	// 	multiplier *= BASE_81;
+	// 	result += BigInt(alphabet.indexOf(text.charAt(i))) * multiplier;
+	// 	multiplier *= base;
 	// }
 	// return result;
 
@@ -72,7 +82,7 @@ const fromBase81 = (text: string): bigint => {
 	// https://zwyx.dev/til/2023/12/31/Fast%20string-to-integer%20conversion
 	let parts = text
 		.split("")
-		.map((part) => [BigInt(BASE_81_ALPHABET.indexOf(part)), BASE_81]);
+		.map((part) => [BigInt(alphabet.indexOf(part)), base]);
 
 	if (parts.length === 1) {
 		return parts[0][0];
@@ -100,13 +110,45 @@ const fromBase81 = (text: string): bigint => {
 		}, []);
 	}
 
-	return parts[0][0] * parts[1][1] + parts[1][0];
+	const result = parts[0][0] * parts[1][1] + parts[1][0];
+
+	lg(`'fromBase' took ${Date.now() - time}ms`);
+
+	return result;
 };
+
+const fromBase29Book = (pages: Page[]) => {
+	const time = Date.now();
+
+	const result = fromBase(
+		pages
+			.reverse()
+			.map(({ lines }) =>
+				lines
+					.reverse()
+					.map(({ chars }) => chars.split("").reverse().join(""))
+					.join(""),
+			)
+			.join("")
+			.replace(new RegExp(`^${BASE_29_BOOK_ALPHABET[0]}*`), ""),
+		BASE_29_BIGINT,
+		BASE_29_BOOK_ALPHABET,
+	);
+
+	lg(`'fromBase29Book' took ${Date.now() - time}ms`);
+
+	return result;
+};
+
+const fromBase81 = (text: string) =>
+	fromBase(text, BASE_81_BIGINT, BASE_81_ALPHABET);
 
 const getBookFromContent = (
 	content: string[],
-	alphabet: "bigint" | "book",
+	alphabet: "bigint" | "book" = "book",
 ): Book => {
+	const time = Date.now();
+
 	const pages: Page[] = [];
 
 	let page: Page = { key: crypto.randomUUID(), pageNumber: 1, lines: [] };
@@ -134,6 +176,8 @@ const getBookFromContent = (
 			}
 		}
 	}
+
+	lg(`'getBookFromContent' took ${Date.now() - time}ms`);
 
 	return { pages };
 };
@@ -186,7 +230,6 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 			/ /g,
 			BASE_29_BOOK_ALPHABET[0],
 		)}${randomTextAfter}`.split(""),
-		"book",
 	);
 
 	lg(`'findBook' took ${Date.now() - time}ms`);
@@ -202,23 +245,36 @@ export interface SearchOptions {
 	find: "firstBook" | "pageWithRandom" | "bookWithRandom";
 }
 
-export interface Message {
-	operation: "getBookFromId" | "findBook";
-	data: string;
-	options?: SearchOptions;
-}
+export type Message =
+	| {
+			operation: "getBookFromId" | "findBook";
+			data: string;
+			options?: SearchOptions;
+	  }
+	| {
+			operation: "getId";
+			data: Page[];
+	  };
 
-onmessage = ({ data: { operation, data, options } }: MessageEvent<Message>) => {
+onmessage = ({ data }: MessageEvent<Message>) => {
+	const time = Date.now();
+
 	let result;
 
-	switch (operation) {
+	switch (data.operation) {
 		case "getBookFromId":
-			result = getBookFromId(data);
+			result = getBookFromId(data.data);
 			break;
 
 		case "findBook":
-			result = findBook(data, options);
+			result = findBook(data.data, data.options);
+			break;
+
+		case "getId":
+			result = toBase81(fromBase29Book(data.data));
 	}
 
-	postMessage(result);
+	lg(`operation took ${Date.now() - time}ms`);
+
+	postMessage({ operation: data.operation, result });
 };

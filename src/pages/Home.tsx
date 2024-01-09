@@ -34,8 +34,9 @@ export const Home = () => {
 			</div>
 
 			<div>
-				Your complete biography, the solutions to the greatest mysteries in
-				Mankind's history, the precise description of our future.
+				{
+					"Your complete biography, the solutions to the greatest mysteries in Mankind's history, the precise description of our future."
+				}
 			</div>
 
 			<Link to="/library">Enter the library</Link>

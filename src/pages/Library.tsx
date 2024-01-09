@@ -11,7 +11,7 @@ export const Library = () => {
 
 			<div>
 				We estimate that there are 10<sup>80</sup> atoms in the observable
-				Universe. That's a number with <strong>81 digits</strong>.
+				Universe. {"That's"} a number with <strong>81 digits</strong>.
 			</div>
 
 			<div>
