@@ -14,5 +14,6 @@ export default defineConfig({
 	},
 	build: {
 		outDir: "docs",
+		sourcemap: true, // Sourcemaps are sent to Sentry but not included in the bundle
 	},
 });

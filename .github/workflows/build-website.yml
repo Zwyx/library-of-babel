@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - staging/**
   workflow_dispatch:
 
 permissions:
@@ -32,15 +33,42 @@ jobs:
 
       - run: npm ci
 
+      # - run: echo "APP_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+      #   id: APP_VERSION
+
+      - run: echo "BRANCH=$([[ "$(git branch --show-current)" == "main" ]] && echo "dist" || echo "staging/dist")" >> $GITHUB_ENV
+        id: BRANCH
+
+      # - run: echo "SENTRY_ENVIRONMENT=$([[ "${{ env.BRANCH }}" == "dist" ]] && echo "production" || echo "staging")" >> $GITHUB_ENV
+      #   id: SENTRY_ENVIRONMENT
+
+      # - env:
+      #     DOMAIN: "${{ secrets.DOMAIN }}"
+      #     PLAUSIBLE_SCRIPT_SRC: "${{ secrets.PLAUSIBLE_SCRIPT_SRC }}"
+      #   run: |
+      #     sed -i "s@\$DOMAIN@${{ env.DOMAIN }}@g" index.html
+      #     sed -i "s@\$PLAUSIBLE_SCRIPT_SRC@${{ env.PLAUSIBLE_SCRIPT_SRC }}@g" index.html
+
+      # - env:
+      #     SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
+      #     SENTRY_RELEASE: "${{ env.APP_VERSION }}"
+      #     DOMAIN: "${{ secrets.DOMAIN }}"
+      #     SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
+      #     SENTRY_ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
       - run: npm run build
 
       - run: |
-          git switch --orphan dist
-          git add docs
+          git checkout index.html
+          [[ "${{ env.BRANCH }}" != "dist" ]] && git fetch && git branch main remotes/origin/main
+          git switch --orphan ${{ env.BRANCH }}
+          git checkout main docs.gitignore netlify.toml
+          mv -v docs.gitignore .gitignore
+          git rm docs.gitignore
+          git add .gitignore docs
           git config user.name "Zwyx - GitHub Actions"
           git config user.email "29386932+Zwyx@users.noreply.github.com>"
           git commit -m "Build website"
-          git push --set-upstream origin --force dist
+          git push --set-upstream origin --force ${{ env.BRANCH }}
       #
       # - name: Setup tmate session
       #   if: ${{ always() }}
