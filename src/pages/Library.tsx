@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 export const Library = () => {
 	return (
-		<div className="flex flex-col items-center gap-8">
+		<div className="flex flex-col items-center gap-8 text-center">
 			<div>Each book has 410 pages.</div>
 			<div>Each page, 40 lines.</div>
 			<div>Each line, 80 characters.</div>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export const Home = () => {
 	return (
-		<div className="flex flex-col items-center gap-8">
+		<div className="flex flex-col items-center gap-8 text-center">
 			<h1 className="text-xl font-semibold">Welcome, visitor.</h1>
 
 			<div>

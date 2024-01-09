@@ -137,14 +137,17 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 			// this test is only to please TypeScript
 			if (data.operation === "getId") {
 				setLoadingBookIdReal(false);
-				void navigator.clipboard.writeText(data.result).then(() => {
-					if (!showCopyBookIdSuccess) {
-						setTimeout(() => {
-							setShowCopyBookIdSuccess(true);
-							setTimeout(() => setShowCopyBookIdSuccess(false), 2000);
-						}, 200);
-					}
-				});
+				navigator.clipboard
+					.writeText(data.result)
+					.then(() => {
+						if (!showCopyBookIdSuccess) {
+							setTimeout(() => {
+								setShowCopyBookIdSuccess(true);
+								setTimeout(() => setShowCopyBookIdSuccess(false), 2000);
+							}, 200);
+						}
+					})
+					.catch(alert);
 			}
 		},
 		[showCopyBookIdSuccess],
