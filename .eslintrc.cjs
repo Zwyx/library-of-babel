@@ -102,6 +102,9 @@ module.exports = {
 			{ allowConstantExport: true },
 		],
 
+		// TODO: remove this deactivation after translations are ready
+		"react/no-unescaped-entities": "off",
+
 		// ---------- i18next ----------
 
 		// Warn when untranslated string are present in JSX

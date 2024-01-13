@@ -1,21 +1,20 @@
+import { Page } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { LucideLoader2 } from "lucide-react";
-import { Page } from "./BookPage";
 import { ButtonSuccess } from "./ButtonSuccess";
+import { Button } from "./ui/button";
 
 export const BookPageHeader = ({
 	pageNumber,
 	loadingContent,
 	loadingBookId,
 	showCopyPageSuccess,
-	showCopyBookIdSuccess,
 	onCopyPageClick,
 	onCopyBookIdClick,
 }: Pick<Page, "pageNumber"> & {
 	loadingContent?: boolean;
 	loadingBookId?: boolean;
 	showCopyPageSuccess?: boolean;
-	showCopyBookIdSuccess?: boolean;
 	onCopyPageClick?: () => void;
 	onCopyBookIdClick?: () => void;
 }) => {
@@ -40,15 +39,14 @@ export const BookPageHeader = ({
 				Copy page
 			</ButtonSuccess>
 
-			<ButtonSuccess
+			<Button
 				className="mb-1"
 				variant="ghost"
 				size="sm"
 				disabled={loading}
-				showSuccess={showCopyBookIdSuccess}
 				onClick={onCopyBookIdClick}
 			>
-				<span className={cn(loadingBookId && "invisible")}>Copy book ID</span>
+				<span className={cn(loadingBookId && "invisible")}>Get book ID</span>
 
 				<LucideLoader2
 					className={cn(
@@ -56,7 +54,7 @@ export const BookPageHeader = ({
 						!loadingBookId && "invisible",
 					)}
 				/>
-			</ButtonSuccess>
+			</Button>
 		</div>
 	);
 };

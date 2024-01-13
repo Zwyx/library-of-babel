@@ -1,21 +1,6 @@
+import { Page } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
-
-export interface Line {
-	chars: string;
-}
-
-export interface Page {
-	key: string;
-	pageNumber: number;
-	lines: Line[];
-}
-
-export interface Book {
-	pages: Page[];
-	searchTextStart?: number;
-	searchTextEnd?: number;
-}
 
 const isLineSelected = ({
 	pageNumber,

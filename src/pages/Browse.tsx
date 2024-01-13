@@ -1,6 +1,7 @@
-import { Book, BookPage } from "@/components/BookPage";
+import { BookIdDialog } from "@/components/BookIdDialog";
+import { BookPage } from "@/components/BookPage";
 import { BookPageHeader } from "@/components/BookPageHeader";
-import { InlineCode } from "@/components/InlineCode";
+import { Code } from "@/components/Code";
 import { Pagination } from "@/components/Pagination";
 import { Privacy } from "@/components/Privacy";
 import { Button } from "@/components/ui/button";
@@ -18,18 +19,21 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
-import { SEARCH_OPTIONS_KEY } from "@/lib/keys";
-import { cn } from "@/lib/utils";
 import {
 	BASE_29_BOOK_ALPHABET,
 	BASE_81_ALPHABET,
-	LINE_LENGTH,
+	Book,
+	BookIdData,
+	CHARS_PER_LINE,
+	CHARS_PER_PAGE,
 	Message,
-	PAGE_LENGTH,
-} from "@/lib/worker";
+} from "@/lib/common";
+import { SEARCH_OPTIONS_KEY } from "@/lib/keys";
+import { cn } from "@/lib/utils";
 import { LucideLoader2, LucideSettings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
+import { AboutDialogLink } from "./AboutDialog";
 
 export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 	const { worker } = useWorkerContext();
@@ -55,6 +59,9 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 
 	const [book, setBook] = useState<Book | undefined>();
 	const [pageNumber, setPageNumber] = useState<number>(1);
+	const [bookIdData, setBookIdData] = useState<BookIdData | undefined>();
+
+	const [bookIdDialogOpen, setBookIdDialogOpen] = useState<boolean>(false);
 
 	const loadingContent = loadingContentReal || loadingContentMin;
 	const loadingBookId = loadingBookIdReal || loadingBookIdMin;
@@ -63,8 +70,8 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 	const [showCopyPageSuccess, setShowCopyPageSuccess] =
 		useState<boolean>(false);
 
-	const [showCopyBookIdSuccess, setShowCopyBookIdSuccess] =
-		useState<boolean>(false);
+	const [error, setError] = useState<string>();
+	const [errorDialogOpen, setErrorDialogOpen] = useState<boolean>(false);
 
 	const getContent = () => {
 		const data =
@@ -118,16 +125,26 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 		({
 			data,
 		}: MessageEvent<
-			| { operation: "getBookFromId" | "findBook"; result: Book }
-			| { operation: "getId"; result: string }
+			(
+				| { operation: "getBookFromId" | "findBook"; result: Book }
+				| { operation: "getId"; result: BookIdData }
+			) & { error?: unknown }
 		>) => {
+			setLoadingReal(false);
+			setLoadingBookIdReal(false);
+
+			if (data.error) {
+				setError(String(data.error));
+				setErrorDialogOpen(true);
+				return;
+			}
+
 			if (data.operation === "getBookFromId" || data.operation === "findBook") {
-				setLoadingReal(false);
 				setBook(data.result);
 
 				if (typeof data.result.searchTextStart === "number") {
 					setPageNumber(
-						Math.floor(data.result.searchTextStart / PAGE_LENGTH) + 1,
+						Math.floor(data.result.searchTextStart / CHARS_PER_PAGE) + 1,
 					);
 				}
 
@@ -136,24 +153,11 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 
 			// this test is only to please TypeScript
 			if (data.operation === "getId") {
-				setLoadingBookIdReal(false);
-				navigator.clipboard
-					.writeText(data.result)
-					.then(
-						() => {
-							if (!showCopyBookIdSuccess) {
-								setTimeout(() => {
-									setShowCopyBookIdSuccess(true);
-									setTimeout(() => setShowCopyBookIdSuccess(false), 2000);
-								}, 200);
-							}
-						},
-						() => alert("error"),
-					)
-					.catch(() => alert("something went wrong"));
+				setBookIdData(data.result);
+				setBookIdDialogOpen(true);
 			}
 		},
-		[showCopyBookIdSuccess],
+		[],
 	);
 
 	useEffect(() => {
@@ -286,7 +290,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 									<RadioGroupItem value="pageWithRandom" id="pageWithRandom" />
 									<Label htmlFor="pageWithRandom">
 										{mode === "search"
-											? "Find a page containing the search text"
+											? "Find a page containing the search text" //TODO: add estimation of ID length
 											: "First page"}
 									</Label>
 								</div>
@@ -295,7 +299,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 									<RadioGroupItem value="bookWithRandom" id="bookWithRandom" />
 									<Label htmlFor="bookWithRandom">
 										{mode === "search"
-											? "Find a book containing the search text"
+											? "Find a book containing the search text" //TODO: add estimation of ID length
 											: "Full book, and open a random page"}
 									</Label>
 								</div>
@@ -331,7 +335,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 
 							<div>Valid characters are:</div>
 
-							<InlineCode>{BASE_81_ALPHABET}</InlineCode>
+							<Code display="block">{BASE_81_ALPHABET}</Code>
 						</>
 					)}
 
@@ -344,8 +348,8 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 
 							<div>
 								Valid characters are the space, the letters{" "}
-								<InlineCode>abcdefghijklmnopqrstuvwxyz</InlineCode>, the comma,
-								and the period.
+								<Code>abcdefghijklmnopqrstuvwxyz</Code>, the comma, and the
+								period.
 							</div>
 						</>
 					)}
@@ -365,7 +369,7 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 					pageNumber={0}
 					lines={[
 						{
-							chars: BASE_29_BOOK_ALPHABET[0].repeat(LINE_LENGTH),
+							chars: BASE_29_BOOK_ALPHABET[0].repeat(CHARS_PER_LINE),
 						},
 					]}
 				/>
@@ -384,10 +388,17 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 						loadingContent={loadingContent}
 						loadingBookId={loadingBookId}
 						showCopyPageSuccess={showCopyPageSuccess}
-						showCopyBookIdSuccess={showCopyBookIdSuccess}
 						onCopyPageClick={copyPageToClipboard}
-						onCopyBookIdClick={getId}
+						onCopyBookIdClick={getId} // TODO: warn if big ID
 					/>
+
+					{bookIdData && (
+						<BookIdDialog
+							bookIdData={bookIdData}
+							open={bookIdDialogOpen}
+							onOpenChange={setBookIdDialogOpen}
+						/>
+					)}
 
 					<BookPage
 						lines={book.pages[pageNumber - 1].lines}
@@ -397,6 +408,45 @@ export const Browse = ({ mode }: { mode: "browse" | "search" | "random" }) => {
 					/>
 				</div>
 			)}
+
+			<Dialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+				<DialogContent className="border-destructive">
+					<DialogHeader>
+						<DialogTitle className="text-destructive">Error</DialogTitle>
+					</DialogHeader>
+
+					<div>
+						<div>
+							An error occurred while computing. This is probably a limitation
+							of the device/browser you're using.{" "}
+							<AboutDialogLink to="?about#browsers-limitations">
+								Read more
+							</AboutDialogLink>
+							.
+						</div>
+
+						<div className="mt-4">
+							Try again by generating no more than the first 67 pages of a book.
+						</div>
+
+						<div className="mt-4">Detail of the error:</div>
+
+						<Code className="mt-1" display="block">
+							{error}
+						</Code>
+					</div>
+
+					<DialogFooter>
+						<DialogClose asChild>
+							<Button variant="secondary">Close</Button>
+						</DialogClose>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			{/* {book.map(({ key, pageNumber, lines }) => (
+				<Page key={key} pageNumber={pageNumber} lines={lines} />
+			))} */}
 		</div>
 	);
 };

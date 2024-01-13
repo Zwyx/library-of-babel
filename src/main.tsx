@@ -9,7 +9,6 @@ import { WorkerContextProvider } from "./lib/WorkerContext.tsx";
 import { Browse } from "./pages/Browse.tsx";
 import { Home } from "./pages/Home.tsx";
 import { Library } from "./pages/Library.tsx";
-import { Questions } from "./pages/Questions.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -35,10 +34,6 @@ const router = createBrowserRouter([
 			{
 				path: "/random",
 				element: <Browse mode="random" />,
-			},
-			{
-				path: "/questions",
-				element: <Questions />,
 			},
 		],
 	},
