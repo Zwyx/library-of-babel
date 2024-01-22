@@ -30,17 +30,39 @@ export const BASE_29_BIGINT = BigInt(BASE_29);
 export const BASE_81_BIGINT = BigInt(BASE_81);
 
 export const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
-export const BASE_29_BOOK_ALPHABET = " abcdefghijklmnopqrstuvwxyz,.";
+export const BASE_29_BOOK_ALPHABET =   " abcdefghijklmnopqrstuvwxyz,."; // prettier-ignore
 export const BASE_81_ALPHABET =
 	"!#$%&*+,-/0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ^_abcdefghijklmnopqrstuvwxyz|~";
+
+export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_81);
+
+export const BOOK_IMAGE_WIDTH = 574;
+export const BOOK_IMAGE_HEIGHT = 347;
+
+export type LibraryMode = "browse" | "search" | "random";
+
+export interface SearchOptions {
+	/** min: 0; max: 410; `0` means only the search text */
+	numberOfPages: number;
+}
+
+export interface RandomOptions {
+	/** min: 1; max: 410 */
+	numberOfPages: number;
+}
+
+export interface OptionsDialogSettings {
+	autoRerun: boolean;
+	customNumberOfPages: number;
+}
 
 export interface Line {
 	chars: string;
 }
 
 export interface Page {
-	key: string;
-	pageNumber: number;
+	// Will be usefull if we want to display a full book
+	// key: string;
 	lines: Line[];
 }
 
@@ -50,25 +72,45 @@ export interface Book {
 	searchTextEnd?: number;
 }
 
-export interface SearchOptions {
-	find: "firstBook" | "pageWithRandom" | "bookWithRandom";
-}
-
-export type Message =
-	| {
-			operation: "getBookFromId" | "findBook";
-			data: string;
-			options?: SearchOptions;
-	  }
-	| {
-			operation: "getId";
-			data: Page[];
-	  };
-
-export interface BookIdData {
+export interface BookMetadata {
 	bookId: string;
 	roomIndex: string;
 	wallIndexInRoom: string;
 	shelfIndexInWall: string;
 	bookIndexInShelf: string;
+	image: number[];
 }
+
+export type MessageToWorker =
+	| {
+			operation: "browse";
+			id: string;
+	  }
+	| {
+			operation: "search";
+			searchText: string;
+			searchOptions: SearchOptions;
+	  }
+	| {
+			operation: "random";
+			randomOptions: RandomOptions;
+	  }
+	| {
+			operation: "getBookMetadata";
+			book: Book;
+	  };
+
+export type MessageFromWorker = Pick<MessageToWorker, "operation"> &
+	(
+		| {
+				operation: "browse" | "search" | "random";
+				book?: Book;
+				invalidData?: boolean;
+				error?: unknown;
+		  }
+		| {
+				operation: "getBookMetadata";
+				bookMetadata?: BookMetadata;
+				error?: unknown;
+		  }
+	);

@@ -1,4 +1,4 @@
-import { Code } from "@/components/Code";
+import { Code } from "@/components/common/Code";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -17,13 +17,15 @@ import "./AboutDialog.css";
 export const AboutDialogLink = ({
 	className,
 	to,
+	onClick,
 	children,
 }: {
 	className?: string;
 	to: `?about#${AboutDialogId}`;
+	onClick?: () => void;
 } & PropsWithChildren) => {
 	return (
-		<Link className={className} to={to}>
+		<Link className={className} to={to} onClick={onClick}>
 			{children}
 		</Link>
 	);
@@ -43,11 +45,11 @@ export const AboutDialog = ({
 	const highlightedId = isAboutDialogId(hashContent) ? hashContent : undefined;
 
 	useEffect(() => {
-		setTimeout(() => {
+		requestAnimationFrame(() => {
 			if (highlightedId) {
 				document.getElementById(highlightedId)?.scrollIntoView();
 			}
-		}, 10);
+		});
 	}, [highlightedId]);
 
 	return (
@@ -119,6 +121,8 @@ export const AboutDialog = ({
 						</Code>
 					</Section>
 				</div>
+
+				<>Image is 574x347 = 199178 pixel</>
 
 				<DialogFooter>
 					<DialogClose asChild>

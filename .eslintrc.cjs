@@ -1,3 +1,6 @@
+// Type-checked rules are disabled; they are a bit too strict for a side project,
+// and they have a toll on VS Code's performance (using three to five times more CPU when typing)
+
 /** @type {import('@types/eslint').Linter.BaseConfig} */
 module.exports = {
 	root: true,
@@ -7,8 +10,9 @@ module.exports = {
 	},
 	extends: [
 		"eslint:recommended",
-		"plugin:@typescript-eslint/recommended-type-checked",
-		"plugin:@typescript-eslint/stylistic-type-checked",
+		// Type-checked rules disabled – see above
+		// "plugin:@typescript-eslint/recommended-type-checked",
+		"plugin:@typescript-eslint/recommended",
 		"plugin:react/recommended",
 		"plugin:react/jsx-runtime",
 		"plugin:react-hooks/recommended",
@@ -16,12 +20,13 @@ module.exports = {
 		"prettier",
 	],
 	plugins: ["react-refresh", "i18next", "only-warn"],
-	parserOptions: {
-		ecmaVersion: "latest",
-		sourceType: "module",
-		project: ["./tsconfig.json", "./tsconfig.node.json"],
-		tsconfigRootDir: __dirname,
-	},
+	// Type-checked rules disabled – see above
+	// parserOptions: {
+	// 	ecmaVersion: "latest",
+	// 	sourceType: "module",
+	// 	project: ["./tsconfig.json", "./tsconfig.node.json"],
+	// 	tsconfigRootDir: __dirname,
+	// },
 	settings: {
 		react: {
 			version: "detect",
@@ -85,14 +90,15 @@ module.exports = {
 		// Disallow variable declarations from shadowing variables declared in the outer scope
 		"@typescript-eslint/no-shadow": "warn",
 
+		// Type-checked rules disabled – see above
 		// Enforce using the nullish coalescing operator instead of logical assignments or chaining
-		"@typescript-eslint/prefer-nullish-coalescing": [
-			"warn",
-			{
-				// `a || b` and `a ?? b` doesn't have the same signification if `a` is of type `boolean | undefined`
-				ignorePrimitives: true,
-			},
-		],
+		// "@typescript-eslint/prefer-nullish-coalescing": [
+		// 	"warn",
+		// 	{
+		// 		// `a || b` and `a ?? b` doesn't have the same signification if `a` is of type `boolean | undefined`
+		// 		ignorePrimitives: true,
+		// 	},
+		// ],
 
 		// ---------- React ----------
 

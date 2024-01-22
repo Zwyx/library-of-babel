@@ -6,8 +6,8 @@ import "./i18n/i18n.ts";
 import "./index.css";
 import { ThemeContextProvider } from "./lib/ThemeContext.tsx";
 import { WorkerContextProvider } from "./lib/WorkerContext.tsx";
-import { Browse } from "./pages/Browse.tsx";
 import { Home } from "./pages/Home.tsx";
+import { Intro } from "./pages/Intro.tsx";
 import { Library } from "./pages/Library.tsx";
 
 const router = createBrowserRouter([
@@ -20,20 +20,20 @@ const router = createBrowserRouter([
 				element: <Home />,
 			},
 			{
-				path: "/library",
-				element: <Library />,
+				path: "/intro",
+				element: <Intro />,
 			},
 			{
 				path: "/browse",
-				element: <Browse mode="browse" />,
+				element: <Library mode="browse" />,
 			},
 			{
 				path: "/search",
-				element: <Browse mode="search" />,
+				element: <Library mode="search" />,
 			},
 			{
 				path: "/random",
-				element: <Browse mode="random" />,
+				element: <Library mode="random" />,
 			},
 		],
 	},

@@ -7,28 +7,27 @@ import {
 	BOOKS_PER_SHELVES_BIGINT,
 	BOOKS_PER_WALL_BIGINT,
 	Book,
-	BookIdData,
 	CHARS_PER_BOOK,
 	CHARS_PER_PAGE,
-	Message,
+	MessageFromWorker,
+	MessageToWorker,
 	Page,
-	SearchOptions,
 } from "@/lib/common";
 import { BASE_29, BASE_81_ALPHABET } from "./common";
 import { lg } from "./utils";
 
 const toBase29 = (value: bigint): string => {
-	const time = Date.now();
+	const startTime = Date.now();
 
 	const result = value.toString(BASE_29);
 
-	lg(`'toBase29' took ${Date.now() - time}ms`);
+	lg(`'toBase29' took ${Date.now() - startTime}ms`);
 
 	return result;
 };
 
 const toBase81 = (value: bigint): string => {
-	const time = Date.now();
+	const startTime = Date.now();
 
 	let result = "";
 
@@ -50,13 +49,13 @@ const toBase81 = (value: bigint): string => {
 		}${result}`;
 	}
 
-	lg(`'toBase81' took ${Date.now() - time}ms`);
+	lg(`'toBase81' took ${Date.now() - startTime}ms`);
 
 	return result;
 };
 
 const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
-	const time = Date.now();
+	const startTime = Date.now();
 
 	// let result = 0n;
 	//
@@ -115,7 +114,7 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 
 	const result = parts[0][0] * parts[1][1] + parts[1][0];
 
-	lg(`'fromBase' took ${Date.now() - time}ms`);
+	lg(`'fromBase' took ${Date.now() - startTime}ms`);
 
 	return result;
 };
@@ -130,20 +129,20 @@ const getBookFromContent = (
 	content: string[],
 	alphabet: "bigint" | "book" = "book",
 ): Book => {
-	const time = Date.now();
+	const startTime = Date.now();
 
 	const pages: Page[] = [];
 
-	let page: Page = { key: crypto.randomUUID(), pageNumber: 1, lines: [] };
+	let page: Page = { lines: [] };
 	let chars = "";
 
 	for (let i = 0; i < CHARS_PER_BOOK; i++) {
 		chars +=
-			alphabet === "bigint"
-				? BASE_29_BOOK_ALPHABET[
-						BASE_29_BIGINT_ALPHABET.indexOf(content[i] || "0")
-				  ]
-				: content[i] || BASE_29_BOOK_ALPHABET[0];
+			alphabet === "bigint" ?
+				BASE_29_BOOK_ALPHABET[
+					BASE_29_BIGINT_ALPHABET.indexOf(content[i] || "0")
+				]
+			:	content[i] || BASE_29_BOOK_ALPHABET[0];
 
 		if ((i + 1) % 80 === 0) {
 			page.lines.push({ chars });
@@ -151,43 +150,61 @@ const getBookFromContent = (
 
 			if ((i + 1) % 3200 === 0) {
 				pages.push(page);
-				page = {
-					key: crypto.randomUUID(),
-					pageNumber: (i + 1) / 3200 + 1,
-					lines: [],
-				};
+				page = { lines: [] };
 			}
 		}
 	}
 
-	lg(`'getBookFromContent' took ${Date.now() - time}ms`);
+	lg(`'getBookFromContent' took ${Date.now() - startTime}ms`);
 
 	return { pages };
 };
 
-const getBookFromId = (bookId: string): Book => {
-	const time = Date.now();
+const getBookFromId = (rawBookId: string): Book | null => {
+	const startTime = Date.now();
 
-	const idBase29Bigint = toBase29(fromBase81(bookId)).split("").reverse();
-	const book = getBookFromContent(idBase29Bigint, "bigint");
+	const bookId = rawBookId.replace(
+		new RegExp(`[^${BASE_81_ALPHABET}]`, "g"),
+		"",
+	);
 
-	lg(`'getBookFromId' took ${Date.now() - time}ms`);
+	if (!bookId) {
+		return null;
+	}
+
+	const contentBase29Bigint = toBase29(fromBase81(bookId)).split("").reverse();
+	const book = getBookFromContent(contentBase29Bigint, "bigint");
+
+	lg(`'getBookFromId' took ${Date.now() - startTime}ms`);
 
 	return book;
 };
 
-const findBook = (searchText: string, options?: SearchOptions): Book => {
-	const time = Date.now();
+const findBook = (
+	rawSearchText: string | undefined,
+	numberOfPages: number,
+): Book | null => {
+	const startTime = Date.now();
+
+	let searchText = "";
+
+	if (typeof rawSearchText === "string") {
+		searchText = rawSearchText
+			.normalize("NFD")
+			.replace(/[\u0300-\u036f]/g, "")
+			.toLowerCase()
+			.replace(new RegExp(`[^${BASE_29_BOOK_ALPHABET}]`, "g"), "");
+
+		if (!searchText) {
+			return null;
+		}
+	}
 
 	let randomTextBefore = "";
 	let randomTextAfter = "";
 
-	if (
-		options?.find === "pageWithRandom" ||
-		options?.find === "bookWithRandom"
-	) {
-		const resultLength =
-			options?.find === "pageWithRandom" ? CHARS_PER_PAGE : CHARS_PER_BOOK;
+	if (numberOfPages) {
+		const resultLength = CHARS_PER_PAGE * numberOfPages;
 
 		const randomTextTotalLength = resultLength - searchText.length;
 
@@ -209,13 +226,10 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 	}
 
 	const book = getBookFromContent(
-		`${randomTextBefore}${searchText.replace(
-			/ /g,
-			BASE_29_BOOK_ALPHABET[0],
-		)}${randomTextAfter}`.split(""),
+		`${randomTextBefore}${searchText}${randomTextAfter}`.split(""),
 	);
 
-	lg(`'findBook' took ${Date.now() - time}ms`);
+	lg(`'findBook' took ${Date.now() - startTime}ms`);
 
 	return {
 		...book,
@@ -224,24 +238,42 @@ const findBook = (searchText: string, options?: SearchOptions): Book => {
 	};
 };
 
-onmessage = ({ data }: MessageEvent<Message>) => {
-	const time = Date.now();
+onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
+	const startTime = Date.now();
 
-	let result;
-	let error;
+	const operation = data.operation;
+	let result: MessageFromWorker;
 
 	try {
-		switch (data.operation) {
-			case "getBookFromId":
-				result = getBookFromId(data.data);
-				break;
+		switch (operation) {
+			case "browse": {
+				const book = getBookFromId(data.id);
 
-			case "findBook":
-				result = findBook(data.data, data.options);
-				break;
+				result = {
+					operation,
+					...(book ? { book } : { invalidData: true }),
+				};
 
-			case "getId": {
-				const content = data.data
+				break;
+			}
+
+			case "search":
+			case "random": {
+				const book =
+					operation === "search" ?
+						findBook(data.searchText, data.searchOptions.numberOfPages)
+					:	findBook(undefined, data.randomOptions.numberOfPages);
+
+				result = {
+					operation,
+					...(book ? { book } : { invalidData: true }),
+				};
+
+				break;
+			}
+
+			case "getBookMetadata": {
+				const idBase29Book = data.book.pages
 					.reverse()
 					.map(({ lines }) =>
 						lines
@@ -252,7 +284,7 @@ onmessage = ({ data }: MessageEvent<Message>) => {
 					.join("")
 					.replace(new RegExp(`^${BASE_29_BOOK_ALPHABET[0]}*`), "");
 
-				const bookIndex = fromBase29Book(content || " ");
+				const bookIndex = fromBase29Book(idBase29Book || " ");
 				const bookId = toBase81(bookIndex);
 				const roomIndex = bookIndex / BOOKS_PER_ROOM_BIGINT;
 				const bookIndexInRoom = bookIndex % BOOKS_PER_ROOM_BIGINT;
@@ -261,20 +293,40 @@ onmessage = ({ data }: MessageEvent<Message>) => {
 				const shelfIndexInWall = bookIndexInWall / BOOKS_PER_SHELVES_BIGINT;
 				const bookIndexInShelf = bookIndexInWall % BOOKS_PER_SHELVES_BIGINT;
 
+				const contentHex = bookIndex.toString(16).split("").reverse();
+
+				const image = contentHex.reduce((acc, cur, i) => {
+					if (i % 2 === 0) {
+						acc.push(
+							parseInt(cur, 16) + (parseInt(contentHex[i + 1], 16) || 0) * 16,
+						);
+					}
+					return acc;
+				}, [] as number[]);
+
 				result = {
-					bookId,
-					roomIndex: (roomIndex + 1n).toString(),
-					wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
-					shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
-					bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
-				} satisfies BookIdData;
+					operation,
+					bookMetadata: {
+						bookId,
+						roomIndex: (roomIndex + 1n).toString(),
+						wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
+						shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
+						bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
+						image,
+					},
+				};
+
+				break;
 			}
 		}
-	} catch (e) {
-		error = e;
+	} catch (error) {
+		result = {
+			operation,
+			error,
+		};
 	}
 
-	lg(`operation took ${Date.now() - time}ms`);
+	lg(`operation took ${Date.now() - startTime}ms`);
 
-	postMessage({ operation: data.operation, result, error });
+	postMessage(result);
 };

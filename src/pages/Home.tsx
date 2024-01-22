@@ -39,7 +39,7 @@ export const Home = () => {
 				}
 			</div>
 
-			<Link to="/library">Enter the library</Link>
+			<Link to="/intro">Enter the library</Link>
 		</div>
 	);
 };

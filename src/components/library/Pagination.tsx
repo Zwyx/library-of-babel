@@ -6,27 +6,29 @@ import {
 	LucideChevronRight,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export const Pagination = ({
 	className,
 	min,
 	max,
-	current,
+	pageNumber,
 	loading,
 	onChange,
 }: {
 	className?: string;
 	min: number;
 	max: number;
-	current: number;
+	pageNumber: number;
 	loading?: boolean;
 	onChange: (now: number) => void;
 }) => {
-	const [value, setValue] = useState<string | number>(current);
+	const [rawPageNumber, setRawPageNumber] = useState<string | number>(
+		pageNumber,
+	);
 
-	useEffect(() => setValue(current), [current]);
+	useEffect(() => setRawPageNumber(pageNumber), [pageNumber]);
 
 	return (
 		<div
@@ -37,10 +39,11 @@ export const Pagination = ({
 		>
 			<Button
 				variant="secondary"
-				disabled={loading || current === 1}
+				size="sm"
+				disabled={loading || pageNumber === 1}
 				onClick={() => {
 					onChange(min);
-					setValue(min);
+					setRawPageNumber(min);
 				}}
 			>
 				<LucideChevronFirst />
@@ -48,47 +51,43 @@ export const Pagination = ({
 
 			<Button
 				variant="secondary"
-				disabled={loading || current === 1}
+				size="sm"
+				disabled={loading || pageNumber === 1}
 				onClick={() => {
-					const newValue = current - 1;
-
-					if (newValue >= min) {
-						onChange(newValue);
-						setValue(newValue);
-					}
+					onChange(pageNumber - 1);
+					setRawPageNumber(pageNumber - 1);
 				}}
 			>
 				<LucideChevronLeft />
 			</Button>
 
 			<Input
+				className="w-[5.5rem]"
+				variantSize="sm"
 				type="number"
 				min={min}
 				max={max}
-				value={value}
+				value={rawPageNumber}
 				disabled={loading}
 				onChange={(e) => {
-					const rawValue = e.target.value;
-					const int = parseInt(rawValue);
+					const newRawPageNumber = e.target.value;
+					const newPageNumber = parseInt(newRawPageNumber);
 
-					if (int >= min && int <= max) {
-						onChange(int);
+					if (newPageNumber >= min && newPageNumber <= max) {
+						onChange(newPageNumber);
 					}
 
-					setValue(rawValue);
+					setRawPageNumber(newRawPageNumber);
 				}}
 			/>
 
 			<Button
 				variant="secondary"
-				disabled={loading || current === 410}
+				size="sm"
+				disabled={loading || pageNumber === 410}
 				onClick={() => {
-					const newValue = current + 1;
-
-					if (newValue <= max) {
-						onChange(newValue);
-						setValue(newValue);
-					}
+					onChange(pageNumber + 1);
+					setRawPageNumber(pageNumber + 1);
 				}}
 			>
 				<LucideChevronRight />
@@ -96,10 +95,11 @@ export const Pagination = ({
 
 			<Button
 				variant="secondary"
-				disabled={loading || current === 410}
+				size="sm"
+				disabled={loading || pageNumber === 410}
 				onClick={() => {
 					onChange(max);
-					setValue(max);
+					setRawPageNumber(max);
 				}}
 			>
 				<LucideChevronLast />

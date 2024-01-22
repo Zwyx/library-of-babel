@@ -1,6 +1,8 @@
-import { Page } from "@/lib/common";
+import { Line } from "@/lib/common";
+import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
+import { useReadLocalStorage } from "usehooks-ts";
 
 const isLineSelected = ({
 	pageNumber,
@@ -49,11 +51,15 @@ export const BookPageComponent = ({
 	pageNumber,
 	searchTextStart,
 	searchTextEnd,
-}: Pick<Page, "pageNumber" | "lines"> & {
+}: {
 	className?: string;
+	lines: Line[];
+	pageNumber: number;
 	searchTextStart?: number;
 	searchTextEnd?: number;
 }) => {
+	const showLineNumbers = !!useReadLocalStorage(SHOW_LINE_NUMBERS_KEY);
+
 	return (
 		<div
 			className={cn(
@@ -79,11 +85,11 @@ export const BookPageComponent = ({
 								lineSelected && "bg-blue-200 dark:bg-blue-900",
 							)}
 						>
-							{/* create a setting for that: */}
-							{/* <span className="mr-2 select-none text-sm text-muted-foreground max-lg:hidden">*/}
-							{/* eslint-disable-next-line no-irregular-whitespace */}
-							{/* {`${lineIndex + 1}`.padStart(2, " ")}
-								</span> */}
+							{showLineNumbers && (
+								<span className="mr-2 select-none text-sm text-muted-foreground max-lg:hidden">
+									{`${lineIndex + 1}`.padStart(2, " ")}
+								</span>
+							)}
 
 							{chars.split("").map((char, charIndex) => {
 								const charSelected = isCharSelected({

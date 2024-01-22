@@ -7,7 +7,8 @@
 .pathCheck {
 	stroke-dasharray: 20;
 	stroke-dashoffset: 20;
-	animation: drawPath 1s ease-in-out forwards;
+	/* animation: drawPath 1s ease-in-out forwards; */
+	animation: drawPath 0.5s ease-in-out forwards;
 }
 
 @keyframes drawPath {
@@ -18,15 +19,15 @@
 
 @keyframes showIcon {
 	30% {
-		transform: translateY(-1.2rem);
+		/* transform: translateY(-1.2rem); */
 		opacity: 1;
 	}
 	80% {
-		transform: translateY(-1.2rem);
+		/* transform: translateY(-1.2rem); */
 		opacity: 1;
 	}
 	100% {
-		transform: translateY(-1rem);
+		/* transform: translateY(-1rem); */
 		opacity: 0;
 	}
 }
