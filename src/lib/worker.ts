@@ -1,4 +1,6 @@
 import {
+	BASE_16_ALPHABET,
+	BASE_16_BIGINT,
 	BASE_29_BIGINT,
 	BASE_29_BIGINT_ALPHABET,
 	BASE_29_BOOK_ALPHABET,
@@ -7,6 +9,7 @@ import {
 	BOOKS_PER_SHELVES_BIGINT,
 	BOOKS_PER_WALL_BIGINT,
 	Book,
+	BookMetadata,
 	CHARS_PER_BOOK,
 	CHARS_PER_PAGE,
 	MessageFromWorker,
@@ -79,10 +82,12 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 	// }
 	// return result;
 
-	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10, just slightly slower than BigInt
+	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10,
+	// just slightly slower than native BigInt;
 	// https://github.com/v8/v8/blob/main/src/bigint/fromstring.cc
 	// https://zwyx.dev/til/2023/12/31/Fast%20string-to-integer%20conversion
-	let parts = text
+
+	let parts = (text || " ")
 		.split("")
 		.map((part) => [BigInt(alphabet.indexOf(part)), base]);
 
@@ -119,15 +124,55 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 	return result;
 };
 
+const fromBase16 = (text: string) =>
+	fromBase(text, BASE_16_BIGINT, BASE_16_ALPHABET);
+
 const fromBase29Book = (text: string) =>
 	fromBase(text, BASE_29_BIGINT, BASE_29_BOOK_ALPHABET);
 
 const fromBase81 = (text: string) =>
 	fromBase(text, BASE_81_BIGINT, BASE_81_ALPHABET);
 
-const getBookFromContent = (
-	content: string[],
-	alphabet: "bigint" | "book" = "book",
+const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
+	const startTime = Date.now();
+
+	const bookId = rawBookId.replace(
+		new RegExp(`[^${BASE_81_ALPHABET}]`, "g"),
+		"",
+	);
+
+	if (!bookId) {
+		return null;
+	}
+
+	const bookIndex = fromBase81(bookId);
+
+	lg(`'getBookIndexFromBookId' took ${Date.now() - startTime}ms`);
+
+	return bookIndex;
+};
+
+const getBookIndexFromBookImage = (bookImage: number[]): bigint | null => {
+	const startTime = Date.now();
+
+	const bookIndexHex = bookImage
+		.flatMap((value) => [
+			(value & 0b1111).toString(16),
+			(value >> 4).toString(16),
+		])
+		.reverse()
+		.join("");
+
+	const bookIndex = fromBase16(bookIndexHex);
+
+	lg(`'getBookIndexFromBookImage' took ${Date.now() - startTime}ms`);
+
+	return bookIndex;
+};
+
+const getBookFromBookContent = (
+	bookContent: string[],
+	alphabet: "bigint" | "book",
 ): Book => {
 	const startTime = Date.now();
 
@@ -140,9 +185,9 @@ const getBookFromContent = (
 		chars +=
 			alphabet === "bigint" ?
 				BASE_29_BOOK_ALPHABET[
-					BASE_29_BIGINT_ALPHABET.indexOf(content[i] || "0")
+					BASE_29_BIGINT_ALPHABET.indexOf(bookContent[i] || "0")
 				]
-			:	content[i] || BASE_29_BOOK_ALPHABET[0];
+			:	bookContent[i] || BASE_29_BOOK_ALPHABET[0];
 
 		if ((i + 1) % 80 === 0) {
 			page.lines.push({ chars });
@@ -155,29 +200,31 @@ const getBookFromContent = (
 		}
 	}
 
-	lg(`'getBookFromContent' took ${Date.now() - startTime}ms`);
+	lg(`'getBookFromBookContent' took ${Date.now() - startTime}ms`);
 
 	return { pages };
 };
 
-const getBookFromId = (rawBookId: string): Book | null => {
+const getBookFromBookIndex = (bookIndex: bigint): Book => {
 	const startTime = Date.now();
 
-	const bookId = rawBookId.replace(
-		new RegExp(`[^${BASE_81_ALPHABET}]`, "g"),
-		"",
-	);
+	const bookContentBase29Bigint = toBase29(bookIndex).split("").reverse();
 
-	if (!bookId) {
-		return null;
-	}
+	const book = getBookFromBookContent(bookContentBase29Bigint, "bigint");
 
-	const contentBase29Bigint = toBase29(fromBase81(bookId)).split("").reverse();
-	const book = getBookFromContent(contentBase29Bigint, "bigint");
-
-	lg(`'getBookFromId' took ${Date.now() - startTime}ms`);
+	lg(`'getBookFromBookIndex' took ${Date.now() - startTime}ms`);
 
 	return book;
+};
+
+const getBookIdFromBookIndex = (bookIndex: bigint): string => {
+	const startTime = Date.now();
+
+	const bookId = toBase81(bookIndex);
+
+	lg(`'getBookIdFromBookIndex' took ${Date.now() - startTime}ms`);
+
+	return bookId;
 };
 
 const findBook = (
@@ -225,8 +272,9 @@ const findBook = (
 		}
 	}
 
-	const book = getBookFromContent(
+	const book = getBookFromBookContent(
 		`${randomTextBefore}${searchText}${randomTextAfter}`.split(""),
+		"book",
 	);
 
 	lg(`'findBook' took ${Date.now() - startTime}ms`);
@@ -235,6 +283,62 @@ const findBook = (
 		...book,
 		searchTextStart: randomTextBefore.length,
 		searchTextEnd: randomTextBefore.length + searchText.length - 1,
+	};
+};
+
+const getBookIndexFromBook = (book: Book): bigint => {
+	const startTime = Date.now();
+
+	const bookIndexBase29Book = book.pages
+		.reverse()
+		.map(({ lines }) =>
+			lines
+				.reverse()
+				.map(({ chars }) => chars.split("").reverse().join(""))
+				.join(""),
+		)
+		.join("")
+		.replace(new RegExp(`^${BASE_29_BOOK_ALPHABET[0]}*`), "");
+
+	const bookIndex = fromBase29Book(bookIndexBase29Book);
+
+	lg(`'getBookIndexFromBook' took ${Date.now() - startTime}ms`);
+
+	return bookIndex;
+};
+
+const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
+	const startTime = Date.now();
+
+	const bookId = getBookIdFromBookIndex(bookIndex);
+
+	const roomIndex = bookIndex / BOOKS_PER_ROOM_BIGINT;
+	const bookIndexInRoom = bookIndex % BOOKS_PER_ROOM_BIGINT;
+	const wallIndexInRoom = bookIndexInRoom / BOOKS_PER_WALL_BIGINT;
+	const bookIndexInWall = bookIndexInRoom % BOOKS_PER_WALL_BIGINT;
+	const shelfIndexInWall = bookIndexInWall / BOOKS_PER_SHELVES_BIGINT;
+	const bookIndexInShelf = bookIndexInWall % BOOKS_PER_SHELVES_BIGINT;
+
+	const bookContentHex = bookIndex.toString(16).split("").reverse();
+
+	const image = bookContentHex.reduce((acc, cur, i) => {
+		if (i % 2 === 0) {
+			acc.push(
+				parseInt(cur, 16) + (parseInt(bookContentHex[i + 1], 16) || 0) * 16,
+			);
+		}
+		return acc;
+	}, [] as number[]);
+
+	lg(`'getBookMetadata' took ${Date.now() - startTime}ms`);
+
+	return {
+		bookId,
+		roomIndex: (roomIndex + 1n).toString(),
+		wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
+		shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
+		bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
+		image,
 	};
 };
 
@@ -247,11 +351,22 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 	try {
 		switch (operation) {
 			case "browse": {
-				const book = getBookFromId(data.id);
+				const bookIndex =
+					data.source === "bookId" ?
+						getBookIndexFromBookId(data.bookId)
+					:	getBookIndexFromBookImage(data.bookImage);
+
+				const book = bookIndex ? getBookFromBookIndex(bookIndex) : undefined;
+
+				const bookId =
+					data.source === "bookImage" && bookIndex ?
+						getBookIdFromBookIndex(bookIndex)
+					:	undefined;
 
 				result = {
 					operation,
 					...(book ? { book } : { invalidData: true }),
+					bookId,
 				};
 
 				break;
@@ -273,47 +388,12 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 			}
 
 			case "getBookMetadata": {
-				const idBase29Book = data.book.pages
-					.reverse()
-					.map(({ lines }) =>
-						lines
-							.reverse()
-							.map(({ chars }) => chars.split("").reverse().join(""))
-							.join(""),
-					)
-					.join("")
-					.replace(new RegExp(`^${BASE_29_BOOK_ALPHABET[0]}*`), "");
-
-				const bookIndex = fromBase29Book(idBase29Book || " ");
-				const bookId = toBase81(bookIndex);
-				const roomIndex = bookIndex / BOOKS_PER_ROOM_BIGINT;
-				const bookIndexInRoom = bookIndex % BOOKS_PER_ROOM_BIGINT;
-				const wallIndexInRoom = bookIndexInRoom / BOOKS_PER_WALL_BIGINT;
-				const bookIndexInWall = bookIndexInRoom % BOOKS_PER_WALL_BIGINT;
-				const shelfIndexInWall = bookIndexInWall / BOOKS_PER_SHELVES_BIGINT;
-				const bookIndexInShelf = bookIndexInWall % BOOKS_PER_SHELVES_BIGINT;
-
-				const contentHex = bookIndex.toString(16).split("").reverse();
-
-				const image = contentHex.reduce((acc, cur, i) => {
-					if (i % 2 === 0) {
-						acc.push(
-							parseInt(cur, 16) + (parseInt(contentHex[i + 1], 16) || 0) * 16,
-						);
-					}
-					return acc;
-				}, [] as number[]);
+				const bookIndex = getBookIndexFromBook(data.book);
+				const bookMetadata = getBookMetadataFromBookIndex(bookIndex);
 
 				result = {
 					operation,
-					bookMetadata: {
-						bookId,
-						roomIndex: (roomIndex + 1n).toString(),
-						wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
-						shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
-						bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
-						image,
-					},
+					bookMetadata,
 				};
 
 				break;
@@ -326,7 +406,7 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 		};
 	}
 
-	lg(`operation took ${Date.now() - startTime}ms`);
+	lg(`operation '${operation}' took ${Date.now() - startTime}ms`);
 
 	postMessage(result);
 };

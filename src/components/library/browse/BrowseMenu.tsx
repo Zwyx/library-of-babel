@@ -5,7 +5,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LibraryMode } from "@/lib/common";
+import { BOOK_IMAGE_HEIGHT, BOOK_IMAGE_WIDTH, LibraryMode } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { LucideMoreHorizontal } from "lucide-react";
 import { InputHTMLAttributes, RefObject, useRef } from "react";
@@ -13,15 +13,18 @@ import { Button } from "../../ui/button";
 
 export const BrowseMenu = ({
 	mode,
+	disabled,
 	onBookIdLoaded,
 	onImageLoaded,
 }: {
 	mode: LibraryMode;
+	disabled: boolean;
 	onBookIdLoaded: (bookId: string) => void;
-	onImageLoaded: (image: ArrayBuffer) => void;
+	onImageLoaded: (image: number[]) => void;
 }) => {
 	const textInputRef = useRef<HTMLInputElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	return (
 		<div>
@@ -31,6 +34,7 @@ export const BrowseMenu = ({
 						className={cn(mode !== "browse" && "invisible")}
 						variant="outline"
 						size="sm"
+						disabled={disabled}
 					>
 						<LucideMoreHorizontal size={20} />
 					</Button>
@@ -60,8 +64,45 @@ export const BrowseMenu = ({
 			<FileInput
 				forwardedRef={imageInputRef}
 				accept="image/png"
-				onFile={(file) => file.arrayBuffer().then(onImageLoaded)}
+				onFile={(file) => {
+					requestAnimationFrame(() => {
+						const fileReader = new FileReader();
+
+						fileReader.readAsDataURL(file);
+
+						fileReader.onload = (e) => {
+							const dataUrl = e.target?.result;
+
+							if (dataUrl && typeof dataUrl === "string") {
+								const image = new Image();
+
+								image.src = dataUrl;
+
+								image.onload = () => {
+									const context = canvasRef.current?.getContext("2d");
+
+									if (context) {
+										context.drawImage(image, 0, 0);
+
+										onImageLoaded(
+											Array.from(
+												context.getImageData(
+													0,
+													0,
+													BOOK_IMAGE_WIDTH,
+													BOOK_IMAGE_HEIGHT,
+												).data,
+											),
+										);
+									}
+								};
+							}
+						};
+					});
+				}}
 			/>
+
+			<canvas ref={canvasRef} className="pointer-events-none w-0 opacity-0" />
 		</div>
 	);
 };
@@ -69,7 +110,7 @@ export const BrowseMenu = ({
 /**
  * The file input needs to be outside the menu content, to stay in the DOM after
  * the corresponding menu item is clicked, otherwise `onChange` is not triggered when selecting a file;
- * we also can't simply set `display: none` on it, because that makes Safari to disable it
+ * we also can't simply set `display: none` on it, because that apparently makes Safari to disable it
  */
 const FileInput = ({
 	forwardedRef,

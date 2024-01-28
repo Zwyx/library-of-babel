@@ -33,16 +33,13 @@ export const ThemeContext = createContext<
 
 const storedThemeChoice = localStorage.getItem(THEME_CHOICE_KEY);
 
-const getStartupThemeChoice: ThemeChoice = isThemeChoice(storedThemeChoice)
-	? storedThemeChoice
-	: defaultThemeChoice;
+const getStartupThemeChoice: ThemeChoice =
+	isThemeChoice(storedThemeChoice) ? storedThemeChoice : defaultThemeChoice;
 
 const getThemeSchemeFromChoice = (themeChoice: ThemeChoice): ThemeScheme =>
-	isThemeScheme(themeChoice)
-		? themeChoice
-		: matchMedia("(prefers-color-scheme: dark)").matches
-		? "dark"
-		: "light";
+	isThemeScheme(themeChoice) ? themeChoice
+	: matchMedia("(prefers-color-scheme: dark)").matches ? "dark"
+	: "light";
 
 export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
 	const [themeChoice, setThemeChoice] = useState<ThemeChoice>(

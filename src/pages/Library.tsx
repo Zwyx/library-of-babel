@@ -91,24 +91,33 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 		searchTextModified.current = true;
 	};
 
-	const getBook = (newBookId?: string) => {
+	const getBook = (params?: { bookId?: string; bookImage?: number[] }) => {
 		setLoadingBookReal(true);
 		setLoadingBookMin(true);
 
+		const operation = mode;
+
 		const message: MessageToWorker =
-			mode === "browse" ?
+			operation === "browse" && params?.bookImage ?
 				{
-					operation: "browse",
-					id: newBookId || bookId,
+					operation,
+					source: "bookImage",
+					bookImage: params.bookImage,
 				}
-			: mode === "search" ?
+			: operation === "browse" ?
 				{
-					operation: "search",
+					operation,
+					source: "bookId",
+					bookId: params?.bookId || bookId,
+				}
+			: operation === "search" ?
+				{
+					operation,
 					searchText,
 					searchOptions,
 				}
 			:	{
-					operation: "random",
+					operation,
 					randomOptions,
 				};
 
@@ -158,14 +167,17 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					}
 
 					setBook(data.book);
+
+					if (data.bookId) {
+						setBookId(data.bookId);
+					}
+
 					bookIdModified.current = false;
 					searchTextModified.current = false;
 
 					if (operation === "browse") {
 						setPageNumber(1);
-					}
-
-					if (typeof data.book?.searchTextStart === "number") {
+					} else if (typeof data.book?.searchTextStart === "number") {
 						setPageNumber(
 							Math.floor(data.book.searchTextStart / CHARS_PER_PAGE) + 1,
 						);
@@ -250,11 +262,12 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 			<div className="mb-6 mt-4 flex w-full flex-wrap items-center justify-between">
 				<BrowseMenu
 					mode={mode}
+					disabled={loading}
 					onBookIdLoaded={(newBookId) => {
 						onBookIdChange(newBookId);
-						getBook(newBookId);
+						getBook({ bookId: newBookId });
 					}}
-					onImageLoaded={() => {}}
+					onImageLoaded={(bookImage) => getBook({ bookImage })}
 				/>
 
 				<ButtonLoading

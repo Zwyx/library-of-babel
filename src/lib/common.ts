@@ -23,12 +23,15 @@ export const BOOKS_PER_WALL_BIGINT = BigInt(BOOKS_PER_WALL);
 export const CHARS_PER_BOOK_BIGINT = BigInt(CHARS_PER_BOOK);
 export const CHARS_PER_PAGE_BIGINT = BigInt(CHARS_PER_PAGE);
 
+export const BASE_16 = 16;
 export const BASE_29 = 29;
 export const BASE_81 = 81;
 
+export const BASE_16_BIGINT = BigInt(BASE_16);
 export const BASE_29_BIGINT = BigInt(BASE_29);
 export const BASE_81_BIGINT = BigInt(BASE_81);
 
+export const BASE_16_ALPHABET = "0123456789abcdef";
 export const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
 export const BASE_29_BOOK_ALPHABET =   " abcdefghijklmnopqrstuvwxyz,."; // prettier-ignore
 export const BASE_81_ALPHABET =
@@ -84,7 +87,13 @@ export interface BookMetadata {
 export type MessageToWorker =
 	| {
 			operation: "browse";
-			id: string;
+			source: "bookId";
+			bookId: string;
+	  }
+	| {
+			operation: "browse";
+			source: "bookImage";
+			bookImage: number[];
 	  }
 	| {
 			operation: "search";
@@ -105,6 +114,7 @@ export type MessageFromWorker = Pick<MessageToWorker, "operation"> &
 		| {
 				operation: "browse" | "search" | "random";
 				book?: Book;
+				bookId?: string;
 				invalidData?: boolean;
 				error?: unknown;
 		  }
