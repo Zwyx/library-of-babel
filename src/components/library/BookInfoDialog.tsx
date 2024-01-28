@@ -13,7 +13,8 @@ import {
 	BOOK_IMAGE_WIDTH,
 	BookMetadata,
 } from "@/lib/common";
-import { cn, copyToClipboard, saveToFile } from "@/lib/utils";
+import { copyToClipboard, saveToFile } from "@/lib/utils";
+import { encode } from "fast-png";
 import { LucideAlertTriangle, LucideHelpCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Code } from "../common/Code";
@@ -65,12 +66,35 @@ export const BookInfoDialog = ({
 		});
 	}, [bookMetadata.image, open]);
 
+	/**
+	 * Note: we use `fast-png`, instead of the HTML canvas, to generate the PNG data, because
+	 * the canvas slightly changes the value of some pixels! This has been observed
+	 * in Chrome and Firefox, both browsers changing the data in a different way;
+	 * see https://codesandbox.io/p/sandbox/canvas-png-lrhrcg
+	 */
 	const copyOrSave = (subject: "bookId" | "image", action: "copy" | "save") =>
-		new Promise<string | Blob>((resolve) =>
-			subject === "bookId" ?
-				resolve(bookMetadata.bookId)
-			:	canvasRef.current?.toBlob((blob) => blob && resolve(blob)),
-		).then((content) =>
+		new Promise<string | Blob>((resolve) => {
+			if (subject === "bookId") {
+				resolve(bookMetadata.bookId);
+			}
+
+			// 4 values per pixel: RGBA
+			const imageData = new Uint8ClampedArray(
+				BOOK_IMAGE_WIDTH * BOOK_IMAGE_HEIGHT * 4,
+			);
+
+			bookMetadata.image.forEach((value, i) => (imageData[i] = value));
+
+			resolve(
+				new Blob([
+					encode({
+						width: BOOK_IMAGE_WIDTH,
+						height: BOOK_IMAGE_HEIGHT,
+						data: imageData,
+					}),
+				]),
+			);
+		}).then((content) =>
 			action === "copy" ?
 				copyToClipboard(content).then(() => {
 					if (!showCopySuccess) {
@@ -99,9 +123,43 @@ export const BookInfoDialog = ({
 					)}
 				</DialogHeader>
 
-				<h3 className={cn("mt-8 font-semibold", searchTextModified && "mt-6")}>
-					Location in the library
-				</h3>
+				<div className="mt-6 flex items-center justify-between">
+					<h3 className="font-semibold">Book ID</h3>
+
+					<div className="flex-1" />
+
+					<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
+						<Button
+							className="mb-1"
+							variant="ghost"
+							size="sm"
+							onClick={() => copyOrSave("bookId", "copy")}
+						>
+							Copy
+						</Button>
+					</SuccessWrapper>
+
+					<Button
+						className="mb-1"
+						variant="ghost"
+						size="sm"
+						onClick={() => copyOrSave("bookId", "save")}
+					>
+						Save
+					</Button>
+
+					<Button
+						className="mb-1 text-muted-foreground"
+						variant="ghost"
+						size="sm"
+					>
+						<LucideHelpCircle size={20} />
+					</Button>
+				</div>
+
+				<HighCapacityTextarea readOnly rows={7} value={bookMetadata.bookId} />
+
+				<h3 className="mt-6 font-semibold">Location in the library</h3>
 
 				<div className="mt-3 flex items-center justify-between">
 					<div>Room number</div>
@@ -141,42 +199,6 @@ export const BookInfoDialog = ({
 						</Code>
 					</div>
 				</div>
-
-				<div className="mt-6 flex items-center justify-between">
-					<h3 className="font-semibold">Book ID</h3>
-
-					<div className="flex-1" />
-
-					<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
-						<Button
-							className="mb-1"
-							variant="ghost"
-							size="sm"
-							onClick={() => copyOrSave("bookId", "copy")}
-						>
-							Copy
-						</Button>
-					</SuccessWrapper>
-
-					<Button
-						className="mb-1"
-						variant="ghost"
-						size="sm"
-						onClick={() => copyOrSave("bookId", "save")}
-					>
-						Save
-					</Button>
-
-					<Button
-						className="mb-1 text-muted-foreground"
-						variant="ghost"
-						size="sm"
-					>
-						<LucideHelpCircle size={20} />
-					</Button>
-				</div>
-
-				<HighCapacityTextarea readOnly rows={7} value={bookMetadata.bookId} />
 
 				<div className="mt-6 flex items-center justify-between">
 					<h3 className="font-semibold">Book image</h3>

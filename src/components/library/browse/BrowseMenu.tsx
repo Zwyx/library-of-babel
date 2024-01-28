@@ -5,8 +5,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BOOK_IMAGE_HEIGHT, BOOK_IMAGE_WIDTH, LibraryMode } from "@/lib/common";
+import { LibraryMode } from "@/lib/common";
 import { cn } from "@/lib/utils";
+import { decode } from "fast-png";
 import { LucideMoreHorizontal } from "lucide-react";
 import { InputHTMLAttributes, RefObject, useRef } from "react";
 import { Button } from "../../ui/button";
@@ -24,7 +25,6 @@ export const BrowseMenu = ({
 }) => {
 	const textInputRef = useRef<HTMLInputElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	return (
 		<div>
@@ -68,41 +68,17 @@ export const BrowseMenu = ({
 					requestAnimationFrame(() => {
 						const fileReader = new FileReader();
 
-						fileReader.readAsDataURL(file);
+						fileReader.readAsArrayBuffer(file);
 
 						fileReader.onload = (e) => {
-							const dataUrl = e.target?.result;
+							const data = e.target?.result as ArrayBuffer;
 
-							if (dataUrl && typeof dataUrl === "string") {
-								const image = new Image();
-
-								image.src = dataUrl;
-
-								image.onload = () => {
-									const context = canvasRef.current?.getContext("2d");
-
-									if (context) {
-										context.drawImage(image, 0, 0);
-
-										onImageLoaded(
-											Array.from(
-												context.getImageData(
-													0,
-													0,
-													BOOK_IMAGE_WIDTH,
-													BOOK_IMAGE_HEIGHT,
-												).data,
-											),
-										);
-									}
-								};
-							}
+							// See `copyOrSave` in `BookInfoDialog.tsx` about why we use `fast-png`
+							onImageLoaded(Array.from(decode(data).data));
 						};
 					});
 				}}
 			/>
-
-			<canvas ref={canvasRef} className="pointer-events-none w-0 opacity-0" />
 		</div>
 	);
 };
