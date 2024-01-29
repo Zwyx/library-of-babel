@@ -65,18 +65,16 @@ export const BrowseMenu = ({
 				forwardedRef={imageInputRef}
 				accept="image/png"
 				onFile={(file) => {
-					requestAnimationFrame(() => {
-						const fileReader = new FileReader();
+					const fileReader = new FileReader();
 
-						fileReader.readAsArrayBuffer(file);
+					fileReader.readAsArrayBuffer(file);
 
-						fileReader.onload = (e) => {
-							const data = e.target?.result as ArrayBuffer;
+					fileReader.onload = (e) => {
+						const data = e.target?.result as ArrayBuffer;
 
-							// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
-							onImageLoaded(Array.from(decode(data).data));
-						};
-					});
+						// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
+						onImageLoaded(Array.from(decode(data).data));
+					};
 				}}
 			/>
 		</div>

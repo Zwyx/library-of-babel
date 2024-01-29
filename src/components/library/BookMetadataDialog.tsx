@@ -34,6 +34,8 @@ export const BookMetadataDialog = ({
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
+	const [showContent, setShowContent] = useState<boolean>(false);
+
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const [showCopySuccess, setShowCopySuccess] = useState<
@@ -45,6 +47,13 @@ export const BookMetadataDialog = ({
 			return;
 		}
 
+		// Prevents a flash of the dialog and a Chrome warning about
+		// a handler taking too long, because loading a big amount of text
+		// in the textarea and the `code` tag takes a long time;
+		// this can't be noticed for small books, but can be for big ones
+		setTimeout(() => setShowContent(true), 10);
+
+		// Ensures the canvas is accessible by our code
 		requestAnimationFrame(() => {
 			const canvas = canvasRef.current;
 			const canvasContext = canvas?.getContext("2d");
@@ -106,7 +115,15 @@ export const BookMetadataDialog = ({
 		);
 
 	return (
-		<Dialog open={open} onOpenChange={onOpenChange}>
+		<Dialog
+			open={open}
+			onOpenChange={(newOpen) => {
+				onOpenChange(newOpen);
+				if (!newOpen) {
+					setShowContent(false);
+				}
+			}}
+		>
 			<DialogContent className="max-h-full max-w-xl gap-0 overflow-auto">
 				<DialogHeader>
 					<DialogTitle>Book info</DialogTitle>
@@ -157,7 +174,11 @@ export const BookMetadataDialog = ({
 					</Button>
 				</div>
 
-				<HighCapacityTextarea readOnly rows={7} value={bookMetadata.bookId} />
+				<HighCapacityTextarea
+					readOnly
+					rows={7}
+					value={showContent ? bookMetadata.bookId : "Loading..."}
+				/>
 
 				<h3 className="mt-6 font-semibold">Location in the library</h3>
 
@@ -174,7 +195,7 @@ export const BookMetadataDialog = ({
 					display="block"
 					numbersOnly
 				>
-					{bookMetadata.roomIndex}
+					{showContent ? bookMetadata.roomIndex : "Loading..."}
 				</Code>
 
 				<div className="mt-4 flex justify-evenly">

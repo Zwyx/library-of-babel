@@ -45,11 +45,12 @@ export const AboutDialog = ({
 	const highlightedId = isAboutDialogId(hashContent) ? hashContent : undefined;
 
 	useEffect(() => {
-		requestAnimationFrame(() => {
-			if (highlightedId) {
-				document.getElementById(highlightedId)?.scrollIntoView();
-			}
-		});
+		// Ensures the highlighted element is accessible by our code
+		requestAnimationFrame(
+			() =>
+				highlightedId &&
+				document.getElementById(highlightedId)?.scrollIntoView(),
+		);
 	}, [highlightedId]);
 
 	return (

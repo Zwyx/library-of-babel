@@ -301,6 +301,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				onOpenChange={(newOpen) => {
 					setInvalidDataDialogOpen(newOpen);
 					if (!newOpen) {
+						// Ensures the textarea is accessible by our code
 						requestAnimationFrame(() => textareaRef.current?.focus());
 					}
 				}}
