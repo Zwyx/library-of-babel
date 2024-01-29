@@ -19,10 +19,7 @@ export const HeaderMenu = () => {
 	return (
 		<Sheet open={open} onOpenChange={setOpen}>
 			<SheetTrigger asChild>
-				<Button
-					variant="ghost"
-					className="flex-1 justify-start px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-				>
+				<Button variant="ghost" className="px-2">
 					<LucideMenu className="h-6 w-6" />
 					<span className="sr-only">{t("openMenu")}</span>
 				</Button>
@@ -32,7 +29,14 @@ export const HeaderMenu = () => {
 				side="left"
 				className="flex h-full w-auto flex-col items-start gap-0 overflow-auto"
 			>
-				<span className="font-bold">{t("libraryOfBabel")}</span>
+				<div className="flex items-center gap-4">
+					<img
+						className="w-8"
+						src="Babel-220x220-rounded.png"
+						alt="Library of Babel logo"
+					/>
+					<span className="font-bold">{t("libraryOfBabel")}</span>
+				</div>
 
 				<div className="mt-4"></div>
 
