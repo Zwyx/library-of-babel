@@ -45,9 +45,7 @@ jobs:
       - env:
           DOMAIN: "${{ secrets.DOMAIN }}"
           PLAUSIBLE_SCRIPT_SRC: "${{ secrets.PLAUSIBLE_SCRIPT_SRC }}"
-        run: |
-          sed -i "s@\$DOMAIN@${{ env.DOMAIN }}@g" index.html
-          sed -i "s@\$PLAUSIBLE_SCRIPT_SRC@${{ env.PLAUSIBLE_SCRIPT_SRC }}@g" index.html
+        run: sed -i "s@<!-- \$PLAUSIBLE_SCRIPT -->@<script defer data-domain=\"${{ env.DOMAIN }}\" src=\"${{ env.PLAUSIBLE_SCRIPT_SRC }}\"></script>@" index.html
 
       - env:
           SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
