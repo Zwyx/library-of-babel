@@ -33,29 +33,29 @@ jobs:
 
       - run: npm ci
 
-      # - run: echo "APP_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
-      #   id: APP_VERSION
+      - run: echo "APP_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+        id: APP_VERSION
 
       - run: echo "BRANCH=$([[ "$(git branch --show-current)" == "main" ]] && echo "dist" || echo "staging/dist")" >> $GITHUB_ENV
         id: BRANCH
 
-      # - run: echo "SENTRY_ENVIRONMENT=$([[ "${{ env.BRANCH }}" == "dist" ]] && echo "production" || echo "staging")" >> $GITHUB_ENV
-      #   id: SENTRY_ENVIRONMENT
+      - run: echo "SENTRY_ENVIRONMENT=$([[ "${{ env.BRANCH }}" == "dist" ]] && echo "production" || echo "staging")" >> $GITHUB_ENV
+        id: SENTRY_ENVIRONMENT
 
-      # - env:
-      #     DOMAIN: "${{ secrets.DOMAIN }}"
-      #     PLAUSIBLE_SCRIPT_SRC: "${{ secrets.PLAUSIBLE_SCRIPT_SRC }}"
-      #   run: |
-      #     sed -i "s@\$DOMAIN@${{ env.DOMAIN }}@g" index.html
-      #     sed -i "s@\$PLAUSIBLE_SCRIPT_SRC@${{ env.PLAUSIBLE_SCRIPT_SRC }}@g" index.html
+      - env:
+          DOMAIN: "${{ secrets.DOMAIN }}"
+          PLAUSIBLE_SCRIPT_SRC: "${{ secrets.PLAUSIBLE_SCRIPT_SRC }}"
+        run: |
+          sed -i "s@\$DOMAIN@${{ env.DOMAIN }}@g" index.html
+          sed -i "s@\$PLAUSIBLE_SCRIPT_SRC@${{ env.PLAUSIBLE_SCRIPT_SRC }}@g" index.html
 
-      # - env:
-      #     SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
-      #     SENTRY_RELEASE: "${{ env.APP_VERSION }}"
-      #     DOMAIN: "${{ secrets.DOMAIN }}"
-      #     SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
-      #     SENTRY_ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
-      - run: npm run build
+      - env:
+          SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
+          SENTRY_RELEASE: "${{ env.APP_VERSION }}"
+          DOMAIN: "${{ secrets.DOMAIN }}"
+          SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
+          SENTRY_ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
+        run: npm run build
 
       - run: |
           git checkout index.html
