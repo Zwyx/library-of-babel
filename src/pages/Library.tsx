@@ -1,6 +1,6 @@
 import { ButtonLoading } from "@/components/common/ButtonLoading";
 import { HighCapacityTextarea } from "@/components/common/HighCapacityTextarea";
-import { BookInfoDialog } from "@/components/library/BookInfoDialog";
+import { BookMetadataDialog } from "@/components/library/BookMetadataDialog";
 import { BookPage } from "@/components/library/BookPage";
 import { BookPageHeader } from "@/components/library/BookPageHeader";
 import { ComputationErrorDialog } from "@/components/library/ComputationErrorDialog";
@@ -65,7 +65,8 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	const [showCopySuccess, setShowCopySuccess] = useState<boolean>(false);
 
-	const [bookInfoDialogOpen, setBookInfoDialogOpen] = useState<boolean>(false);
+	const [bookMetadataDialogOpen, setBookMetadataDialogOpen] =
+		useState<boolean>(false);
 
 	const [computationError, setComputationError] = useState<string>();
 	const [computationErrorDialogOpen, setComputationErrorDialogOpen] =
@@ -167,6 +168,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					}
 
 					setBook(data.book);
+					setBookMetadata(undefined);
 
 					if (data.bookId) {
 						setBookId(data.bookId);
@@ -188,7 +190,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 				case "getBookMetadata": {
 					setBookMetadata(data.bookMetadata);
-					setBookInfoDialogOpen(true);
+					setBookMetadataDialogOpen(true);
 
 					break;
 				}
@@ -328,7 +330,9 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						pageNumber={pageNumber}
 						loadingBook={loadingBook}
 						loadingBookMetadata={loadingBookMetadata}
-						onGetBookMetadataClick={getBookMetadata}
+						onGetBookMetadataClick={() =>
+							bookMetadata ? setBookMetadataDialogOpen(true) : getBookMetadata()
+						}
 						showCopySuccess={showCopySuccess}
 						onCopyPageClick={() => copyOrSave("page", "copy")}
 						onCopyBookClick={() => copyOrSave("book", "copy")}
@@ -337,14 +341,14 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					/>
 
 					{bookMetadata && (
-						<BookInfoDialog
+						<BookMetadataDialog
 							bookMetadata={bookMetadata}
 							bookIdModified={mode === "browse" && bookIdModified.current}
 							searchTextModified={
 								mode === "search" && searchTextModified.current
 							}
-							open={bookInfoDialogOpen}
-							onOpenChange={setBookInfoDialogOpen}
+							open={bookMetadataDialogOpen}
+							onOpenChange={setBookMetadataDialogOpen}
 						/>
 					)}
 

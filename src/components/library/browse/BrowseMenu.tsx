@@ -73,7 +73,7 @@ export const BrowseMenu = ({
 						fileReader.onload = (e) => {
 							const data = e.target?.result as ArrayBuffer;
 
-							// See `copyOrSave` in `BookInfoDialog.tsx` about why we use `fast-png`
+							// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
 							onImageLoaded(Array.from(decode(data).data));
 						};
 					});

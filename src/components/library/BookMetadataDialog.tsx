@@ -21,7 +21,7 @@ import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 
-export const BookInfoDialog = ({
+export const BookMetadataDialog = ({
 	bookMetadata,
 	open,
 	bookIdModified,
