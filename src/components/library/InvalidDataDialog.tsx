@@ -6,7 +6,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { BASE_81_ALPHABET, LibraryMode } from "@/lib/common";
+import { BASE_94_ALPHABET, LibraryMode } from "@/lib/common";
 import { Code } from "../common/Code";
 import { Button } from "../ui/button";
 
@@ -37,7 +37,7 @@ export const InvalidDataDialog = ({
 
 						<div>Valid characters are:</div>
 
-						<Code display="block">{BASE_81_ALPHABET}</Code>
+						<Code display="block">{BASE_94_ALPHABET}</Code>
 					</>
 				)}
 

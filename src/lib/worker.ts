@@ -1,10 +1,12 @@
 import {
 	BASE_16_ALPHABET,
 	BASE_16_BIGINT,
+	BASE_29,
+	BASE_29_ALPHABET,
 	BASE_29_BIGINT,
-	BASE_29_BIGINT_ALPHABET,
-	BASE_29_BOOK_ALPHABET,
-	BASE_81_BIGINT,
+	BASE_94_ALPHABET,
+	BASE_94_ALPHABET_REGEX,
+	BASE_94_BIGINT,
 	BOOKS_PER_ROOM_BIGINT,
 	BOOKS_PER_SHELVES_BIGINT,
 	BOOKS_PER_WALL_BIGINT,
@@ -16,43 +18,80 @@ import {
 	MessageToWorker,
 	Page,
 } from "@/lib/common";
-import { BASE_29, BASE_81_ALPHABET } from "./common";
-import { lg } from "./utils";
+import { lg } from "@/lib/utils";
 
-const toBase29 = (value: bigint): string => {
-	const startTime = Date.now();
+// Could be used in `toBase` to get the number of bits of the `value` argument,
+// but because we have to do `value.toString(2)`, it isn't more performant
+// than just doing `value.toString(2).length`
+// const log2 = (value: bigint): number => {
+// 	if (value < 0) {
+// 		return NaN;
+// 	}
+//
+// 	const binary = value.toString(2);
+//
+// 	// https://stackoverflow.com/questions/70382306/logarithm-of-a-bigint
+// 	return binary.length + Math.log10(Number("0." + binary.substring(0, 15)));
+// };
 
-	const result = value.toString(BASE_29);
-
-	lg(`'toBase29' took ${Date.now() - startTime}ms`);
-
-	return result;
-};
-
-const toBase81 = (value: bigint): string => {
+const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 	const startTime = Date.now();
 
 	let result = "";
 
-	// Successive divisions method
+	// Successive divisions method; 30s for a bigint made of 500,000 random digits in base 10
 	// let dividend = value;
 	// let remainder;
-	// while (dividend >= BASE_81) {
-	// 	remainder = dividend % BASE_81;
-	// 	result = BASE_81_ALPHABET[Number(remainder)] + result;
-	// 	dividend = dividend / BASE_81;
+	// while (dividend >= base) {
+	// 	remainder = dividend % base;
+	// 	result = alphabet[Number(remainder)] + result;
+	// 	dividend = dividend / base;
 	// }
-	// result = BASE_81_ALPHABET[Number(dividend)] + result;
+	// result = alphabet[Number(dividend)] + result;
 
-	// "Intermediate base 9" method; about ten times faster than successive divisions!
-	const base9Text = `0${value.toString(9)}`;
-	for (let i = base9Text.length - 2; i >= 0; i -= 2) {
-		result = `${
-			BASE_81_ALPHABET[parseInt(base9Text.slice(i, i + 2), 9)]
-		}${result}`;
+	// "Intermediate base 9" method, allowing to reach base 81; 80ms for a bigint made of 500,000 random digits in base 10
+	// const base9Text = `0${value.toString(9)}`;
+	// for (let i = base9Text.length - 2; i >= 0; i -= 2) {
+	// 	result = `${
+	// 		alphabet[parseInt(base9Text.slice(i, i + 2), 9)]
+	// 	}${result}`;
+	// }
+
+	// "Divide-and-conquer" algorithm, taken from V8's source code; 180s for a bigint made of 500,000 random digits in base 10
+	// https://github.com/v8/v8/blob/main/src/bigint/tostring.cc
+	// https://zwyx.dev/til/2024/02/01/Fast%20integer-to-string%20conversion
+
+	const divisors = [base];
+	const valueBinaryLength = value.toString(2).length;
+
+	while (
+		divisors[divisors.length - 1].toString(2).length * 2 - 1 <=
+		valueBinaryLength
+	) {
+		divisors.push(divisors[divisors.length - 1] ** 2n);
 	}
 
-	lg(`'toBase81' took ${Date.now() - startTime}ms`);
+	const devide = (dividend: bigint, divisorIndex: number) => {
+		const divisor = divisors[divisorIndex];
+
+		const remainder = dividend % divisor;
+		const newDividend = dividend / divisor;
+
+		if (divisorIndex > 0) {
+			devide(remainder, divisorIndex - 1);
+			devide(newDividend, divisorIndex - 1);
+		} else {
+			result = `${alphabet[Number(newDividend)]}${
+				alphabet[Number(remainder)]
+			}${result}`;
+		}
+	};
+
+	devide(value, divisors.length - 1);
+
+	result = result.replace(new RegExp(`^${alphabet[0]}*`), "");
+
+	lg(`'toBase' took ${Date.now() - startTime}ms`);
 
 	return result;
 };
@@ -83,7 +122,7 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 	// return result;
 
 	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10,
-	// just slightly slower than native BigInt;
+	// just slightly slower than native BigInt
 	// https://github.com/v8/v8/blob/main/src/bigint/fromstring.cc
 	// https://zwyx.dev/til/2023/12/31/Fast%20string-to-integer%20conversion
 
@@ -124,20 +163,26 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 	return result;
 };
 
+const toBase29 = (value: bigint) =>
+	toBase(value, BASE_29_BIGINT, BASE_29_ALPHABET);
+
+const toBase94 = (value: bigint) =>
+	toBase(value, BASE_94_BIGINT, BASE_94_ALPHABET);
+
 const fromBase16 = (text: string) =>
 	fromBase(text, BASE_16_BIGINT, BASE_16_ALPHABET);
 
-const fromBase29Book = (text: string) =>
-	fromBase(text, BASE_29_BIGINT, BASE_29_BOOK_ALPHABET);
+const fromBase29 = (text: string) =>
+	fromBase(text, BASE_29_BIGINT, BASE_29_ALPHABET);
 
-const fromBase81 = (text: string) =>
-	fromBase(text, BASE_81_BIGINT, BASE_81_ALPHABET);
+const fromBase94 = (text: string) =>
+	fromBase(text, BASE_94_BIGINT, BASE_94_ALPHABET);
 
 const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
 	const startTime = Date.now();
 
 	const bookId = rawBookId.replace(
-		new RegExp(`[^${BASE_81_ALPHABET}]`, "g"),
+		new RegExp(`[^${BASE_94_ALPHABET_REGEX}]`, "g"),
 		"",
 	);
 
@@ -145,7 +190,7 @@ const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
 		return null;
 	}
 
-	const bookIndex = fromBase81(bookId);
+	const bookIndex = fromBase94(bookId);
 
 	lg(`'getBookIndexFromBookId' took ${Date.now() - startTime}ms`);
 
@@ -170,10 +215,7 @@ const getBookIndexFromBookImage = (bookImage: number[]): bigint | null => {
 	return bookIndex;
 };
 
-const getBookFromBookContent = (
-	bookContent: string[],
-	alphabet: "bigint" | "book",
-): Book => {
+const getBookFromBookContent = (bookContent: string[]): Book => {
 	const startTime = Date.now();
 
 	const pages: Page[] = [];
@@ -182,12 +224,7 @@ const getBookFromBookContent = (
 	let chars = "";
 
 	for (let i = 0; i < CHARS_PER_BOOK; i++) {
-		chars +=
-			alphabet === "bigint" ?
-				BASE_29_BOOK_ALPHABET[
-					BASE_29_BIGINT_ALPHABET.indexOf(bookContent[i] || "0")
-				]
-			:	bookContent[i] || BASE_29_BOOK_ALPHABET[0];
+		chars += bookContent[i] || BASE_29_ALPHABET[0];
 
 		if ((i + 1) % 80 === 0) {
 			page.lines.push({ chars });
@@ -208,9 +245,9 @@ const getBookFromBookContent = (
 const getBookFromBookIndex = (bookIndex: bigint): Book => {
 	const startTime = Date.now();
 
-	const bookContentBase29Bigint = toBase29(bookIndex).split("").reverse();
+	const bookContent = toBase29(bookIndex).split("").reverse();
 
-	const book = getBookFromBookContent(bookContentBase29Bigint, "bigint");
+	const book = getBookFromBookContent(bookContent);
 
 	lg(`'getBookFromBookIndex' took ${Date.now() - startTime}ms`);
 
@@ -220,7 +257,7 @@ const getBookFromBookIndex = (bookIndex: bigint): Book => {
 const getBookIdFromBookIndex = (bookIndex: bigint): string => {
 	const startTime = Date.now();
 
-	const bookId = toBase81(bookIndex);
+	const bookId = toBase94(bookIndex);
 
 	lg(`'getBookIdFromBookIndex' took ${Date.now() - startTime}ms`);
 
@@ -240,7 +277,7 @@ const findBook = (
 			.normalize("NFD")
 			.replace(/[\u0300-\u036f]/g, "")
 			.toLowerCase()
-			.replace(new RegExp(`[^${BASE_29_BOOK_ALPHABET}]`, "g"), "");
+			.replace(new RegExp(`[^${BASE_29_ALPHABET}]`, "g"), "");
 
 		if (!searchText) {
 			return null;
@@ -260,13 +297,13 @@ const findBook = (
 		);
 
 		for (let i = 0; i < searchTextPosition; i++) {
-			randomTextBefore += BASE_29_BOOK_ALPHABET.charAt(
+			randomTextBefore += BASE_29_ALPHABET.charAt(
 				Math.floor(Math.random() * BASE_29),
 			);
 		}
 
 		for (let i = searchTextPosition; i < randomTextTotalLength; i++) {
-			randomTextAfter += BASE_29_BOOK_ALPHABET.charAt(
+			randomTextAfter += BASE_29_ALPHABET.charAt(
 				Math.floor(Math.random() * BASE_29),
 			);
 		}
@@ -274,7 +311,6 @@ const findBook = (
 
 	const book = getBookFromBookContent(
 		`${randomTextBefore}${searchText}${randomTextAfter}`.split(""),
-		"book",
 	);
 
 	lg(`'findBook' took ${Date.now() - startTime}ms`);
@@ -289,7 +325,7 @@ const findBook = (
 const getBookIndexFromBook = (book: Book): bigint => {
 	const startTime = Date.now();
 
-	const bookIndexBase29Book = book.pages
+	const bookIndexBase29 = book.pages
 		.reverse()
 		.map(({ lines }) =>
 			lines
@@ -298,9 +334,9 @@ const getBookIndexFromBook = (book: Book): bigint => {
 				.join(""),
 		)
 		.join("")
-		.replace(new RegExp(`^${BASE_29_BOOK_ALPHABET[0]}*`), "");
+		.replace(new RegExp(`^${BASE_29_ALPHABET[0]}*`), "");
 
-	const bookIndex = fromBase29Book(bookIndexBase29Book);
+	const bookIndex = fromBase29(bookIndexBase29);
 
 	lg(`'getBookIndexFromBook' took ${Date.now() - startTime}ms`);
 

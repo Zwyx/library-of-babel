@@ -25,19 +25,21 @@ export const CHARS_PER_PAGE_BIGINT = BigInt(CHARS_PER_PAGE);
 
 export const BASE_16 = 16;
 export const BASE_29 = 29;
-export const BASE_81 = 81;
+export const BASE_94 = 94;
 
 export const BASE_16_BIGINT = BigInt(BASE_16);
 export const BASE_29_BIGINT = BigInt(BASE_29);
-export const BASE_81_BIGINT = BigInt(BASE_81);
+export const BASE_94_BIGINT = BigInt(BASE_94);
 
 export const BASE_16_ALPHABET = "0123456789abcdef";
-export const BASE_29_BIGINT_ALPHABET = "0123456789abcdefghijklmnopqrs";
-export const BASE_29_BOOK_ALPHABET =   " abcdefghijklmnopqrstuvwxyz,."; // prettier-ignore
-export const BASE_81_ALPHABET =
-	"!#$%&*+,-/0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ^_abcdefghijklmnopqrstuvwxyz|~";
+export const BASE_29_ALPHABET = " abcdefghijklmnopqrstuvwxyz,.";
+// All ASCII printable characters except space
+export const BASE_94_ALPHABET =
+	"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+export const BASE_94_ALPHABET_REGEX =
+	"!\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
-export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_81);
+export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 
 export const BOOK_IMAGE_WIDTH = 574;
 export const BOOK_IMAGE_HEIGHT = 347;

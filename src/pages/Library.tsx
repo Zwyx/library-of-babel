@@ -11,7 +11,7 @@ import { Privacy } from "@/components/library/Privacy";
 import { BrowseMenu } from "@/components/library/browse/BrowseMenu";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
 import {
-	BASE_29_BOOK_ALPHABET,
+	BASE_29_ALPHABET,
 	Book,
 	BookMetadata,
 	CHARS_PER_LINE,
@@ -314,7 +314,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					pageNumber={0}
 					lines={[
 						{
-							chars: BASE_29_BOOK_ALPHABET[0].repeat(CHARS_PER_LINE),
+							chars: BASE_29_ALPHABET[0].repeat(CHARS_PER_LINE),
 						},
 					]}
 				/>
