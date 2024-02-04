@@ -205,10 +205,6 @@ export const BookMetadataDialog = ({
 		);
 	};
 
-	if (!bookMetadata) {
-		return;
-	}
-
 	return (
 		<Dialog
 			open={open}
@@ -219,189 +215,195 @@ export const BookMetadataDialog = ({
 				}
 			}}
 		>
-			<DialogContent className="max-h-full max-w-xl gap-0 overflow-auto">
-				<DialogHeader>
-					<DialogTitle>Book info</DialogTitle>
+			{bookMetadata && (
+				<DialogContent className="max-h-full max-w-xl gap-0 overflow-auto">
+					<DialogHeader>
+						<DialogTitle>Book info</DialogTitle>
 
-					{(bookIdChanged || bookImageChanged || searchTextChanged) && (
-						<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
-							<LucideAlertTriangle className="flex-shrink-0" size={20} />
+						{(bookIdChanged || bookImageChanged || searchTextChanged) && (
+							<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
+								<LucideAlertTriangle className="flex-shrink-0" size={20} />
 
-							<div>
-								The{" "}
-								{bookIdChanged ?
-									"book ID"
-								: bookImageChanged ?
-									"book image"
-								:	"search text"}{" "}
-								has been modified since this book was generated.
-							</div>
-						</DialogDescription>
-					)}
-				</DialogHeader>
+								<div>
+									The{" "}
+									{bookIdChanged ?
+										"book ID"
+									: bookImageChanged ?
+										"book image"
+									:	"search text"}{" "}
+									has been modified since this book was generated.
+								</div>
+							</DialogDescription>
+						)}
+					</DialogHeader>
 
-				<div className="mb-1 mt-6 flex items-center">
-					<h3 className="font-semibold">Book ID</h3>
+					<div className="mb-1 mt-6 flex items-center">
+						<h3 className="font-semibold">Book ID</h3>
 
-					<div className="flex-1" />
+						<div className="flex-1" />
 
-					<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
+						<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
+							<Button
+								variant="ghost"
+								size="sm"
+								onClick={() => copyOrSave("bookId", "copy")}
+							>
+								Copy
+							</Button>
+						</SuccessWrapper>
+
 						<Button
 							variant="ghost"
 							size="sm"
-							onClick={() => copyOrSave("bookId", "copy")}
+							onClick={() => copyOrSave("bookId", "save")}
 						>
-							Copy
+							Save
 						</Button>
-					</SuccessWrapper>
-
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={() => copyOrSave("bookId", "save")}
-					>
-						Save
-					</Button>
-
-					<Button className="text-muted-foreground" variant="ghost" size="sm">
-						<LucideHelpCircle size={20} />
-					</Button>
-				</div>
-
-				<HighCapacityTextarea
-					readOnly
-					rows={7}
-					value={showContent ? bookMetadata.bookId : "Loading..."}
-				/>
-
-				<h3 className="mt-6 font-semibold">Location in the library</h3>
-
-				<div className="mt-3 flex items-center justify-between">
-					<div>Room number</div>
-
-					<div className="text-right text-sm">
-						{bookMetadata.roomIndex.length.toLocaleString()} digits
-					</div>
-				</div>
-
-				<Code
-					className="mt-0.5 max-h-[6rem] overflow-auto"
-					display="block"
-					numbersOnly
-				>
-					{showContent ? bookMetadata.roomIndex : "Loading..."}
-				</Code>
-
-				<div className="mt-4 flex flex-wrap justify-evenly gap-2">
-					<div className="flex items-center gap-2">
-						Wall
-						<Code display="block" numbersOnly>
-							{bookMetadata.wallIndexInRoom}
-						</Code>
-					</div>
-
-					<div className="flex items-center gap-2">
-						Shelf
-						<Code display="block" numbersOnly>
-							{bookMetadata.shelfIndexInWall}
-						</Code>
-					</div>
-
-					<div className="flex items-center gap-2">
-						Book
-						<Code display="block" numbersOnly>
-							{bookMetadata.bookIndexInShelf}
-						</Code>
-					</div>
-				</div>
-
-				<h3 className="mt-6 font-semibold">Book image</h3>
-
-				<div className="mb-2 mt-3 flex flex-wrap items-center gap-2">
-					<div className="flex items-center">
-						<Input
-							className="w-[5rem]"
-							variantSize="sm"
-							type="number"
-							min={1}
-							placeholder="Width"
-							value={imageWidth}
-							onChange={(e) => setImageWidth(parseInt(e.target.value))}
-						/>
-
-						<>&nbsp;×&nbsp;</>
-
-						<Input
-							className="w-[5rem]"
-							variantSize="sm"
-							type="number"
-							min={1}
-							placeholder="Height"
-							value={imageHeight}
-							onChange={(e) => setImageHeight(parseInt(e.target.value))}
-						/>
-					</div>
-
-					<Button
-						variant="ghost"
-						size="sm"
-						disabled={
-							imageWidth === autoDimensions.width &&
-							imageHeight === autoDimensions.height
-						}
-						onClick={applyAutoDimensions}
-					>
-						Auto
-					</Button>
-
-					<div className="flex-1" />
-
-					<div className="flex flex-1 justify-end">
-						{!dimensionsTooSmall && (
-							<>
-								<SuccessWrapper showSuccess={showCopySuccess === "image"}>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => copyOrSave("image", "copy")}
-									>
-										Copy
-									</Button>
-								</SuccessWrapper>
-
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => copyOrSave("image", "save")}
-								>
-									Save
-								</Button>
-							</>
-						)}
 
 						<Button className="text-muted-foreground" variant="ghost" size="sm">
 							<LucideHelpCircle size={20} />
 						</Button>
 					</div>
-				</div>
 
-				{dimensionsTooSmall ?
-					<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
-						<LucideAlertTriangle className="flex-shrink-0" size={20} />
-						These dimensions are too small for this book image.
-					</DialogDescription>
-				:	<canvas
-						ref={canvasRef}
-						className="mx-auto max-h-[500px] max-w-full overflow-auto rounded border p-1"
+					<HighCapacityTextarea
+						readOnly
+						rows={7}
+						value={showContent ? bookMetadata.bookId : "Loading..."}
 					/>
-				}
 
-				<DialogFooter className="mt-6">
-					<DialogClose asChild>
-						<Button variant="secondary">Close</Button>
-					</DialogClose>
-				</DialogFooter>
-			</DialogContent>
+					<h3 className="mt-6 font-semibold">Location in the library</h3>
+
+					<div className="mt-3 flex items-center justify-between">
+						<div>Room number</div>
+
+						<div className="text-right text-sm">
+							{bookMetadata.roomIndex.length.toLocaleString()} digits
+						</div>
+					</div>
+
+					<Code
+						className="mt-0.5 max-h-[6rem] overflow-auto"
+						display="block"
+						numbersOnly
+					>
+						{showContent ? bookMetadata.roomIndex : "Loading..."}
+					</Code>
+
+					<div className="mt-4 flex flex-wrap justify-evenly gap-2">
+						<div className="flex items-center gap-2">
+							Wall
+							<Code display="block" numbersOnly>
+								{bookMetadata.wallIndexInRoom}
+							</Code>
+						</div>
+
+						<div className="flex items-center gap-2">
+							Shelf
+							<Code display="block" numbersOnly>
+								{bookMetadata.shelfIndexInWall}
+							</Code>
+						</div>
+
+						<div className="flex items-center gap-2">
+							Book
+							<Code display="block" numbersOnly>
+								{bookMetadata.bookIndexInShelf}
+							</Code>
+						</div>
+					</div>
+
+					<h3 className="mt-6 font-semibold">Book image</h3>
+
+					<div className="mb-2 mt-3 flex flex-wrap items-center gap-2">
+						<div className="flex items-center">
+							<Input
+								className="w-[5rem]"
+								variantSize="sm"
+								type="number"
+								min={1}
+								placeholder="Width"
+								value={imageWidth}
+								onChange={(e) => setImageWidth(parseInt(e.target.value))}
+							/>
+
+							<>&nbsp;×&nbsp;</>
+
+							<Input
+								className="w-[5rem]"
+								variantSize="sm"
+								type="number"
+								min={1}
+								placeholder="Height"
+								value={imageHeight}
+								onChange={(e) => setImageHeight(parseInt(e.target.value))}
+							/>
+						</div>
+
+						<Button
+							variant="ghost"
+							size="sm"
+							disabled={
+								imageWidth === autoDimensions.width &&
+								imageHeight === autoDimensions.height
+							}
+							onClick={applyAutoDimensions}
+						>
+							Auto
+						</Button>
+
+						<div className="flex-1" />
+
+						<div className="flex flex-1 justify-end">
+							{!dimensionsTooSmall && (
+								<>
+									<SuccessWrapper showSuccess={showCopySuccess === "image"}>
+										<Button
+											variant="ghost"
+											size="sm"
+											onClick={() => copyOrSave("image", "copy")}
+										>
+											Copy
+										</Button>
+									</SuccessWrapper>
+
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => copyOrSave("image", "save")}
+									>
+										Save
+									</Button>
+								</>
+							)}
+
+							<Button
+								className="text-muted-foreground"
+								variant="ghost"
+								size="sm"
+							>
+								<LucideHelpCircle size={20} />
+							</Button>
+						</div>
+					</div>
+
+					{dimensionsTooSmall ?
+						<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
+							<LucideAlertTriangle className="flex-shrink-0" size={20} />
+							These dimensions are too small for this book image.
+						</DialogDescription>
+					:	<canvas
+							ref={canvasRef}
+							className="mx-auto max-h-[500px] max-w-full overflow-auto rounded border p-1"
+						/>
+					}
+
+					<DialogFooter className="mt-6">
+						<DialogClose asChild>
+							<Button variant="secondary">Close</Button>
+						</DialogClose>
+					</DialogFooter>
+				</DialogContent>
+			)}
 		</Dialog>
 	);
 };
