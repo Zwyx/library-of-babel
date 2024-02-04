@@ -119,6 +119,12 @@ export const AboutDialog = ({
 							bits (1,048,575 bits), or 2^(2^20) - 1 (315,653 digits in base 10)
 							So can only do 65 pages: 65*40*80*log(29)/log(10) = 304,178 digits
 							in base 10
+							<>
+								We need 410 x 40 x 80 x log(29) / log(256) = 796709 digits in
+								base 256; // there are four values per pixels (RGBA), so our
+								image needs to contain // 410 x 40 x 80 x log(29) / log(256) / 4
+								= 199178 pixels; // 199178 = 574 x 347
+							</>
 						</Code>
 					</Section>
 				</div>

@@ -41,13 +41,6 @@ export const BASE_94_ALPHABET_REGEX =
 
 export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 
-// We need 410 x 40 x 80 x log(29) / log(256) = 796709 digits in base 256;
-// there are four values per pixels (RGBA), so our image needs to contain
-// 410 x 40 x 80 x log(29) / log(256) / 4 = 199178 pixels;
-// 199178 = 574 x 347
-export const BOOK_IMAGE_WIDTH = 574;
-export const BOOK_IMAGE_HEIGHT = 347;
-
 export type LibraryMode = "browse" | "search" | "random";
 
 export interface SearchOptions {

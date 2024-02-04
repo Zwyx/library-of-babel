@@ -363,17 +363,15 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						onSaveBookClick={() => copyOrSave("book", "save")}
 					/>
 
-					{bookMetadata && (
-						<BookMetadataDialog
-							bookMetadata={bookMetadata}
-							originalBookImageDimensions={bookImageDimensions}
-							bookIdChanged={mode === "browse" && bookIdChanged.current}
-							bookImageChanged={mode === "browse" && bookImageChanged.current}
-							searchTextChanged={mode === "search" && searchTextChanged.current}
-							open={bookMetadataDialogOpen}
-							onOpenChange={setBookMetadataDialogOpen}
-						/>
-					)}
+					<BookMetadataDialog
+						bookMetadata={bookMetadata}
+						originalBookImageDimensions={bookImageDimensions}
+						bookIdChanged={mode === "browse" && bookIdChanged.current}
+						bookImageChanged={mode === "browse" && bookImageChanged.current}
+						searchTextChanged={mode === "search" && searchTextChanged.current}
+						open={bookMetadataDialogOpen}
+						onOpenChange={setBookMetadataDialogOpen}
+					/>
 
 					<BookPage
 						lines={book.pages[pageNumber - 1].lines}

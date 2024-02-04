@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 const LOG_ACTIVE = true;
@@ -20,6 +21,16 @@ export type DeepReplace<T, M extends [unknown, unknown]> = {
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
+}
+
+export function usePrevious<T>(newValue: T) {
+	const previousRef = useRef<T>();
+
+	useEffect(() => {
+		previousRef.current = newValue;
+	});
+
+	return previousRef.current;
 }
 
 export const BINARY_PREFIXES = [

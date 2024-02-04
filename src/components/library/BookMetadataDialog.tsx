@@ -8,15 +8,11 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import {
-	BOOK_IMAGE_HEIGHT,
-	BOOK_IMAGE_WIDTH,
-	BookImageDimensions,
-	BookMetadata,
-} from "@/lib/common";
-import { copyToClipboard, saveToFile } from "@/lib/utils";
+import { BookImageDimensions, BookMetadata } from "@/lib/common";
+import { copyToClipboard, saveToFile, usePrevious } from "@/lib/utils";
 import { encode } from "fast-png";
 import { LucideAlertTriangle, LucideHelpCircle } from "lucide-react";
+import { equals } from "ramda";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
@@ -32,7 +28,7 @@ export const BookMetadataDialog = ({
 	searchTextChanged,
 	onOpenChange,
 }: {
-	bookMetadata: BookMetadata;
+	bookMetadata?: BookMetadata;
 	originalBookImageDimensions?: BookImageDimensions;
 	bookIdChanged?: boolean;
 	bookImageChanged?: boolean;
@@ -42,8 +38,15 @@ export const BookMetadataDialog = ({
 }) => {
 	const [showContent, setShowContent] = useState<boolean>(false);
 
-	const [imageWidth, setImageWidth] = useState<number>(BOOK_IMAGE_WIDTH);
-	const [imageHeight, setImageHeight] = useState<number>(BOOK_IMAGE_HEIGHT);
+	const [autoDimensions, setAutoDimensions] = useState<BookImageDimensions>({
+		width: 0,
+		height: 0,
+	});
+
+	const previousAutoDimensions = usePrevious(autoDimensions);
+
+	const [imageWidth, setImageWidth] = useState<number>(1);
+	const [imageHeight, setImageHeight] = useState<number>(1);
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -51,9 +54,9 @@ export const BookMetadataDialog = ({
 		"bookId" | "image" | false
 	>(false);
 
-	// 4 values per pixel: RGBA
 	const dimensionsTooSmall =
-		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length;
+		bookMetadata &&
+		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length; // 4 values per pixel: RGBA
 
 	useEffect(() => {
 		if (originalBookImageDimensions) {
@@ -62,10 +65,67 @@ export const BookMetadataDialog = ({
 		}
 	}, [originalBookImageDimensions]);
 
+	useEffect(() => {
+		if (!bookMetadata) {
+			return;
+		}
+
+		let length = Math.ceil(bookMetadata.bookImageData.length / 4); // 4 values per pixel: RGBA
+		let bestDivisors: number[] = [];
+		let loop = true;
+
+		while (loop) {
+			const allDivisors = [...Array(length)]
+				.map((_, i) => i + 1)
+				.filter((i) => length % i === 0);
+
+			const divisorsHalfLength = Math.ceil(allDivisors.length / 2) - 1;
+
+			bestDivisors = [
+				allDivisors[divisorsHalfLength],
+				allDivisors[
+					divisorsHalfLength + (allDivisors.length % 2 === 0 ? 1 : 0)
+				],
+			];
+
+			if (bestDivisors[0] >= bestDivisors[1] / 2) {
+				loop = false;
+			}
+
+			if (loop) {
+				length++;
+			}
+		}
+
+		setAutoDimensions({
+			width: bestDivisors[1],
+			height: bestDivisors[0],
+		});
+	}, [bookMetadata]);
+
+	const applyAutoDimensions = useCallback(() => {
+		setImageWidth(autoDimensions.width);
+		setImageHeight(autoDimensions.height);
+	}, [autoDimensions]);
+
+	useEffect(() => {
+		if (
+			!originalBookImageDimensions &&
+			!equals(autoDimensions, previousAutoDimensions)
+		) {
+			applyAutoDimensions();
+		}
+	}, [
+		originalBookImageDimensions,
+		autoDimensions,
+		previousAutoDimensions,
+		applyAutoDimensions,
+	]);
+
 	const drawBookImage = useCallback(() => {
 		// Ensures the canvas is accessible by our code
 		requestAnimationFrame(() => {
-			if (dimensionsTooSmall) {
+			if (!bookMetadata || dimensionsTooSmall) {
 				return;
 			}
 
@@ -87,7 +147,7 @@ export const BookMetadataDialog = ({
 			canvasImageData.data.set(bookMetadata.bookImageData);
 			canvasContext.putImageData(canvasImageData, 0, 0);
 		});
-	}, [dimensionsTooSmall, imageWidth, imageHeight, bookMetadata.bookImageData]);
+	}, [bookMetadata, dimensionsTooSmall, imageWidth, imageHeight]);
 
 	useEffect(() => {
 		if (!open) {
@@ -109,7 +169,11 @@ export const BookMetadataDialog = ({
 	 * in Chrome and Firefox, both browsers changing the data in a different way;
 	 * see https://codesandbox.io/p/sandbox/canvas-png-lrhrcg
 	 */
-	const copyOrSave = (subject: "bookId" | "image", action: "copy" | "save") =>
+	const copyOrSave = (subject: "bookId" | "image", action: "copy" | "save") => {
+		if (!bookMetadata) {
+			return;
+		}
+
 		new Promise<string | Blob>((resolve) => {
 			if (subject === "bookId") {
 				resolve(bookMetadata.bookId);
@@ -139,6 +203,11 @@ export const BookMetadataDialog = ({
 				})
 			:	saveToFile(content, subject === "bookId" ? "Book ID" : "Image"),
 		);
+	};
+
+	if (!bookMetadata) {
+		return;
+	}
 
 	return (
 		<Dialog
@@ -171,14 +240,13 @@ export const BookMetadataDialog = ({
 					)}
 				</DialogHeader>
 
-				<div className="mt-6 flex items-center">
+				<div className="mb-1 mt-6 flex items-center">
 					<h3 className="font-semibold">Book ID</h3>
 
 					<div className="flex-1" />
 
 					<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
 						<Button
-							className="mb-1"
 							variant="ghost"
 							size="sm"
 							onClick={() => copyOrSave("bookId", "copy")}
@@ -188,7 +256,6 @@ export const BookMetadataDialog = ({
 					</SuccessWrapper>
 
 					<Button
-						className="mb-1"
 						variant="ghost"
 						size="sm"
 						onClick={() => copyOrSave("bookId", "save")}
@@ -196,11 +263,7 @@ export const BookMetadataDialog = ({
 						Save
 					</Button>
 
-					<Button
-						className="mb-1 text-muted-foreground"
-						variant="ghost"
-						size="sm"
-					>
+					<Button className="text-muted-foreground" variant="ghost" size="sm">
 						<LucideHelpCircle size={20} />
 					</Button>
 				</div>
@@ -252,16 +315,15 @@ export const BookMetadataDialog = ({
 					</div>
 				</div>
 
-				<div className="mb-1 mt-6 flex flex-wrap items-center gap-2">
-					<h3 className="font-semibold">Book image</h3>
+				<h3 className="mt-6 font-semibold">Book image</h3>
 
-					<div className="flex-1" />
-
+				<div className="mb-2 mt-3 flex flex-wrap items-center gap-2">
 					<div className="flex items-center">
 						<Input
 							className="w-[5rem]"
 							variantSize="sm"
 							type="number"
+							min={1}
 							placeholder="Width"
 							value={imageWidth}
 							onChange={(e) => setImageWidth(parseInt(e.target.value))}
@@ -273,47 +335,58 @@ export const BookMetadataDialog = ({
 							className="w-[5rem]"
 							variantSize="sm"
 							type="number"
+							min={1}
 							placeholder="Height"
 							value={imageHeight}
 							onChange={(e) => setImageHeight(parseInt(e.target.value))}
 						/>
 					</div>
 
+					<Button
+						variant="ghost"
+						size="sm"
+						disabled={
+							imageWidth === autoDimensions.width &&
+							imageHeight === autoDimensions.height
+						}
+						onClick={applyAutoDimensions}
+					>
+						Auto
+					</Button>
+
 					<div className="flex-1" />
 
 					<div className="flex flex-1 justify-end">
-						<SuccessWrapper showSuccess={showCopySuccess === "image"}>
-							<Button
-								className="mb-1"
-								variant="ghost"
-								size="sm"
-								onClick={() => copyOrSave("image", "copy")}
-							>
-								Copy
-							</Button>
-						</SuccessWrapper>
+						{!dimensionsTooSmall && (
+							<>
+								<SuccessWrapper showSuccess={showCopySuccess === "image"}>
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => copyOrSave("image", "copy")}
+									>
+										Copy
+									</Button>
+								</SuccessWrapper>
 
-						<Button
-							className="mb-1"
-							variant="ghost"
-							size="sm"
-							onClick={() => copyOrSave("image", "save")}
-						>
-							Save
-						</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => copyOrSave("image", "save")}
+								>
+									Save
+								</Button>
+							</>
+						)}
 
-						<Button
-							className="mb-1 text-muted-foreground"
-							variant="ghost"
-							size="sm"
-						>
+						<Button className="text-muted-foreground" variant="ghost" size="sm">
 							<LucideHelpCircle size={20} />
 						</Button>
 					</div>
 				</div>
 
 				{dimensionsTooSmall ?
-					<DialogDescription className="mb-1 flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
+					<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
 						<LucideAlertTriangle className="flex-shrink-0" size={20} />
 						These dimensions are too small for this book image.
 					</DialogDescription>
