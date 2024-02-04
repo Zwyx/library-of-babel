@@ -11,36 +11,83 @@ import {
 import {
 	BOOK_IMAGE_HEIGHT,
 	BOOK_IMAGE_WIDTH,
+	BookImageDimensions,
 	BookMetadata,
 } from "@/lib/common";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { encode } from "fast-png";
 import { LucideAlertTriangle, LucideHelpCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
 import { SuccessWrapper } from "../common/SuccessWrapper";
+import { Input } from "../ui/input";
 
 export const BookMetadataDialog = ({
 	bookMetadata,
+	originalBookImageDimensions,
 	open,
-	bookIdModified,
-	searchTextModified,
+	bookIdChanged,
+	bookImageChanged,
+	searchTextChanged,
 	onOpenChange,
 }: {
 	bookMetadata: BookMetadata;
-	bookIdModified?: boolean;
-	searchTextModified?: boolean;
+	originalBookImageDimensions?: BookImageDimensions;
+	bookIdChanged?: boolean;
+	bookImageChanged?: boolean;
+	searchTextChanged?: boolean;
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
 	const [showContent, setShowContent] = useState<boolean>(false);
+
+	const [imageWidth, setImageWidth] = useState<number>(BOOK_IMAGE_WIDTH);
+	const [imageHeight, setImageHeight] = useState<number>(BOOK_IMAGE_HEIGHT);
 
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 	const [showCopySuccess, setShowCopySuccess] = useState<
 		"bookId" | "image" | false
 	>(false);
+
+	// 4 values per pixel: RGBA
+	const dimensionsTooSmall =
+		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length;
+
+	useEffect(() => {
+		if (originalBookImageDimensions) {
+			setImageWidth(originalBookImageDimensions.width);
+			setImageHeight(originalBookImageDimensions.height);
+		}
+	}, [originalBookImageDimensions]);
+
+	const drawBookImage = useCallback(() => {
+		// Ensures the canvas is accessible by our code
+		requestAnimationFrame(() => {
+			if (dimensionsTooSmall) {
+				return;
+			}
+
+			const canvas = canvasRef.current;
+			const canvasContext = canvas?.getContext("2d");
+
+			if (!canvas || !canvasContext) {
+				return;
+			}
+
+			canvasRef.current.width = imageWidth;
+			canvasRef.current.height = imageHeight;
+
+			const canvasImageData = canvasContext.createImageData(
+				imageWidth,
+				imageHeight,
+			);
+
+			canvasImageData.data.set(bookMetadata.bookImageData);
+			canvasContext.putImageData(canvasImageData, 0, 0);
+		});
+	}, [dimensionsTooSmall, imageWidth, imageHeight, bookMetadata.bookImageData]);
 
 	useEffect(() => {
 		if (!open) {
@@ -53,27 +100,8 @@ export const BookMetadataDialog = ({
 		// this can't be noticed for small books, but can be for big ones
 		setTimeout(() => setShowContent(true), 10);
 
-		// Ensures the canvas is accessible by our code
-		requestAnimationFrame(() => {
-			const canvas = canvasRef.current;
-			const canvasContext = canvas?.getContext("2d");
-
-			if (!canvas || !canvasContext) {
-				return;
-			}
-
-			canvasRef.current.width = BOOK_IMAGE_WIDTH;
-			canvasRef.current.height = BOOK_IMAGE_HEIGHT;
-
-			const canvasImageData = canvasContext.createImageData(
-				BOOK_IMAGE_WIDTH,
-				BOOK_IMAGE_HEIGHT,
-			);
-
-			canvasImageData.data.set(bookMetadata.image);
-			canvasContext.putImageData(canvasImageData, 0, 0);
-		});
-	}, [bookMetadata.image, open]);
+		drawBookImage();
+	}, [open, drawBookImage]);
 
 	/**
 	 * Note: we use `fast-png`, instead of the HTML canvas, to generate the PNG data, because
@@ -88,17 +116,15 @@ export const BookMetadataDialog = ({
 			}
 
 			// 4 values per pixel: RGBA
-			const imageData = new Uint8ClampedArray(
-				BOOK_IMAGE_WIDTH * BOOK_IMAGE_HEIGHT * 4,
-			);
+			const imageData = new Uint8ClampedArray(imageWidth * imageHeight * 4);
 
-			bookMetadata.image.forEach((value, i) => (imageData[i] = value));
+			bookMetadata.bookImageData.forEach((value, i) => (imageData[i] = value));
 
 			resolve(
 				new Blob([
 					encode({
-						width: BOOK_IMAGE_WIDTH,
-						height: BOOK_IMAGE_HEIGHT,
+						width: imageWidth,
+						height: imageHeight,
 						data: imageData,
 					}),
 				]),
@@ -128,19 +154,24 @@ export const BookMetadataDialog = ({
 				<DialogHeader>
 					<DialogTitle>Book info</DialogTitle>
 
-					{(bookIdModified || searchTextModified) && (
+					{(bookIdChanged || bookImageChanged || searchTextChanged) && (
 						<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
 							<LucideAlertTriangle className="flex-shrink-0" size={20} />
 
 							<div>
-								The {bookIdModified ? "book ID" : "search text"} has been
-								modified since this book was generated
+								The{" "}
+								{bookIdChanged ?
+									"book ID"
+								: bookImageChanged ?
+									"book image"
+								:	"search text"}{" "}
+								has been modified since this book was generated.
 							</div>
 						</DialogDescription>
 					)}
 				</DialogHeader>
 
-				<div className="mt-6 flex items-center justify-between">
+				<div className="mt-6 flex items-center">
 					<h3 className="font-semibold">Book ID</h3>
 
 					<div className="flex-1" />
@@ -198,7 +229,7 @@ export const BookMetadataDialog = ({
 					{showContent ? bookMetadata.roomIndex : "Loading..."}
 				</Code>
 
-				<div className="mt-4 flex justify-evenly">
+				<div className="mt-4 flex flex-wrap justify-evenly gap-2">
 					<div className="flex items-center gap-2">
 						Wall
 						<Code display="block" numbersOnly>
@@ -221,44 +252,76 @@ export const BookMetadataDialog = ({
 					</div>
 				</div>
 
-				<div className="mt-6 flex items-center justify-between">
+				<div className="mb-1 mt-6 flex flex-wrap items-center gap-2">
 					<h3 className="font-semibold">Book image</h3>
 
 					<div className="flex-1" />
 
-					<SuccessWrapper showSuccess={showCopySuccess === "image"}>
+					<div className="flex items-center">
+						<Input
+							className="w-[5rem]"
+							variantSize="sm"
+							type="number"
+							placeholder="Width"
+							value={imageWidth}
+							onChange={(e) => setImageWidth(parseInt(e.target.value))}
+						/>
+
+						<>&nbsp;×&nbsp;</>
+
+						<Input
+							className="w-[5rem]"
+							variantSize="sm"
+							type="number"
+							placeholder="Height"
+							value={imageHeight}
+							onChange={(e) => setImageHeight(parseInt(e.target.value))}
+						/>
+					</div>
+
+					<div className="flex-1" />
+
+					<div className="flex flex-1 justify-end">
+						<SuccessWrapper showSuccess={showCopySuccess === "image"}>
+							<Button
+								className="mb-1"
+								variant="ghost"
+								size="sm"
+								onClick={() => copyOrSave("image", "copy")}
+							>
+								Copy
+							</Button>
+						</SuccessWrapper>
+
 						<Button
 							className="mb-1"
 							variant="ghost"
 							size="sm"
-							onClick={() => copyOrSave("image", "copy")}
+							onClick={() => copyOrSave("image", "save")}
 						>
-							Copy
+							Save
 						</Button>
-					</SuccessWrapper>
 
-					<Button
-						className="mb-1"
-						variant="ghost"
-						size="sm"
-						onClick={() => copyOrSave("image", "save")}
-					>
-						Save
-					</Button>
-
-					<Button
-						className="mb-1 text-muted-foreground"
-						variant="ghost"
-						size="sm"
-					>
-						<LucideHelpCircle size={20} />
-					</Button>
+						<Button
+							className="mb-1 text-muted-foreground"
+							variant="ghost"
+							size="sm"
+						>
+							<LucideHelpCircle size={20} />
+						</Button>
+					</div>
 				</div>
 
-				<canvas
-					ref={canvasRef}
-					className="mx-auto max-w-full overflow-auto rounded border p-1"
-				/>
+				{dimensionsTooSmall ?
+					<DialogDescription className="mb-1 flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
+						<LucideAlertTriangle className="flex-shrink-0" size={20} />
+						These dimensions are too small for this book image.
+					</DialogDescription>
+				:	<canvas
+						ref={canvasRef}
+						className="mx-auto max-h-[500px] max-w-full overflow-auto rounded border p-1"
+					/>
+				}
 
 				<DialogFooter className="mt-6">
 					<DialogClose asChild>

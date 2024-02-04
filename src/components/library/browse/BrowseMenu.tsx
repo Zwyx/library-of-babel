@@ -5,7 +5,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LibraryMode } from "@/lib/common";
+import { BookImage, LibraryMode } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import { decode } from "fast-png";
 import { LucideMoreHorizontal } from "lucide-react";
@@ -16,15 +16,60 @@ export const BrowseMenu = ({
 	mode,
 	disabled,
 	onBookIdLoaded,
-	onImageLoaded,
+	onBookImageLoaded,
 }: {
 	mode: LibraryMode;
 	disabled: boolean;
 	onBookIdLoaded: (bookId: string) => void;
-	onImageLoaded: (image: number[]) => void;
+	onBookImageLoaded: (bookImage: BookImage) => void;
 }) => {
 	const textInputRef = useRef<HTMLInputElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
+
+	const loadText = (file: File) =>
+		file.text().then((text) => onBookIdLoaded(text.split("\n")[0]));
+
+	const loadImage = (file: File) =>
+		Promise.all([
+			new Promise<number[]>((resolve, reject) => {
+				const fileReader = new FileReader();
+
+				fileReader.onload = (e) => {
+					const data = e.target?.result as ArrayBuffer;
+
+					// Errors inside the callback aren't caught
+					try {
+						// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
+						resolve(Array.from(decode(data).data));
+					} catch (err) {
+						reject(err);
+					}
+				};
+
+				fileReader.readAsArrayBuffer(file);
+			}),
+
+			new Promise<{ width: number; height: number }>((resolve) => {
+				const fileReader = new FileReader();
+
+				fileReader.onload = (e) => {
+					const data = e.target?.result as string;
+
+					const image = new Image();
+
+					image.onload = () =>
+						resolve({ width: image.width, height: image.height });
+
+					image.src = data;
+				};
+
+				fileReader.readAsDataURL(file);
+			}),
+		])
+			.then(([data, { width, height }]) =>
+				onBookImageLoaded({ data, width, height }),
+			)
+			.catch(alert);
 
 	return (
 		<div>
@@ -56,26 +101,13 @@ export const BrowseMenu = ({
 			<FileInput
 				forwardedRef={textInputRef}
 				accept="text/plain"
-				onFile={(file) =>
-					file.text().then((text) => onBookIdLoaded(text.split("\n")[0]))
-				}
+				onFile={loadText}
 			/>
 
 			<FileInput
 				forwardedRef={imageInputRef}
 				accept="image/png"
-				onFile={(file) => {
-					const fileReader = new FileReader();
-
-					fileReader.readAsArrayBuffer(file);
-
-					fileReader.onload = (e) => {
-						const data = e.target?.result as ArrayBuffer;
-
-						// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
-						onImageLoaded(Array.from(decode(data).data));
-					};
-				}}
+				onFile={loadImage}
 			/>
 		</div>
 	);

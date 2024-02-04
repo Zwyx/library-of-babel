@@ -11,6 +11,7 @@ import {
 	BOOKS_PER_SHELVES_BIGINT,
 	BOOKS_PER_WALL_BIGINT,
 	Book,
+	BookImageData,
 	BookMetadata,
 	CHARS_PER_BOOK,
 	CHARS_PER_PAGE,
@@ -197,7 +198,7 @@ const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
 	return bookIndex;
 };
 
-const getBookIndexFromBookImage = (bookImage: number[]): bigint | null => {
+const getBookIndexFromBookImage = (bookImage: BookImageData): bigint | null => {
 	const startTime = Date.now();
 
 	const bookIndexHex = bookImage
@@ -357,7 +358,7 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 
 	const bookContentHex = bookIndex.toString(16).split("").reverse();
 
-	const image = bookContentHex.reduce((acc, cur, i) => {
+	const bookImageData = bookContentHex.reduce((acc, cur, i) => {
 		if (i % 2 === 0) {
 			acc.push(
 				parseInt(cur, 16) + (parseInt(bookContentHex[i + 1], 16) || 0) * 16,
@@ -374,7 +375,7 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 		wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
 		shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
 		bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
-		image,
+		bookImageData,
 	};
 };
 
@@ -390,7 +391,7 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 				const bookIndex =
 					data.source === "bookId" ?
 						getBookIndexFromBookId(data.bookId)
-					:	getBookIndexFromBookImage(data.bookImage);
+					:	getBookIndexFromBookImage(data.bookImageData);
 
 				const book = bookIndex ? getBookFromBookIndex(bookIndex) : undefined;
 

@@ -41,6 +41,10 @@ export const BASE_94_ALPHABET_REGEX =
 
 export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 
+// We need 410 x 40 x 80 x log(29) / log(256) = 796709 digits in base 256;
+// there are four values per pixels (RGBA), so our image needs to contain
+// 410 x 40 x 80 x log(29) / log(256) / 4 = 199178 pixels;
+// 199178 = 574 x 347
 export const BOOK_IMAGE_WIDTH = 574;
 export const BOOK_IMAGE_HEIGHT = 347;
 
@@ -77,13 +81,24 @@ export interface Book {
 	searchTextEnd?: number;
 }
 
+export type BookImageData = number[];
+
+export interface BookImageDimensions {
+	width: number;
+	height: number;
+}
+
+export interface BookImage extends BookImageDimensions {
+	data: BookImageData;
+}
+
 export interface BookMetadata {
 	bookId: string;
 	roomIndex: string;
 	wallIndexInRoom: string;
 	shelfIndexInWall: string;
 	bookIndexInShelf: string;
-	image: number[];
+	bookImageData: BookImageData;
 }
 
 export type MessageToWorker =
@@ -95,7 +110,7 @@ export type MessageToWorker =
 	| {
 			operation: "browse";
 			source: "bookImage";
-			bookImage: number[];
+			bookImageData: BookImageData;
 	  }
 	| {
 			operation: "search";

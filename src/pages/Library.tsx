@@ -13,6 +13,8 @@ import { useWorkerContext } from "@/lib/WorkerContext.const";
 import {
 	BASE_29_ALPHABET,
 	Book,
+	BookImage,
+	BookImageDimensions,
 	BookMetadata,
 	CHARS_PER_LINE,
 	CHARS_PER_PAGE,
@@ -34,10 +36,13 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	const [bookId, setBookId] = useState<string>("");
+	const [bookImageDimensions, setBookImageDimensions] =
+		useState<BookImageDimensions>();
 	const [searchText, setSearchText] = useState<string>("");
 
-	const bookIdModified = useRef<boolean>(false);
-	const searchTextModified = useRef<boolean>(false);
+	const bookIdChanged = useRef<boolean>(false);
+	const bookImageChanged = useRef<boolean>(false);
+	const searchTextChanged = useRef<boolean>(false);
 
 	const [invalidDataDialogOpen, setInvalidDataDialogOpen] =
 		useState<boolean>(false);
@@ -84,32 +89,45 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	const onBookIdChange = (newBookId: string) => {
 		setBookId(newBookId);
-		bookIdModified.current = true;
+		bookIdChanged.current = true;
+	};
+
+	const onBookImageChange = () => {
+		bookImageChanged.current = true;
 	};
 
 	const onSearchTextChange = (newSearchText: string) => {
 		setSearchText(newSearchText);
-		searchTextModified.current = true;
+		searchTextChanged.current = true;
 	};
 
-	const getBook = (params?: { bookId?: string; bookImage?: number[] }) => {
+	const getBook = (param?: { bookId?: string; bookImage?: BookImage }) => {
 		setLoadingBookReal(true);
 		setLoadingBookMin(true);
+
+		setBookImageDimensions(
+			param?.bookImage?.data ?
+				{
+					width: param.bookImage.width,
+					height: param.bookImage.height,
+				}
+			:	undefined,
+		);
 
 		const operation = mode;
 
 		const message: MessageToWorker =
-			operation === "browse" && params?.bookImage ?
+			operation === "browse" && param?.bookImage?.data ?
 				{
 					operation,
 					source: "bookImage",
-					bookImage: params.bookImage,
+					bookImageData: param.bookImage.data,
 				}
 			: operation === "browse" ?
 				{
 					operation,
 					source: "bookId",
-					bookId: params?.bookId || bookId,
+					bookId: param?.bookId || bookId,
 				}
 			: operation === "search" ?
 				{
@@ -174,8 +192,9 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						setBookId(data.bookId);
 					}
 
-					bookIdModified.current = false;
-					searchTextModified.current = false;
+					bookIdChanged.current = false;
+					bookImageChanged.current = false;
+					searchTextChanged.current = false;
 
 					if (operation === "browse") {
 						setPageNumber(1);
@@ -269,7 +288,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						onBookIdChange(newBookId);
 						getBook({ bookId: newBookId });
 					}}
-					onImageLoaded={(bookImage) => getBook({ bookImage })}
+					onBookImageLoaded={(bookImage) => {
+						onBookImageChange();
+						getBook({ bookImage });
+					}}
 				/>
 
 				<ButtonLoading
@@ -344,10 +366,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					{bookMetadata && (
 						<BookMetadataDialog
 							bookMetadata={bookMetadata}
-							bookIdModified={mode === "browse" && bookIdModified.current}
-							searchTextModified={
-								mode === "search" && searchTextModified.current
-							}
+							originalBookImageDimensions={bookImageDimensions}
+							bookIdChanged={mode === "browse" && bookIdChanged.current}
+							bookImageChanged={mode === "browse" && bookImageChanged.current}
+							searchTextChanged={mode === "search" && searchTextChanged.current}
 							open={bookMetadataDialogOpen}
 							onOpenChange={setBookMetadataDialogOpen}
 						/>
