@@ -37,7 +37,7 @@ export const BASE_29_ALPHABET = " abcdefghijklmnopqrstuvwxyz,.";
 export const BASE_94_ALPHABET =
 	"!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 export const BASE_94_ALPHABET_REGEX =
-	"!\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+	"!\\\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
 
 export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 
