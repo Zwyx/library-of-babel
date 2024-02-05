@@ -224,7 +224,7 @@ export const BookMetadataDialog = ({
 							<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
 								<LucideAlertTriangle className="flex-shrink-0" size={20} />
 
-								<div>
+								<span>
 									The{" "}
 									{bookIdChanged ?
 										"book ID"
@@ -232,7 +232,7 @@ export const BookMetadataDialog = ({
 										"book image"
 									:	"search text"}{" "}
 									has been modified since this book was generated.
-								</div>
+								</span>
 							</DialogDescription>
 						)}
 					</DialogHeader>
@@ -389,7 +389,7 @@ export const BookMetadataDialog = ({
 					{dimensionsTooSmall ?
 						<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
 							<LucideAlertTriangle className="flex-shrink-0" size={20} />
-							These dimensions are too small for this book image.
+							<span>These dimensions are too small for this book image.</span>
 						</DialogDescription>
 					:	<canvas
 							ref={canvasRef}
