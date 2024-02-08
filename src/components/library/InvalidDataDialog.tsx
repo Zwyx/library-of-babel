@@ -37,7 +37,9 @@ export const InvalidDataDialog = ({
 
 						<div>Valid characters are:</div>
 
-						<Code display="block">{BASE_94_ALPHABET}</Code>
+						<Code block breakAll>
+							{BASE_94_ALPHABET}
+						</Code>
 					</>
 				)}
 
@@ -50,8 +52,8 @@ export const InvalidDataDialog = ({
 
 						<div>
 							Valid characters are the space, the letters{" "}
-							<Code>abcdefghijklmnopqrstuvwxyz</Code>, the comma, and the
-							period.
+							<Code breakAll>abcdefghijklmnopqrstuvwxyz</Code>, the comma, and
+							the period.
 						</div>
 					</>
 				)}

@@ -17,5 +17,12 @@
 	"editor.quickSuggestions": {
 		"strings": true
 	},
-	"cSpell.words": ["abcdefghijklmnopqrs", "CCPA", "mxschmitt"]
+	"cSpell.words": [
+		"abcdefghijklmnopqrs",
+		"behavior",
+		"CCPA",
+		"libraryofbabel",
+		"mxschmitt",
+		"Snelling"
+	]
 }

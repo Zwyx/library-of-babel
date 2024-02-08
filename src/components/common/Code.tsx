@@ -3,20 +3,23 @@ import { PropsWithChildren } from "react";
 
 export const Code = ({
 	className,
-	display,
+	block,
+	breakAll,
 	numbersOnly,
 	children,
 }: {
 	className?: string;
-	display?: "inline" | "block";
+	block?: boolean;
+	breakAll?: boolean;
 	numbersOnly?: boolean;
 } & PropsWithChildren) => (
 	<code
 		className={cn(
-			"break-all rounded border bg-gray-100 px-1 py-0.5 dark:border-gray-700 dark:bg-gray-800",
+			"rounded border bg-gray-100 px-1 py-0.5 dark:border-gray-700 dark:bg-gray-800",
 			numbersOnly && "pt-1",
-			display === "block" && "block px-2 py-1",
-			display === "block" && numbersOnly && "px-3 pb-0 pt-0.5",
+			block && "block px-2 py-1",
+			block && numbersOnly && "px-3 pb-0 pt-0.5",
+			breakAll && "break-all",
 			className,
 		)}
 	>

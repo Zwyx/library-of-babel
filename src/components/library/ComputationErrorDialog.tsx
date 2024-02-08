@@ -40,11 +40,15 @@ export const ComputationErrorDialog = ({
 						Try again by generating no more than the first 67 pages of a book.
 					</div>
 
-					<div className="mt-4">Error details:</div>
+					{error && (
+						<>
+							<div className="mt-4">Error details:</div>
 
-					<Code className="mt-1" display="block">
-						{error}
-					</Code>
+							<Code className="mt-1" block>
+								{error}
+							</Code>
+						</>
+					)}
 				</div>
 
 				<DialogFooter>

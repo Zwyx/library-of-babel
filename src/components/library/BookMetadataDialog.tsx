@@ -18,6 +18,7 @@ import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
 import { SmallAlert } from "../common/SmallAlert";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Input } from "../ui/input";
+import { AboutDialogLink } from "./about/AboutDialog";
 
 export const BookMetadataDialog = ({
 	bookMetadata,
@@ -256,8 +257,15 @@ export const BookMetadataDialog = ({
 							Save
 						</Button>
 
-						<Button className="text-muted-foreground" variant="ghost" size="sm">
-							<LucideHelpCircle size={20} />
+						<Button
+							className="text-muted-foreground"
+							variant="ghost"
+							size="sm"
+							asChild
+						>
+							<AboutDialogLink to="?about#the-book-id">
+								<LucideHelpCircle size={20} />
+							</AboutDialogLink>
 						</Button>
 					</div>
 
@@ -279,7 +287,8 @@ export const BookMetadataDialog = ({
 
 					<Code
 						className="mt-0.5 max-h-[6rem] overflow-auto"
-						display="block"
+						block
+						breakAll
 						numbersOnly
 					>
 						{showContent ? bookMetadata.roomIndex : "Loading..."}
@@ -288,21 +297,21 @@ export const BookMetadataDialog = ({
 					<div className="mt-4 flex flex-wrap justify-evenly gap-2">
 						<div className="flex items-center gap-2">
 							Wall
-							<Code display="block" numbersOnly>
+							<Code block numbersOnly>
 								{bookMetadata.wallIndexInRoom}
 							</Code>
 						</div>
 
 						<div className="flex items-center gap-2">
 							Shelf
-							<Code display="block" numbersOnly>
+							<Code block numbersOnly>
 								{bookMetadata.shelfIndexInWall}
 							</Code>
 						</div>
 
 						<div className="flex items-center gap-2">
 							Book
-							<Code display="block" numbersOnly>
+							<Code block numbersOnly>
 								{bookMetadata.bookIndexInShelf}
 							</Code>
 						</div>
@@ -376,8 +385,11 @@ export const BookMetadataDialog = ({
 								className="text-muted-foreground"
 								variant="ghost"
 								size="sm"
+								asChild
 							>
-								<LucideHelpCircle size={20} />
+								<AboutDialogLink to="?about#the-book-image">
+									<LucideHelpCircle size={20} />
+								</AboutDialogLink>
 							</Button>
 						</div>
 					</div>

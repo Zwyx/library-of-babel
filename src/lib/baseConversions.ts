@@ -51,7 +51,7 @@ export const toBase = (
 
 	// "Divide-and-conquer" algorithm, taken from V8's source code; 180s for a bigint made of 500,000 random digits in base 10
 	// https://github.com/v8/v8/blob/main/src/bigint/tostring.cc
-	// https://zwyx.dev/til/2024/02/01/Fast%20integer-to-string%20conversion
+	// https://zwyx.dev/blog/base-conversions-with-big-numbers-in-javascript
 
 	const divisors = [base];
 	const valueBinaryLength = value.toString(2).length;
@@ -120,7 +120,7 @@ export const fromBase = (
 	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10,
 	// just slightly slower than native BigInt
 	// https://github.com/v8/v8/blob/main/src/bigint/fromstring.cc
-	// https://zwyx.dev/til/2023/12/31/Fast%20string-to-integer%20conversion
+	// https://zwyx.dev/blog/base-conversions-with-big-numbers-in-javascript
 
 	let parts = (text || " ")
 		.split("")

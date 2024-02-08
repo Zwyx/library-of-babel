@@ -1,4 +1,3 @@
-import { AboutDialogLink } from "@/components/library/about/AboutDialog";
 import { PRIVACY_BANNER_KEY } from "@/lib/keys";
 import { LucideX } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
@@ -17,10 +16,9 @@ export const Privacy = () => {
 			<div className="flex w-full items-center justify-between gap-1 rounded bg-muted px-1 text-center text-xs text-muted-foreground">
 				<div className="flex-1">
 					Your privacy is safe, this app works entirely{" "}
-					<AboutDialogLink to="?about#tbd" onClick={hideBanner}>
-						offline
-					</AboutDialogLink>
-					.
+					{/* <AboutDialogLink to="?about#tbd" onClick={hideBanner}> */}
+					offline
+					{/* </AboutDialogLink> */}.
 				</div>
 
 				<Button variant="ghost" size="2xs" onClick={hideBanner}>

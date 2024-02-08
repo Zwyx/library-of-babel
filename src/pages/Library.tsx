@@ -9,7 +9,6 @@ import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
 import { Privacy } from "@/components/library/Privacy";
-import { AboutDialogLink } from "@/components/library/about/AboutDialog";
 import { BrowseMenu } from "@/components/library/browse/BrowseMenu";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
 import {
@@ -339,7 +338,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				<SmallAlert>
 					The {mode === "browse" ? "data" : "search text"} was too large and has
 					been truncated.{" "}
-					<AboutDialogLink to="?about#tbd">Learn more</AboutDialogLink>
+					{/* <AboutDialogLink to="?about#tbd">Learn more</AboutDialogLink> */}
 				</SmallAlert>
 			)}
 
