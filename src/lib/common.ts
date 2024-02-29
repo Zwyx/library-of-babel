@@ -41,6 +41,15 @@ export const BASE_94_ALPHABET_REGEX =
 
 export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 
+// Long calculations which would freezes the UI when the app loads,
+// so we calculate the values and hardcode them:
+// const lastBookIndex = BASE_29_BIGINT ** CHARS_PER_BOOK_BIGINT - 1n;
+// console.log(toBase94(lastBookIndex).length);
+export const MAX_BOOK_ID_LENGTH = 972_399;
+// Values are between 0 and 255; there are 4 values per pixel (RGBA) so the result must is ceilled to the nearest greater multiple of 4
+// console.log(lastBookIndex.toString(16).length / 2);
+export const MAX_BOOK_IMAGE_DATA_LENGTH = 796_712;
+
 export type LibraryMode = "browse" | "search" | "random";
 
 export interface SearchOptions {
@@ -125,6 +134,7 @@ export type MessageFromWorker = Pick<MessageToWorker, "operation"> &
 				operation: "browse" | "search" | "random";
 				book?: Book;
 				bookId?: string;
+				dataTruncated?: boolean;
 				invalidData?: boolean;
 				error?: unknown;
 		  }

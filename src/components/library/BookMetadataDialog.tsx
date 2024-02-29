@@ -3,7 +3,6 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -11,11 +10,12 @@ import {
 import { BookImageDimensions, BookMetadata } from "@/lib/common";
 import { copyToClipboard, saveToFile, usePrevious } from "@/lib/utils";
 import { encode } from "fast-png";
-import { LucideAlertTriangle, LucideHelpCircle } from "lucide-react";
+import { LucideHelpCircle } from "lucide-react";
 import { equals } from "ramda";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
+import { SmallAlert } from "../common/SmallAlert";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Input } from "../ui/input";
 
@@ -56,7 +56,7 @@ export const BookMetadataDialog = ({
 
 	const dimensionsTooSmall =
 		bookMetadata &&
-		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length; // 4 values per pixel: RGBA
+		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length; // 4 values between 0 and 255 per pixel (RGBA)
 
 	useEffect(() => {
 		if (originalBookImageDimensions) {
@@ -70,7 +70,7 @@ export const BookMetadataDialog = ({
 			return;
 		}
 
-		let length = Math.ceil(bookMetadata.bookImageData.length / 4); // 4 values per pixel: RGBA
+		let length = Math.ceil(bookMetadata.bookImageData.length / 4); // 4 values between 0 and 255 per pixel (RGBA)
 		let bestDivisors: number[] = [];
 		let loop = true;
 
@@ -179,7 +179,7 @@ export const BookMetadataDialog = ({
 				resolve(bookMetadata.bookId);
 			}
 
-			// 4 values per pixel: RGBA
+			// 4 values between 0 and 255 per pixel (RGBA)
 			const imageData = new Uint8ClampedArray(imageWidth * imageHeight * 4);
 
 			bookMetadata.bookImageData.forEach((value, i) => (imageData[i] = value));
@@ -221,19 +221,15 @@ export const BookMetadataDialog = ({
 						<DialogTitle>Book info</DialogTitle>
 
 						{(bookIdChanged || bookImageChanged || searchTextChanged) && (
-							<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
-								<LucideAlertTriangle className="flex-shrink-0" size={20} />
-
-								<span>
-									The{" "}
-									{bookIdChanged ?
-										"book ID"
-									: bookImageChanged ?
-										"book image"
-									:	"search text"}{" "}
-									has been modified since this book was generated.
-								</span>
-							</DialogDescription>
+							<SmallAlert>
+								The{" "}
+								{bookIdChanged ?
+									"book ID"
+								: bookImageChanged ?
+									"book image"
+								:	"search text"}{" "}
+								has been modified since this book was generated.
+							</SmallAlert>
 						)}
 					</DialogHeader>
 
@@ -387,10 +383,9 @@ export const BookMetadataDialog = ({
 					</div>
 
 					{dimensionsTooSmall ?
-						<DialogDescription className="flex items-center justify-center gap-2 pt-1 font-semibold text-warning">
-							<LucideAlertTriangle className="flex-shrink-0" size={20} />
-							<span>These dimensions are too small for this book image.</span>
-						</DialogDescription>
+						<SmallAlert>
+							These dimensions are too small for this book image.
+						</SmallAlert>
 					:	<canvas
 							ref={canvasRef}
 							className="mx-auto max-h-[500px] max-w-full overflow-auto rounded border p-1"

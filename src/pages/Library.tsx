@@ -1,5 +1,6 @@
 import { ButtonLoading } from "@/components/common/ButtonLoading";
 import { HighCapacityTextarea } from "@/components/common/HighCapacityTextarea";
+import { SmallAlert } from "@/components/common/SmallAlert";
 import { BookMetadataDialog } from "@/components/library/BookMetadataDialog";
 import { BookPage } from "@/components/library/BookPage";
 import { BookPageHeader } from "@/components/library/BookPageHeader";
@@ -8,6 +9,7 @@ import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
 import { Privacy } from "@/components/library/Privacy";
+import { AboutDialogLink } from "@/components/library/about/AboutDialog";
 import { BrowseMenu } from "@/components/library/browse/BrowseMenu";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
 import {
@@ -65,6 +67,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 		useState<boolean>(false);
 
 	const [book, setBook] = useState<Book | undefined>();
+	const [dataTruncated, setDataTruncated] = useState<boolean>();
 	const [pageNumber, setPageNumber] = useState<number>(1);
 	const [bookMetadata, setBookMetadata] = useState<BookMetadata | undefined>();
 
@@ -186,11 +189,14 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					}
 
 					setBook(data.book);
-					setBookMetadata(undefined);
 
 					if (data.bookId) {
 						setBookId(data.bookId);
 					}
+
+					setDataTruncated(data.dataTruncated);
+
+					setBookMetadata(undefined);
 
 					bookIdChanged.current = false;
 					bookImageChanged.current = false;
@@ -280,7 +286,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				/>
 			)}
 
-			<div className="mb-6 mt-4 flex w-full flex-wrap items-center justify-between">
+			<div className="mb-2 mt-4 flex w-full flex-wrap items-center justify-between">
 				<BrowseMenu
 					mode={mode}
 					disabled={loading}
@@ -329,6 +335,14 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				}}
 			/>
 
+			{dataTruncated && (
+				<SmallAlert>
+					The {mode === "browse" ? "data" : "search text"} was too large and has
+					been truncated.{" "}
+					<AboutDialogLink to="?about#tbd">Learn more</AboutDialogLink>
+				</SmallAlert>
+			)}
+
 			{!book ?
 				// this is to set the width of the text area
 				<BookPage
@@ -340,7 +354,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						},
 					]}
 				/>
-			:	<div className="flex flex-col items-center">
+			:	<div className="mt-4 flex flex-col items-center">
 					<Pagination
 						min={1}
 						max={PAGES_PER_BOOK}
