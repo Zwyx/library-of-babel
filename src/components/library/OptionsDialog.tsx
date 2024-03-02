@@ -23,7 +23,7 @@ import { OPTIONS_DIALOG_SETTINGS_KEY } from "@/lib/keys";
 import { cn, readableFileSize } from "@/lib/utils";
 import { LucideSettings } from "lucide-react";
 import { equals } from "ramda";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -47,12 +47,21 @@ export const OptionsDialog = ({
 }) => {
 	const [settings, setSettings] = useLocalStorage<OptionsDialogSettings>(
 		OPTIONS_DIALOG_SETTINGS_KEY,
-		{ autoRerun: true, customNumberOfPages: 10 },
+		{
+			autoRerun: true,
+			searchCustomNumberOfPages: 10,
+			randomCustomNumberOfPages: 10,
+		},
 	);
 
 	const optionsAtDialogOpening = useRef<
 		SearchOptions | RandomOptions | undefined
 	>();
+
+	const customNumberOfPages =
+		mode === "search" ?
+			settings.searchCustomNumberOfPages
+		:	settings.randomCustomNumberOfPages;
 
 	const options = mode === "search" ? searchOptions : randomOptions;
 
@@ -67,12 +76,16 @@ export const OptionsDialog = ({
 	const maxRawNumberOfPages = PAGES_PER_BOOK - 1;
 
 	const [rawNumberOfPages, setRawNumberOfPages] = useState<string | number>(
-		choice === "firstXPages" ?
-			options.numberOfPages
-		:	settings.customNumberOfPages,
+		choice === "firstXPages" ? options.numberOfPages : customNumberOfPages,
 	);
 	const [rawNumberOfPagesInvalid, setRawNumberOfPagesInvalid] =
 		useState<boolean>(false);
+
+	useEffect(() => {
+		setRawNumberOfPages(
+			choice === "firstXPages" ? options.numberOfPages : customNumberOfPages,
+		);
+	}, [choice, options.numberOfPages, customNumberOfPages]);
 
 	const getBookIdSize = (numberOfPages_: number) =>
 		readableFileSize(
@@ -123,7 +136,7 @@ export const OptionsDialog = ({
 						const newNumberOfPages =
 							newChoice === "firstBook" ? 0
 							: newChoice === "firstPage" ? 1
-							: newChoice === "firstXPages" ? settings.customNumberOfPages
+							: newChoice === "firstXPages" ? customNumberOfPages
 							: PAGES_PER_BOOK;
 
 						onOptionChange({ numberOfPages: newNumberOfPages });
@@ -185,10 +198,15 @@ export const OptionsDialog = ({
 											newNumberOfPages >= minRawNumberOfPages &&
 											newNumberOfPages <= maxRawNumberOfPages
 										) {
-											setSettings((prevSettings) => ({
-												...prevSettings,
-												customNumberOfPages: newNumberOfPages,
-											}));
+											setSettings(
+												(prevSettings) =>
+													({
+														...prevSettings,
+														...(mode === "search" ?
+															{ searchCustomNumberOfPages: newNumberOfPages }
+														:	{ randomCustomNumberOfPages: newNumberOfPages }),
+													}) satisfies OptionsDialogSettings,
+											);
 
 											setRawNumberOfPagesInvalid(false);
 
@@ -207,8 +225,7 @@ export const OptionsDialog = ({
 							rawNumberOfPagesInvalid ? "Invalid value" : (
 								<>
 									The size of book ID will be about{" "}
-									<strong>{getBookIdSize(settings.customNumberOfPages)}</strong>
-									.
+									<strong>{getBookIdSize(customNumberOfPages)}</strong>.
 								</>
 							)
 						}

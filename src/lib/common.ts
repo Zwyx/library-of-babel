@@ -64,7 +64,8 @@ export interface RandomOptions {
 
 export interface OptionsDialogSettings {
 	autoRerun: boolean;
-	customNumberOfPages: number;
+	searchCustomNumberOfPages: number;
+	randomCustomNumberOfPages: number;
 }
 
 export interface Line {
