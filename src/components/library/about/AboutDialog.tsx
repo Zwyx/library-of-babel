@@ -88,7 +88,7 @@ export const AboutDialog = ({
 					<Section id="this-app" title="This app" highlightedId={highlightedId}>
 						<p>
 							In this app, a book is represented by a number called the{" "}
-							<em>book index</em>: the first book in the library is of index{" "}
+							<em>book index</em>. The first book in the library is of index{" "}
 							<Math>0</Math>, the last one is of index{" "}
 							<Math>
 								29<sup>1,312,000</sup> - 1
@@ -119,7 +119,7 @@ export const AboutDialog = ({
 								<ExternalLink href="https://libraryofbabel.app" showIcon>
 									libraryofbabel.app
 								</ExternalLink>
-							</span>
+							</span>{" "}
 							by Tom Snelling. In these apps, the content of a book and the
 							identifier are two distinct pieces of data, and a reversible
 							algorithm is used to generate one from the other.
@@ -138,7 +138,7 @@ export const AboutDialog = ({
 
 						<p>
 							The book content is also the book index, but represented in base
-							29 (and reversed).
+							29 (and reversed — see below).
 						</p>
 					</Section>
 
@@ -148,18 +148,18 @@ export const AboutDialog = ({
 						highlightedId={highlightedId}
 					>
 						<p>
-							The book ID is the book index represented in base 94, which is a
-							character set made of the 95 printable characters in the first
-							ASCII code page, excluding the space. This allows a density almost
-							twice higher than representing the number in base 10:{" "}
+							The <strong>book ID</strong> is the <strong>book index</strong>{" "}
+							represented in <strong>base 94</strong>, which is a character set
+							made of the 95 printable characters in the first ASCII code page,
+							excluding the space. This allows a density almost twice higher
+							than representing the number in base 10:{" "}
 							<Math>log(94) / log(10) = 1.97</Math>.
 						</p>
 
 						<p>
-							(Note: we would need a base of 100 to be twice more dense than
-							base 10: <Math>log(100) / log(10) = 2</Math>. Indeed, one
-							character in base 100 stores as much data as two characters in
-							base 10.)
+							(We would need a base of 100 to be twice denser than base 10:{" "}
+							<Math>log(100) / log(10) = 2</Math>. Indeed, one character in base
+							100 stores as much data as two characters in base 10.)
 						</p>
 					</Section>
 
@@ -169,13 +169,15 @@ export const AboutDialog = ({
 						highlightedId={highlightedId}
 					>
 						<p>
-							The book content is the book index represented in base 29 — a
-							character set made of the space, the 26 letters of the Latin
-							alphabet, the comma, and the period — and reversed.
+							The <strong>book content</strong> is the{" "}
+							<strong>book index</strong> represented in{" "}
+							<strong>base 29</strong> — a character set made of the space, the
+							26 letters of the Latin alphabet, the comma, and the period — and
+							reversed.
 						</p>
 
 						<p>
-							In base 10, the number <Math>0</Math> is also equal to{" "}
+							The number <Math>0</Math>, in base 10, is also equal to{" "}
 							<Math>00</Math>, <Math>000</Math>, etc. In the same way,{" "}
 							<Math>1</Math> is equal to <Math>01</Math>, <Math>001</Math>, etc.
 							Whatever how many zeros we put on the left of a number, it doesn't
@@ -183,11 +185,11 @@ export const AboutDialog = ({
 						</p>
 
 						<p>
-							Zero in base 29 is represented by the space. So the content of the
-							first book in the library — book index <Math>0</Math> — is simply
-							a space. To fill the book with 1,312,000 characters, we simply add
-							spaces in the same way we could add zeros to the left of any
-							number.
+							Zero, in base 29, is represented by the space. So the content of
+							the first book in the library — book index <Math>0</Math> — is
+							simply a space. To fill the book with 1,312,000 characters, we
+							simply add spaces in the same way we could add zeros to the left
+							of any number.
 						</p>
 
 						<p>
@@ -197,83 +199,96 @@ export const AboutDialog = ({
 							the letter <Code>a</Code>. And this <Code>a</Code> would be placed
 							on the last page of the book, on the last line, at the end of the
 							line. Every other characters before (1,311,999 of them, all the
-							way to the beginning of the book) would be spaces.
+							way to the beginning of the book) would be spaces. Then:
 						</p>
+
+						<ul className="ml-4 list-inside list-disc">
+							<li>
+								book index <Math>2</Math> would contain 1,311,999 spaces
+								followed by <Code>b</Code>,
+							</li>
+
+							<li>
+								book index <Math>26</Math>, 1,311,999 spaces followed by{" "}
+								<Code>z</Code>,
+							</li>
+
+							<li>
+								book index <Math>27</Math>, 1,311,999 spaces followed by a
+								comma,
+							</li>
+
+							<li>
+								book index <Math>28</Math>, 1,311,999 spaces followed by a
+								period,
+							</li>
+
+							<li>
+								book index <Math>29</Math>, 1,311,998 spaces followed by the
+								letter <Code>a</Code> and a space,
+							</li>
+
+							<li>
+								book index <Math>30</Math>, 1,311,998 spaces followed by{" "}
+								<Code>aa</Code>,
+							</li>
+
+							<li>
+								book index <Math>31</Math>, 1,311,998 spaces followed by{" "}
+								<Code>ab</Code>,
+							</li>
+
+							<li>etc.</li>
+						</ul>
 
 						<p>
-							Book index <Math>2</Math> would contain 1,311,999 spaces followed
-							by <Code>b</Code>
+							In order to make the library feel more human friendly, we can
+							reverse the content, to make books give the impression to be
+							"filled from the beginning". Therefore, the content of the second
+							book in the library — book index <Math>1</Math>, which is simply
+							the letter <Code>a</Code> — contains this <Code>a</Code> on the
+							first page, on the first line, at the beginning of the line, and
+							the rest of the book consists of 1,311,999 spaces. Then:
 						</p>
 
-						<p>
-							Book index <Math>26</Math>, spaces followed by <Code>z</Code>
-						</p>
+						<ul className="ml-4 list-inside list-disc">
+							<li>
+								book index <Math>2</Math> contains <Code>b</Code> followed by
+								1,311,999 spaces,
+							</li>
 
-						<p>
-							Book index <Math>27</Math>, spaces followed by <Code>,</Code>
-						</p>
+							<li>
+								book index <Math>26</Math>, <Code>z</Code> followed by 1,311,999
+								spaces,
+							</li>
 
-						<p>
-							Book index <Math>28</Math>, spaces followed by <Code>.</Code>
-						</p>
+							<li>
+								book index <Math>27</Math>, a comma followed by 1,311,999
+								spaces,
+							</li>
 
-						<p>
-							Book index <Math>29</Math>, 1,311,998 spaces followed by{" "}
-							<Code>a&lt;space&gt;</Code>
-						</p>
+							<li>
+								book index <Math>28</Math>, a period followed by 1,311,999
+								spaces,
+							</li>
 
-						<p>
-							Book index <Math>30</Math>, spaces followed by <Code>aa</Code>
-						</p>
+							<li>
+								book index <Math>29</Math>, a space, the letter <Code>a</Code>,
+								then 1,311,998 spaces,
+							</li>
 
-						<p>
-							Book index <Math>31</Math>, spaces followed by <Code>ab</Code>
-						</p>
+							<li>
+								book index <Math>30</Math>, <Code>aa</Code> followed by
+								1,311,998 spaces,
+							</li>
 
-						<p>Etc.</p>
+							<li>
+								book index <Math>30</Math>, <Code>ba</Code> followed by
+								1,311,998 spaces,
+							</li>
 
-						<p>
-							But to make the library more human friendly, we reverse the
-							content, to make books give the impression to be "filled from the
-							beginning". Therefore, the content of the second book in the
-							library — book index <Math>1</Math>, which is simply the letter{" "}
-							<Code>a</Code> — contains this <Code>a</Code> on the first page,
-							on the first line, at the beginning of the line. The rest of the
-							book consists 1,311,999 spaces, all the way to the end of the
-							book.
-						</p>
-
-						<p>
-							Book index <Math>2</Math> contains <Code>b</Code> followed by
-							1,311,999 spaces.
-						</p>
-
-						<p>
-							Book index <Math>26</Math>, <Code>z</Code> followed by spaces.
-						</p>
-
-						<p>
-							Book index <Math>27</Math>, <Code>,</Code> followed by spaces.
-						</p>
-
-						<p>
-							Book index <Math>28</Math>, <Code>.</Code> followed by spaces.
-						</p>
-
-						<p>
-							Book index <Math>29</Math>, <Code>&lt;space&gt;a</Code> followed
-							by 1,311,998 spaces.
-						</p>
-
-						<p>
-							Book index <Math>30</Math>, <Code>aa</Code> followed by spaces.
-						</p>
-
-						<p>
-							Book index <Math>30</Math>, <Code>ba</Code> followed by spaces.
-						</p>
-
-						<p>Etc.</p>
+							<li>etc.</li>
+						</ul>
 
 						<p>
 							The last book, book index{" "}
@@ -290,8 +305,9 @@ export const AboutDialog = ({
 						highlightedId={highlightedId}
 					>
 						<p>
-							The book image is yet another way to represent the book index, so
-							it's again the same number than the book ID and the book content.
+							The <strong>book image</strong> is yet another way to represent
+							the <strong>book index</strong> — it is still the same number than
+							the book ID and the book content.
 						</p>
 
 						<p>
@@ -307,16 +323,16 @@ export const AboutDialog = ({
 
 						<p>
 							To create the image, we first represent the book index in base
-							256. We then group the digits by four, and that gives us one pixel
-							in the RGBA system: the first value provides the amount of Red;
-							the second, the Green; the third, the Blue; and the fourth
-							provides the transparency level (called Alpha).
+							256. We then group the digits by four, which gives us one pixel in
+							the RGBA system: the first value provides the amount of Red; the
+							second, of Green; the third, of Blue; and the fourth provides the
+							transparency level (named Alpha).
 						</p>
 
 						<p>
 							Then, we reverse the whole image for the same reason we did it
 							with the book content: it gives the impression that the image
-							"fills" from the top left, instead of frome the bottom right.
+							"fills" from the top left, instead of from the bottom right.
 						</p>
 					</Section>
 
@@ -537,7 +553,9 @@ const Section = ({
 				</h3>
 			</AboutDialogLink>
 
-			<div className="[&_code]:mb-3 [&_div]:mb-3 [&_p]:mb-3">{children}</div>
+			<div className="[&_code]:mb-3 [&_div]:mb-3 [&_p]:mb-3 [&_ul]:mb-3">
+				{children}
+			</div>
 		</div>
 	);
 };
