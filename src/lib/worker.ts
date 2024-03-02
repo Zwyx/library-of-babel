@@ -23,9 +23,10 @@ import {
 	fromBase16,
 	fromBase29,
 	fromBase94,
+	toBase10,
 	toBase29,
 	toBase94,
-} from "./baseConversions";
+} from "./bigint-base-conversions";
 
 let lastBookIndex: bigint | undefined;
 
@@ -211,12 +212,17 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 
 	lg(`'getBookMetadata' took ${Date.now() - startTime}ms`);
 
+	const roomIndexString = toBase10(roomIndex + 1n);
+	const wallIndexInRoomString = (wallIndexInRoom + 1n).toString();
+	const shelfIndexInWallString = (shelfIndexInWall + 1n).toString();
+	const bookIndexInShelfString = (bookIndexInShelf + 1n).toString();
+
 	return {
 		bookId,
-		roomIndex: (roomIndex + 1n).toString(),
-		wallIndexInRoom: (wallIndexInRoom + 1n).toString(),
-		shelfIndexInWall: (shelfIndexInWall + 1n).toString(),
-		bookIndexInShelf: (bookIndexInShelf + 1n).toString(),
+		roomIndex: roomIndexString,
+		wallIndexInRoom: wallIndexInRoomString,
+		shelfIndexInWall: shelfIndexInWallString,
+		bookIndexInShelf: bookIndexInShelfString,
 		bookImageData,
 	};
 };

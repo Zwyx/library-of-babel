@@ -1,4 +1,6 @@
 import {
+	BASE_10_ALPHABET,
+	BASE_10_BIGINT,
 	BASE_16_ALPHABET,
 	BASE_16_BIGINT,
 	BASE_29_ALPHABET,
@@ -158,6 +160,9 @@ export const fromBase = (
 
 	return result;
 };
+
+export const toBase10 = (value: bigint) =>
+	toBase(value, BASE_10_BIGINT, BASE_10_ALPHABET);
 
 export const toBase29 = (value: bigint) =>
 	toBase(value, BASE_29_BIGINT, BASE_29_ALPHABET);

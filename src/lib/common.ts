@@ -23,14 +23,17 @@ export const BOOKS_PER_WALL_BIGINT = BigInt(BOOKS_PER_WALL);
 export const CHARS_PER_BOOK_BIGINT = BigInt(CHARS_PER_BOOK);
 export const CHARS_PER_PAGE_BIGINT = BigInt(CHARS_PER_PAGE);
 
+export const BASE_10 = 10;
 export const BASE_16 = 16;
 export const BASE_29 = 29;
 export const BASE_94 = 94;
 
+export const BASE_10_BIGINT = BigInt(BASE_10);
 export const BASE_16_BIGINT = BigInt(BASE_16);
 export const BASE_29_BIGINT = BigInt(BASE_29);
 export const BASE_94_BIGINT = BigInt(BASE_94);
 
+export const BASE_10_ALPHABET = "0123456789";
 export const BASE_16_ALPHABET = "0123456789abcdef";
 export const BASE_29_ALPHABET = " abcdefghijklmnopqrstuvwxyz,.";
 // All ASCII printable characters except space

@@ -25,9 +25,9 @@ export const BookPageHeader = ({
 	onSaveBookClick,
 }: {
 	pageNumber: number;
-	loadingBook?: boolean;
-	loadingBookMetadata?: boolean;
-	showCopySuccess?: boolean;
+	loadingBook: boolean;
+	loadingBookMetadata: boolean;
+	showCopySuccess: boolean;
 	onGetBookMetadataClick: () => void;
 	onCopyPageClick: () => void;
 	onCopyBookClick: () => void;
