@@ -1,3 +1,4 @@
+import { PAGES_PER_BOOK } from "@/lib/common";
 import { cn } from "@/lib/utils";
 import {
 	LucideChevronFirst,
@@ -14,14 +15,14 @@ export const Pagination = ({
 	min,
 	max,
 	pageNumber,
-	loading,
+	disabled,
 	onChange,
 }: {
 	className?: string;
 	min: number;
 	max: number;
 	pageNumber: number;
-	loading?: boolean;
+	disabled?: boolean;
 	onChange: (now: number) => void;
 }) => {
 	const [rawPageNumber, setRawPageNumber] = useState<string | number>(
@@ -40,7 +41,7 @@ export const Pagination = ({
 			<Button
 				variant="secondary"
 				size="sm"
-				disabled={loading || pageNumber === 1}
+				disabled={disabled || pageNumber === 1}
 				onClick={() => {
 					onChange(min);
 					setRawPageNumber(min);
@@ -52,7 +53,7 @@ export const Pagination = ({
 			<Button
 				variant="secondary"
 				size="sm"
-				disabled={loading || pageNumber === 1}
+				disabled={disabled || pageNumber === 1}
 				onClick={() => {
 					onChange(pageNumber - 1);
 					setRawPageNumber(pageNumber - 1);
@@ -68,7 +69,7 @@ export const Pagination = ({
 				min={min}
 				max={max}
 				value={rawPageNumber}
-				disabled={loading}
+				disabled={disabled}
 				onChange={(e) => {
 					const newRawPageNumber = e.target.value;
 					const newPageNumber = parseInt(newRawPageNumber);
@@ -84,7 +85,7 @@ export const Pagination = ({
 			<Button
 				variant="secondary"
 				size="sm"
-				disabled={loading || pageNumber === 410}
+				disabled={disabled || pageNumber === PAGES_PER_BOOK}
 				onClick={() => {
 					onChange(pageNumber + 1);
 					setRawPageNumber(pageNumber + 1);
@@ -96,7 +97,7 @@ export const Pagination = ({
 			<Button
 				variant="secondary"
 				size="sm"
-				disabled={loading || pageNumber === 410}
+				disabled={disabled || pageNumber === PAGES_PER_BOOK}
 				onClick={() => {
 					onChange(max);
 					setRawPageNumber(max);

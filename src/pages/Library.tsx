@@ -358,7 +358,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						min={1}
 						max={PAGES_PER_BOOK}
 						pageNumber={pageNumber}
-						loading={loading}
+						disabled={loadingBook}
 						onChange={setPageNumber}
 					/>
 
