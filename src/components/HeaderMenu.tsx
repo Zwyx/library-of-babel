@@ -40,7 +40,7 @@ export const HeaderMenu = () => {
 					<span className="font-bold">{t("libraryOfBabel")}</span>
 				</div>
 
-				<div className="mt-6 flex flex-col gap-6">
+				<div className="mt-4 flex flex-col gap-4">
 					<div>
 						<ExternalLink
 							href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
@@ -61,7 +61,7 @@ export const HeaderMenu = () => {
 						catalogs, a proof of the falsity of the true catalog, [...].
 					</div>
 
-					<div className="mt-4">
+					<div className="mt-2">
 						This app is a digital recreation of this concept.
 					</div>
 

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 export const Intro = () => {
 	return (
-		<div className="flex flex-col items-center gap-8 text-center">
-			<div>Each book contains 410 pages.</div>
+		<div className="flex flex-col items-center gap-6 text-center">
+			<div className="mt-4">Each book contains 410 pages.</div>
 			<div>Each page, 40 lines.</div>
 			<div>Each line, 80 characters.</div>
 			<div>Each characters can be a space, a letter, a comma, or a period.</div>

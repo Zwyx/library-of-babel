@@ -20,7 +20,9 @@ export const ExternalLink = ({
 			rel="noreferrer nofollow"
 		>
 			<span className="font-semibold">{children}</span>
-			{showIcon && <LucideExternalLink className="h-[0.875rem] stroke-[1.7]" />}
+			{showIcon && (
+				<LucideExternalLink className="h-[0.75rem] w-[0.75rem] stroke-[2.5]" />
+			)}
 		</a>
 	);
 };

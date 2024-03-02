@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 export const Home = () => {
 	return (
 		<div className="flex flex-col items-center gap-8 text-center">
-			<h1 className="text-xl font-semibold">Welcome, visitor.</h1>
+			<h1 className="mt-4 text-xl font-semibold">Welcome, visitor.</h1>
 
 			<div>
 				The Library of Babel contains <em>all the books</em>.
