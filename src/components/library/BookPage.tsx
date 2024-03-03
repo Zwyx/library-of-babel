@@ -1,7 +1,7 @@
 import { Line } from "@/lib/common";
 import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
-import { cn } from "@/lib/utils";
-import { memo } from "react";
+import { cn, isElementInViewport } from "@/lib/utils";
+import { memo, useEffect } from "react";
 import { useReadLocalStorage } from "usehooks-ts";
 
 const isLineSelected = ({
@@ -21,6 +21,12 @@ const isLineSelected = ({
 	);
 };
 
+/**
+ * Return:
+ * - 0 if char is not supposed to be selected
+ * - 1 if char is the first one to be selected
+ * - 2 if char is another one to be selected
+ */
 const isCharSelected = ({
 	pageNumber,
 	lineIndex,
@@ -33,17 +39,24 @@ const isCharSelected = ({
 	charIndex: number;
 	searchTextStart?: number;
 	searchTextEnd?: number;
-}) => {
+}): 0 | 1 | 2 => {
 	if (
 		typeof searchTextStart !== "number" ||
 		typeof searchTextEnd !== "number"
 	) {
-		return false;
+		return 0;
 	}
 
 	const charPosition = (pageNumber - 1) * 3200 + lineIndex * 80 + charIndex;
-	return charPosition >= searchTextStart && charPosition <= searchTextEnd;
+
+	return (
+		charPosition === searchTextStart ? 1
+		: charPosition > searchTextStart && charPosition <= searchTextEnd ? 2
+		: 0
+	);
 };
+
+const FIRST_SELECTED_CHAR_ID = "first-selected-char";
 
 export const BookPageComponent = ({
 	className,
@@ -59,6 +72,19 @@ export const BookPageComponent = ({
 	searchTextEnd?: number;
 }) => {
 	const showLineNumbers = !!useReadLocalStorage(SHOW_LINE_NUMBERS_KEY);
+
+	useEffect(() => {
+		if (typeof searchTextStart === "number") {
+			// Ensures element has been added in the DOM
+			requestAnimationFrame(() => {
+				const element = document.getElementById(FIRST_SELECTED_CHAR_ID);
+
+				if (element && !isElementInViewport(element)) {
+					element?.scrollIntoView({ block: "center", behavior: "smooth" });
+				}
+			});
+		}
+	}, [lines, searchTextStart]);
 
 	return (
 		<div
@@ -103,6 +129,7 @@ export const BookPageComponent = ({
 								return (
 									<span
 										key={charIndex}
+										id={charSelected === 1 ? FIRST_SELECTED_CHAR_ID : undefined}
 										className={cn(
 											char === " " &&
 												"bg-[radial-gradient(circle,_#bbb_0,_transparent_.1rem)] dark:bg-[radial-gradient(circle,_#555_0,_transparent_.1rem)]",
