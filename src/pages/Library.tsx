@@ -337,8 +337,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 			{dataTruncated && (
 				<SmallAlert>
 					The {mode === "browse" ? "data" : "search text"} was too large and has
-					been truncated.{" "}
-					{/* <AboutDialogLink to="?about#tbd">Learn more</AboutDialogLink> */}
+					been truncated.
 				</SmallAlert>
 			)}
 

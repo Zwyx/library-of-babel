@@ -16,6 +16,8 @@ import { Link, useLocation } from "react-router-dom";
 import { AboutDialogId, isAboutDialogId } from "./AboutDialog.const";
 import "./AboutDialog.css";
 
+const NO_HIGHLIGHT = "no-highlight";
+
 export const AboutDialogLink = ({
 	className,
 	to,
@@ -23,7 +25,7 @@ export const AboutDialogLink = ({
 	children,
 }: {
 	className?: string;
-	to: "?about" | `?about#${AboutDialogId}`;
+	to: `?about${"" | `#${AboutDialogId}${"" | `&${typeof NO_HIGHLIGHT}`}`}`;
 	onClick?: () => void;
 } & PropsWithChildren) => {
 	return (
@@ -32,6 +34,45 @@ export const AboutDialogLink = ({
 		</Link>
 	);
 };
+
+export const AboutDialogIntro = ({
+	showLearnMore,
+}: {
+	showLearnMore?: boolean;
+}) => (
+	<>
+		<p>
+			<ExternalLink
+				href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
+				showIcon
+			>
+				"The Library of Babel"
+			</ExternalLink>{" "}
+			is a short story by Argentine author and librarian Jorge Luis Borges,
+			conceiving of a universe in the form of a vast library containing all
+			possible 410-page books of a certain format and character set.{" "}
+		</p>
+
+		<p className="border-l-2 pl-2 italic">
+			All — the detailed history of the future, the autobiographies of the
+			archangels, the faithful catalog of the Library, thousands and thousands
+			of false catalogs, the proof of the falsity of those false catalogs, a
+			proof of the falsity of the true catalog, [...].
+		</p>
+
+		<p className="mt-2">This app is a digital recreation of this concept.</p>
+
+		<p>
+			It works by manipulating numbers to convert the identifier of a book to
+			its content, which also allows to know the book's location in the library.{" "}
+			{showLearnMore && (
+				<AboutDialogLink to={`?about#the-library&${NO_HIGHLIGHT}`}>
+					Learn more
+				</AboutDialogLink>
+			)}
+		</p>
+	</>
+);
 
 export const AboutDialog = ({
 	open,
@@ -42,17 +83,19 @@ export const AboutDialog = ({
 }) => {
 	const { hash } = useLocation();
 
-	const hashContent = hash.slice(1);
-	const highlightedId = isAboutDialogId(hashContent) ? hashContent : undefined;
+	const [hashContent, noHighlight] = hash.slice(1).split("&");
+
+	const selectedId = isAboutDialogId(hashContent) ? hashContent : undefined;
+
+	const highlightedId =
+		selectedId && noHighlight !== NO_HIGHLIGHT ? selectedId : undefined;
 
 	useEffect(() => {
 		// Ensures the highlighted element is accessible by our code
 		requestAnimationFrame(
-			() =>
-				highlightedId &&
-				document.getElementById(highlightedId)?.scrollIntoView(),
+			() => selectedId && document.getElementById(selectedId)?.scrollIntoView(),
 		);
-	}, [highlightedId]);
+	}, [selectedId]);
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,6 +105,10 @@ export const AboutDialog = ({
 				</DialogHeader>
 
 				<div className="overflow-auto">
+					<Section id="intro" highlightedId={highlightedId}>
+						<AboutDialogIntro />
+					</Section>
+
 					<Section
 						id="the-library"
 						title="The Library"
@@ -81,8 +128,6 @@ export const AboutDialog = ({
 							</Math>
 							.
 						</p>
-
-						<p></p>
 					</Section>
 
 					<Section id="this-app" title="This app" highlightedId={highlightedId}>
@@ -369,41 +414,63 @@ export const AboutDialog = ({
 						</p>
 
 						<p>
-							Google Chrome can work with numbers of up to 300 millions digits —
-							well above our needs.
+							Google Chrome's JavaScript engine allows us to work with numbers
+							of more than 300 millions digits — well above our needs.
 						</p>
 
 						<p>
-							However, as of January 2024, Mozilla Firefox and Apple Safari have
-							a limit of about 300 thousands digits, which is below our
-							requirement. It is therefore impossible in these browsers to
-							access books containing more than 67 pages of text (the pages 68
-							to 410 must only contain spaces). This makes these browsers able
-							to access only a very small percentage of the library: about (1 /
-							10 ^ 1,603,011) %. That's a `0.000...0001%` There are 1,603,010
-							zeros between the decimal point and the `1`. So that's an
-							incredibly small portion of the library, but that's still an
-							incredibly large number of books with 315,652 digits.
+							However, as of January 2024, the JavaScript engines of Mozilla
+							Firefox and Apple Safari have a limit of about 300 thousands
+							digits, which is below our requirement. It is therefore impossible
+							in these browsers to access books containing more than 67 pages of
+							text (the rest of the pages being full of spaces). This makes
+							these browsers able to access only a very small portion of the
+							library:{" "}
+							<Math>
+								1 / 10<sup>1,603,011</sup>
+							</Math>
+							, so <Math>0.000...0001%</Math> with 1,603,008 zeros between the
+							decimal point and the <Math>1</Math>. That is an incredibly small
+							portion of the library, but it's still an incredibly large amount
+							of books.
 						</p>
 
-						{/* <p>For an in-depth explanation:</p>
+						<p className="border-l-2 pl-2">
+							<strong>Note</strong>: Apple prevents its users from installing
+							any third party browser engines on iOS. Therefore, it is
+							impossible to fully use The Library of Babel on iOS. (Google
+							Chrome and Mozilla Firefox, on iOS, are only interfaces — they
+							actually run Apple's engine to browse the web.) Read more at{" "}
+							<span className="whitespace-nowrap">
+								<ExternalLink
+									href="https://open-web-advocacy.org/apple-browser-ban"
+									showIcon
+								>
+									open-web-advocacy.org/apple-browser-ban
+								</ExternalLink>
+								.
+							</span>
+						</p>
+
+						<p className="mt-6 text-sm font-semibold">In-depth explanation</p>
 
 						<p>
 							To represent a number containing 1,312,000 base-29 digits, we
 							need:
+							<ul className="ml-4 list-inside list-disc">
+								<li>
+									<Math>1,312,000 * log(29) / log(2) = 6,373,672</Math> bits,
+									or,
+								</li>
+								<li>
+									<Math>1,312,000 * log(29) / log(10) = 1,918,667</Math> base-10
+									digits.
+								</li>
+							</ul>
 						</p>
 
 						<p>
-							<Math>1,312,000 * log(29) / log(2) = 6,373,672</Math> bits,
-						</p>
-
-						<p>
-							or, <Math>1,312,000 * log(29) / log(10) = 1,918,667</Math> base-10
-							digits.
-						</p>
-
-						<p>
-							(The last book index in the library is equal to{" "}
+							(The last book index in the library is{" "}
 							<Math>
 								29<sup>1,312,000</sup> - 1 = 1.49 * 10<sup>1,918,666</sup>
 							</Math>
@@ -412,105 +479,128 @@ export const AboutDialog = ({
 						</p>
 
 						<p>
-							Based on tests, the highest number supported by{" "}
-							<Code>BigInt</Code> in Chrome (
-							{`try{1n << ((1n << 30n) - 1n)}catch(e){e}`},
-							{`try{(1n << ((1n << 30n) - 1n)) + 1n}catch(e){e}`} is over
-							capacity) is{" "}
+							To find out what the highest supported number in a browser is, we
+							can use the developer tools' console:
+						</p>
+
+						<p>
+							<Code block>
+								{"try{ 1n << ((1n << 30n) - 1n) } catch (e) { e }"}
+							</Code>
+						</p>
+
+						<p>
+							This number, equal to{" "}
 							<Math>
 								2<sup>1,073,741,823</sup>
+							</Math>{" "}
+							(about{" "}
+							<Math>
+								10<sup>323,228,496</sup>
+							</Math>{" "}
+							— a number with 323,228,496 digits), is accepted in Chrome.
+						</p>
+
+						<p>However, the following one:</p>
+
+						<p>
+							<Code block>
+								{"try{ (1n << ((1n << 30n) - 1n)) + 1n } catch (e) { e }"}
+							</Code>
+						</p>
+
+						<p>
+							which is equal to{" "}
+							<Math>
+								2<sup>1,073,741,823</sup> + 1
 							</Math>
-							which is about equal to
+							,leads to the error{" "}
+							<Code>RangeError: Maximum BigInt size exceeded</Code>.
+						</p>
+
+						<p>
+							In Mozilla Firefox and Apple Safari, as of January 2024, the
+							maximum number is:
+						</p>
+
+						<p>
+							<Code block>
+								{"try{ 1n << ((1n << 20n) - 1n) } catch (e) { e }"}
+							</Code>
+						</p>
+
+						<p>
+							which is equal to{" "}
 							<Math>
-								1 * 10<sup>323,228,496</sup>
+								2<sup>1,048,575</sup>
 							</Math>
-						</p>
-
-						<p>
-							Based on tests, <Code>BigInt</Code> in Chrome is limited to:
-						</p>
-
-						<p>
+							, about{" "}
 							<Math>
-								2<sup>30</sup> - 1 = 1,073,741,823
+								10<sup>315,652</sup>
 							</Math>{" "}
-							bits, (not very true: it's 2^((2^30)-1), so one more bit)
+							— a number with only 315,653 digits.
 						</p>
-
-						<p>
-							or,{" "}
-							<Math>
-								(2<sup>30</sup> - 1) * log(2) / log(10) = 323,228,496
-							</Math>{" "}
-							base-10 digits.
-						</p>
-
-						<p>
-							Also based on tests, <Code>BigInt</Code> in Firefox and Safari is
-							limited to:
-						</p>
-
-						<p>
-							<Math>
-								2<sup>20</sup> - 1 = 1,048,575
-							</Math>{" "}
-							bits,
-						</p>
-
-						<p>
-							or,{" "}
-							<Math>
-								(2<sup>20</sup> - 1) * log(2) / log(10) = 315,652
-							</Math>{" "}
-							base-10 digits.
-						</p>
-
-						<p>
-							The , Firefox and Safari are able to represent
-							<Math>
-								2
-								<sup>
-									2<sup>20</sup>
-								</sup>
-								/(29^1312000)
-							</Math>
-							(not very true: plus one more bit as well)
-						</p> */}
 					</Section>
 
-					{/* <Section id="tbd" title="Privacy" highlightedId={highlightedId}>
-						This app works entirely offline (client-side). All the computation happens on
-						your device, nothing is sent to any server.
-						[Note: check what Sentry could leak and reactivate link in banner]
-					</Section> */}
+					<Section
+						id="miscellaneous"
+						title="Miscellaneous"
+						highlightedId={highlightedId}
+					>
+						<p className="mt-6 text-sm font-semibold">Longer books</p>
 
-					{/* <Section id="tbd" title="Miscellaneous" highlightedId={highlightedId}>
 						<p>
-							(Note: the novel mentions that the library might repeat itself
-							infinitely.)
-							<div>
-								(A written book that is longer than 410 pages exists in the
-								library anyway: it is simply cut into multiple volumes.)
-							</div>
+							A written book that is longer than 410 pages exists in the library
+							anyway: it is simply cut into multiple volumes.
 						</p>
-						<>
-							<Code>1,312,000</Code> digits in base <Code>29</Code> (there are
-							29 different characters) requires{" "}
-							<Code>1,312,000 × log(29) / log(2) = 6,373,672</Code> bits, or{" "}
-							<Code>1,312,000 × log(29) / log(10) = 1,918,667</Code> digits in
-							base <Code>10</Code>
-						</>
-						<Code className="mt-2" block>
-							<>
-								We need 410 x 40 x 80 x log(29) / log(256) = 796709 digits in
-								base 256; // there are four values per pixels (RGBA), so our
-								image needs to contain // 410 x 40 x 80 x log(29) / log(256) / 4
-								= 199178 pixels; // 199178 = 574 x 347
-							</>
-						</Code>
+
+						<p className="mt-6 text-sm font-semibold">Books order</p>
+
+						<p>
+							The novel gives a hint that the books might be ordered
+							sequentially in the library: the narrator states that some people
+							condemn whole shelves of books.
+						</p>
+
+						<p>
+							It wouldn't make sense to condemn a particular shelf if the books
+							in it are completely different from each other. But if ordered
+							sequentially, the books on a shelf are almost identical, which
+							makes condemning wholes shelves of books — because they contain
+							something to censure — a rational idea. (Although "rational" is
+							probably not a word that can be used a lot when speaking about the
+							Library of Babel.)
+						</p>
+
+						<p>
+							Another hint though, highlighted by Tom Snelling during a{" "}
+							<span className="whitespace-nowrap">
+								<ExternalLink
+									href="https://github.com/tdjsnelling/babel/issues/3"
+									showIcon
+								>
+									discussion
+								</ExternalLink>
+								,
+							</span>{" "}
+							has the narator stating that his father once saw a book consisting
+							of the letters <Code>M C V</Code> repeated from the first line to
+							the last. This seems to indicate that books might be ordered
+							randomly instead, otherwise there would be many very similar books
+							next to this one, and finding it wouldn't be like finding a needle
+							in a haystack. (Statistically though, finding such a repeating
+							pattern in randomly ordered books seems highly unlikely.)
+						</p>
+
+						<p>
+							We are most probably overthinking and pushing the concept further
+							than Jorge Luis Borges intended, so we can simply conclude that
+							the books order isn't explicitely mentioned in the novel, and that
+							some creators of digital Libraries of Babel have chosen to
+							consider the books ordered randomly, whereas I choose to consider
+							them ordered sequentially.
+						</p>
 					</Section>
-						[Note: there is a link to reactivate in Library.tsx]
-					*/}
 				</div>
 
 				<DialogFooter className="px-2 pb-2">
@@ -530,28 +620,27 @@ const Section = ({
 	children,
 }: {
 	id: AboutDialogId;
-	title: string;
+	title?: string;
 	highlightedId: string | undefined;
 } & PropsWithChildren) => {
 	return (
 		<div
+			id={id}
 			className={cn(
 				"my-2 rounded px-2 py-1",
 				id === highlightedId && "bg-muted",
 			)}
 		>
-			<AboutDialogLink to={`?about#${id}`}>
-				<h3
-					data-about-dialog="section-heading"
-					id={id}
-					className="mb-3 flex w-full font-semibold text-primary"
-				>
-					<span>{title}</span>
-					<span className="text-blue-600 opacity-0">
-						&nbsp;&nbsp;#&nbsp;&nbsp;
-					</span>
-				</h3>
-			</AboutDialogLink>
+			{title && (
+				<AboutDialogLink to={`?about#${id}`}>
+					<h3 className="mb-3 flex w-full font-semibold text-primary">
+						<span>{title}</span>
+						<span className="text-blue-600 opacity-0">
+							&nbsp;&nbsp;#&nbsp;&nbsp;
+						</span>
+					</h3>
+				</AboutDialogLink>
+			)}
 
 			<div className="[&_code]:mb-3 [&_div]:mb-3 [&_p]:mb-3 [&_ul]:mb-3">
 				{children}

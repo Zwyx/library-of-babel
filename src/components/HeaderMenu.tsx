@@ -10,8 +10,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { LucideMenu } from "lucide-react";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { ExternalLink } from "./common/ExternalLink";
-import { AboutDialogLink } from "./library/about/AboutDialog";
+import { AboutDialogIntro } from "./library/about/AboutDialog";
 
 export const HeaderMenu = () => {
 	const { t } = useTranslation(["headerMenu"]);
@@ -40,36 +39,8 @@ export const HeaderMenu = () => {
 					<span className="font-bold">{t("libraryOfBabel")}</span>
 				</div>
 
-				<div className="mt-4 flex flex-col gap-4">
-					<div>
-						<ExternalLink
-							href="https://en.wikipedia.org/wiki/The_Library_of_Babel"
-							showIcon
-						>
-							"The Library of Babel"
-						</ExternalLink>{" "}
-						is a short story by Argentine author and librarian Jorge Luis
-						Borges, conceiving of a universe in the form of a vast library
-						containing all possible 410-page books of a certain format and
-						character set.{" "}
-					</div>
-
-					<div className="border-l-2 pl-2 italic">
-						All — the detailed history of the future, the autobiographies of the
-						archangels, the faithful catalog of the Library, thousands and
-						thousands of false catalogs, the proof of the falsity of those false
-						catalogs, a proof of the falsity of the true catalog, [...].
-					</div>
-
-					<div className="mt-2">
-						This app is a digital recreation of this concept.
-					</div>
-
-					<div>
-						It works by manipulating numbers to convert the identifier of a book
-						to its content, which also allows to know the book's location in the
-						library. <AboutDialogLink to="?about">Learn more</AboutDialogLink>
-					</div>
+				<div className="mt-6 flex flex-col gap-4">
+					<AboutDialogIntro showLearnMore />
 				</div>
 
 				<div className="flex-1" />
