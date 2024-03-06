@@ -34,7 +34,7 @@ export const Pagination = ({
 	return (
 		<div
 			className={cn(
-				"sticky top-0 z-10 flex gap-2 rounded bg-background shadow-[0_0_16px_8px] shadow-background",
+				"sticky top-16 z-10 flex gap-2 rounded bg-background shadow-[0_0_16px_8px] shadow-background",
 				className,
 			)}
 		>
