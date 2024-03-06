@@ -162,7 +162,8 @@ const findBook = (searchText: string = "", numberOfPages: number): Book => {
 	return {
 		...book,
 		searchTextStart: randomTextBefore.length,
-		searchTextEnd: randomTextBefore.length + searchText.length - 1,
+		searchTextEnd:
+			searchText ? randomTextBefore.length + searchText.length - 1 : -1,
 	};
 };
 

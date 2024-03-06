@@ -42,7 +42,8 @@ const isCharSelected = ({
 }): 0 | 1 | 2 => {
 	if (
 		typeof searchTextStart !== "number" ||
-		typeof searchTextEnd !== "number"
+		typeof searchTextEnd !== "number" ||
+		searchTextEnd < 0
 	) {
 		return 0;
 	}
