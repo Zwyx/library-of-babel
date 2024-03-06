@@ -2,7 +2,7 @@ import { clsx, type ClassValue } from "clsx";
 import { useEffect, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
-const LOG_ACTIVE = true;
+const LOG_ACTIVE = false;
 
 export const lg = (...args: unknown[]) => LOG_ACTIVE && console.info(...args);
 
