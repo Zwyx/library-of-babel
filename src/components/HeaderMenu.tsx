@@ -52,6 +52,30 @@ export const HeaderMenu = () => {
 							size="sm"
 							className="mt-2 h-fit p-0 text-right text-xs font-bold text-muted-foreground hover:no-underline"
 						>
+							{"Terms and conditions"}
+						</Button>
+					</DialogTrigger>
+
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>{"Terms and conditions"}</DialogTitle>
+						</DialogHeader>
+
+						<div>
+							{
+								"This software is provided “as is”, without warranty of any kind. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software."
+							}
+						</div>
+					</DialogContent>
+				</Dialog>
+
+				<Dialog>
+					<DialogTrigger asChild>
+						<Button
+							variant="link"
+							size="sm"
+							className="mt-2 h-fit p-0 text-right text-xs font-bold text-muted-foreground hover:no-underline"
+						>
 							{"Privacy policy"}
 						</Button>
 					</DialogTrigger>
@@ -62,7 +86,7 @@ export const HeaderMenu = () => {
 						</DialogHeader>
 
 						<div>
-							{"No personal user data is collected by this website. "}
+							{"No personal user data is collected by the Library of Babel. "}
 							<a
 								href="https://sentry.io"
 								target="_blank"
@@ -81,31 +105,7 @@ export const HeaderMenu = () => {
 								{"Plausible"}
 							</a>
 							{
-								" is used for analytics. These two services are both GDPR and CCPA compliant, they don't store any cookies and respect user privacy."
-							}
-						</div>
-					</DialogContent>
-				</Dialog>
-
-				<Dialog>
-					<DialogTrigger asChild>
-						<Button
-							variant="link"
-							size="sm"
-							className="mt-2 h-fit p-0 text-right text-xs font-bold text-muted-foreground hover:no-underline"
-						>
-							{"Terms and conditions"}
-						</Button>
-					</DialogTrigger>
-
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>{"Terms and conditions"}</DialogTitle>
-						</DialogHeader>
-
-						<div>
-							{
-								"The software is provided “as is”, without warranty of any kind. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software."
+								" for analytics. These two services are both GDPR and CCPA compliant — they don't store cookies and respect user privacy."
 							}
 						</div>
 					</DialogContent>
