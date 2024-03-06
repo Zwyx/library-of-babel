@@ -1,8 +1,17 @@
 import * as Sentry from "@sentry/react";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+	RouterProvider,
+	createBrowserRouter,
+	createRoutesFromChildren,
+	matchRoutes,
+	useLocation,
+	useNavigationType,
+	useRouteError,
+} from "react-router-dom";
 import { App } from "./App.tsx";
+import { Error } from "./components/Error.tsx";
 import "./i18n/i18n.ts";
 import "./index.css";
 import { ThemeContextProvider } from "./lib/ThemeContext.tsx";
@@ -21,22 +30,38 @@ if (import.meta.env.PROD) {
 		dsn: import.meta.env.VITE_SENTRY_DSN,
 		environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
 		integrations: [
-			new Sentry.BrowserTracing({
-				tracePropagationTargets: [`https://${import.meta.env.VITE_DOMAIN}`],
+			Sentry.reactRouterV6BrowserTracingIntegration({
+				useEffect,
+				useLocation,
+				useNavigationType,
+				createRoutesFromChildren,
+				matchRoutes,
 			}),
-			Sentry.replayIntegration(),
 		],
+		tracePropagationTargets: [`https://${import.meta.env.VITE_DOMAIN}`],
 		tracesSampleRate: 0.1,
-		replaysSessionSampleRate: 0.1,
-		replaysOnErrorSampleRate: 1.0,
 	});
 
 	Sentry.setTag("pwa", pwa);
 }
 
-const router = createBrowserRouter([
+const sentryCreateBrowserRouter =
+	Sentry.wrapCreateBrowserRouter(createBrowserRouter);
+
+export const SentryRouteErrorFallback = () => {
+	const routeError = useRouteError();
+
+	useEffect(() => {
+		Sentry.captureException(routeError);
+	}, [routeError]);
+
+	return <Error />;
+};
+
+const router = sentryCreateBrowserRouter([
 	{
 		path: "/",
+		errorElement: <SentryRouteErrorFallback />,
 		element: <App />,
 		children: [
 			{
