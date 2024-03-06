@@ -33,7 +33,9 @@ export const Home = () => {
 				.
 			</div>
 
-			<Link to="/intro">Enter the library</Link>
+			<Link className="font-semibold" to="/intro">
+				Enter the library
+			</Link>
 		</div>
 	);
 };
