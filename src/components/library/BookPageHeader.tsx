@@ -44,7 +44,8 @@ export const BookPageHeader = ({
 	return (
 		<div className="mt-2 flex w-full items-end gap-1 px-1">
 			<div className="mb-1 font-mono text-sm text-muted-foreground">
-				Page {pageNumber}&thinsp;/&thinsp;410
+				<span className="hidden sm:inline">Page</span> {pageNumber}
+				&thinsp;/&thinsp;410
 			</div>
 
 			<div className="flex-1" />
