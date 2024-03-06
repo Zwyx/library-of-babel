@@ -15,10 +15,14 @@ export const ButtonLoading = ({
 			disabled={disabled || loading}
 			{...props}
 		>
-			<span className={cn(loading && "invisible")}>{children}</span>
+			<div className={cn(loading && "invisible")}>{children}</div>
 
 			<LucideLoader2
-				className={cn("absolute h-4 w-4 animate-spin", !loading && "invisible")}
+				className={cn(
+					"absolute h-4 w-4",
+					!loading && "invisible",
+					loading && "animate-spin",
+				)}
 			/>
 		</Button>
 	);
