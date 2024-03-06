@@ -30,7 +30,7 @@ export const ComputationErrorDialog = ({
 					<div>
 						An error occurred while computing. This is probably a limitation of
 						the device/browser you're using.{" "}
-						<AboutDialogLink to="?about#browsers-limitations">
+						<AboutDialogLink to="?about=browsers-limitations">
 							Read more
 						</AboutDialogLink>
 						.

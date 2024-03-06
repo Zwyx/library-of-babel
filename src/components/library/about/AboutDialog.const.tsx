@@ -1,4 +1,7 @@
-// Was extracted from the main context file because of the ESLint warning `react-refresh/only-export-components`
+// Was extracted from the main file because of the ESLint warning `react-refresh/only-export-components`
+
+export const ABOUT = "about";
+export const ABOUT_DELIMITER = "--";
 
 export const aboutDialogIds = [
 	"intro",

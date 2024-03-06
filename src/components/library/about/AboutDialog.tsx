@@ -12,11 +12,19 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { PropsWithChildren, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { AboutDialogId, isAboutDialogId } from "./AboutDialog.const";
+import { Link, useSearchParams } from "react-router-dom";
+import {
+	ABOUT,
+	ABOUT_DELIMITER,
+	AboutDialogId,
+	isAboutDialogId,
+} from "./AboutDialog.const";
 import "./AboutDialog.css";
 
 const NO_HIGHLIGHT = "no-highlight";
+
+type AboutDialogLinkTo =
+	`?about${"" | `=${AboutDialogId}${"" | `${typeof ABOUT_DELIMITER}${typeof NO_HIGHLIGHT}`}`}`;
 
 export const AboutDialogLink = ({
 	className,
@@ -25,7 +33,7 @@ export const AboutDialogLink = ({
 	children,
 }: {
 	className?: string;
-	to: `?about${"" | `#${AboutDialogId}${"" | `&${typeof NO_HIGHLIGHT}`}`}`;
+	to: AboutDialogLinkTo;
 	onClick?: () => void;
 } & PropsWithChildren) => {
 	return (
@@ -66,7 +74,9 @@ export const AboutDialogIntro = ({
 			It works by manipulating numbers to convert the identifier of a book to
 			its content, which also allows to know the book's location in the library.{" "}
 			{showLearnMore && (
-				<AboutDialogLink to={`?about#the-library&${NO_HIGHLIGHT}`}>
+				<AboutDialogLink
+					to={`?about=the-library${ABOUT_DELIMITER}${NO_HIGHLIGHT}`}
+				>
 					Learn more
 				</AboutDialogLink>
 			)}
@@ -81,14 +91,17 @@ export const AboutDialog = ({
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
-	const { hash } = useLocation();
+	const [searchParams] = useSearchParams();
 
-	const [hashContent, noHighlight] = hash.slice(1).split("&");
+	const about = searchParams.get(ABOUT)?.split(ABOUT_DELIMITER);
 
-	const selectedId = isAboutDialogId(hashContent) ? hashContent : undefined;
+	const maybeSelectedId = about?.[0];
+	const selectedId =
+		isAboutDialogId(maybeSelectedId) ? maybeSelectedId : undefined;
 
-	const highlightedId =
-		selectedId && noHighlight !== NO_HIGHLIGHT ? selectedId : undefined;
+	const noHighlight = about?.[1] === NO_HIGHLIGHT;
+
+	const highlightedId = selectedId && !noHighlight ? selectedId : undefined;
 
 	useEffect(() => {
 		// Ensures the highlighted element is accessible by our code
@@ -632,7 +645,7 @@ const Section = ({
 			)}
 		>
 			{title && (
-				<AboutDialogLink to={`?about#${id}`}>
+				<AboutDialogLink to={`?about=${id}`}>
 					<h3 className="mb-3 flex w-full font-semibold text-primary">
 						<span>{title}</span>
 						<span className="text-blue-600 opacity-0">

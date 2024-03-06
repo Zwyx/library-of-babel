@@ -263,7 +263,7 @@ export const BookMetadataDialog = ({
 							size="sm"
 							asChild
 						>
-							<AboutDialogLink to="?about#the-book-id">
+							<AboutDialogLink to="?about=the-book-id">
 								<LucideHelpCircle size={20} />
 							</AboutDialogLink>
 						</Button>
@@ -387,7 +387,7 @@ export const BookMetadataDialog = ({
 								size="sm"
 								asChild
 							>
-								<AboutDialogLink to="?about#the-book-image">
+								<AboutDialogLink to="?about=the-book-image">
 									<LucideHelpCircle size={20} />
 								</AboutDialogLink>
 							</Button>

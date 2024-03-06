@@ -3,6 +3,7 @@ import { SiteHeader } from "./components/SiteHeader";
 import { TabBar } from "./components/TabBar";
 import { WorkersAlert } from "./components/WorkersAlert";
 import { AboutDialog } from "./components/library/about/AboutDialog";
+import { ABOUT } from "./components/library/about/AboutDialog.const";
 
 export const App = () => {
 	const { pathname } = useLocation();
@@ -25,9 +26,9 @@ export const App = () => {
 				<Outlet />
 
 				<AboutDialog
-					open={typeof searchParams.get("about") === "string"}
+					open={typeof searchParams.get(ABOUT) === "string"}
 					onOpenChange={() => {
-						searchParams.delete("about");
+						searchParams.delete(ABOUT);
 						setSearchParams(searchParams);
 					}}
 				/>
