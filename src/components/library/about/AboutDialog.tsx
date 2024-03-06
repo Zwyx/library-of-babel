@@ -475,7 +475,7 @@ export const AboutDialog = ({
 
 						<p className="mt-6 text-sm font-semibold">In-depth explanation</p>
 
-						<p>
+						<div>
 							To represent a number containing 1,312,000 base-29 digits, we
 							need:
 							<ul className="ml-4 list-inside list-disc">
@@ -488,7 +488,7 @@ export const AboutDialog = ({
 									digits.
 								</li>
 							</ul>
-						</p>
+						</div>
 
 						<p>
 							(The last book index in the library is{" "}
