@@ -26,25 +26,25 @@ export const ComputationErrorDialog = ({
 					<DialogTitle className="text-destructive">Error</DialogTitle>
 				</DialogHeader>
 
-				<div>
+				<div className="my-2">
 					<div>
 						An error occurred while computing. This is probably a limitation of
-						the device/browser you're using.{" "}
+						your web browser.{" "}
 						<AboutDialogLink to="?about=browsers-limitations">
 							Read more
 						</AboutDialogLink>
-						.
 					</div>
 
-					<div className="mt-4">
-						Try again by generating no more than the first 67 pages of a book.
+					<div className="mt-6">
+						Try again by selecting to return a book with no more than 67 pages
+						of text.
 					</div>
 
 					{error && (
 						<>
-							<div className="mt-4">Error details:</div>
+							<div className="mt-6">Error details:</div>
 
-							<Code className="mt-1" block>
+							<Code className="mt-2" block>
 								{error}
 							</Code>
 						</>

@@ -146,8 +146,8 @@ export const AboutDialog = ({
 					<Section id="this-app" title="This app" highlightedId={highlightedId}>
 						<p>
 							In this app, a book is represented by a number called the{" "}
-							<em>book index</em>. The first book in the library is of index{" "}
-							<Math>0</Math>, the last one is of index{" "}
+							<strong>book index</strong>. The first book in the library is of
+							index <Math>0</Math>, the last one is of index{" "}
 							<Math>
 								29<sup>1,312,000</sup> - 1
 							</Math>
@@ -206,7 +206,8 @@ export const AboutDialog = ({
 						highlightedId={highlightedId}
 					>
 						<p>
-							The <strong>book ID</strong> is the <strong>book index</strong>{" "}
+							The <strong>book ID</strong> is the{" "}
+							<AboutDialogLink to="?about=this-app">book index</AboutDialogLink>{" "}
 							represented in <strong>base 94</strong>, which is a character set
 							made of the 95 printable characters in the first ASCII code page,
 							excluding the space. This allows a density almost twice higher
@@ -228,10 +229,10 @@ export const AboutDialog = ({
 					>
 						<p>
 							The <strong>book content</strong> is the{" "}
-							<strong>book index</strong> represented in{" "}
-							<strong>base 29</strong> — a character set made of the space, the
-							26 letters of the Latin alphabet, the comma, and the period — and
-							reversed.
+							<AboutDialogLink to="?about=this-app">book index</AboutDialogLink>{" "}
+							represented in <strong>base 29</strong> — a character set made of
+							the space, the 26 letters of the Latin alphabet, the comma, and
+							the period — and reversed.
 						</p>
 
 						<p>
@@ -364,8 +365,15 @@ export const AboutDialog = ({
 					>
 						<p>
 							The <strong>book image</strong> is yet another way to represent
-							the <strong>book index</strong> — it is still the same number than
-							the book ID and the book content.
+							the{" "}
+							<AboutDialogLink to="?about=this-app">book index</AboutDialogLink>{" "}
+							— it is still the same number as the{" "}
+							<AboutDialogLink to="?about=the-book-id">book ID</AboutDialogLink>{" "}
+							and the{" "}
+							<AboutDialogLink to="?about=the-book-content">
+								book content
+							</AboutDialogLink>
+							.
 						</p>
 
 						<p>
