@@ -43,7 +43,7 @@ export const OptionsDialog = ({
 	disabled: boolean;
 	onSearchOptionsChange: (newSearchOptions: SearchOptions) => void;
 	onRandomOptionsChange: (newRandomOptions: RandomOptions) => void;
-	onRerun?: () => void;
+	onRerun: () => void;
 }) => {
 	const [settings, setSettings] = useLocalStorage<OptionsDialogSettings>(
 		OPTIONS_DIALOG_SETTINGS_KEY,
@@ -104,8 +104,11 @@ export const OptionsDialog = ({
 				if (newOpen) {
 					optionsAtDialogOpening.current = options;
 				} else {
-					if (settings && !equals(optionsAtDialogOpening.current, options)) {
-						onRerun?.();
+					if (
+						settings.autoRerun &&
+						!equals(optionsAtDialogOpening.current, options)
+					) {
+						onRerun();
 					}
 				}
 			}}
