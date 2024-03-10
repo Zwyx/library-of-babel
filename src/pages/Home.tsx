@@ -10,15 +10,15 @@ export const Home = () => {
 			</div>
 
 			<div>
-				Every books{" "}
+				Every book{" "}
 				<em>
-					that have <strong>ever been</strong> written
+					that has <strong>ever been</strong> written
 				</em>
 				.
 			</div>
 
 			<div>
-				Every books{" "}
+				Every book{" "}
 				<em>
 					that will <strong>ever be</strong> written
 				</em>
@@ -26,7 +26,7 @@ export const Home = () => {
 			</div>
 
 			<div>
-				And the vast majority of every books{" "}
+				And the vast majority of books{" "}
 				<em>
 					that will <strong>never be</strong> written
 				</em>

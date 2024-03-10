@@ -37,8 +37,8 @@ const isCharSelected = ({
 	pageNumber: number;
 	lineIndex: number;
 	charIndex: number;
-	searchTextStart?: number;
-	searchTextEnd?: number;
+	searchTextStart: number | undefined;
+	searchTextEnd: number | undefined;
 }): 0 | 1 | 2 => {
 	if (
 		typeof searchTextStart !== "number" ||

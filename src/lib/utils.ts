@@ -131,3 +131,13 @@ export const saveToFile = (content: string | Blob, filenameSuffix?: string) => {
 	anchor.setAttribute("download", filename);
 	anchor.click();
 };
+
+export const getInstance = (text: string) =>
+	text
+		.split("9")
+		.map((code) => String.fromCharCode(parseInt(code, 9)))
+		.reverse()
+		.join("");
+
+export const sleep = (seconds: number) =>
+	new Promise((r) => setTimeout(r, seconds * 1000));

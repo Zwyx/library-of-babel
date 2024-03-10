@@ -14,7 +14,7 @@ export const ExternalLink = ({
 } & PropsWithChildren) => {
 	return (
 		<a
-			className={cn("inline-flex items-start", className)}
+			className={cn("inline-flex", className)}
 			href={href}
 			target="_blank"
 			rel="noreferrer nofollow"

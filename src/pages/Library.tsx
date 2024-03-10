@@ -9,6 +9,8 @@ import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
 import { Privacy } from "@/components/library/Privacy";
+import { ShareDialog } from "@/components/library/ShareDialog";
+import { AboutDialogLink } from "@/components/library/about/AboutDialog";
 import { BrowseMenu } from "@/components/library/browse/BrowseMenu";
 import { useWorkerContext } from "@/lib/WorkerContext.const";
 import {
@@ -31,7 +33,15 @@ import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
+type BookMetadataPurpose = "book-info" | "share";
+
 export const Library = ({ mode }: { mode: LibraryMode }) => {
+	// const { id } = useParams();
+	// const { hash } = useLocation();
+
+	// console.log(id);
+	// console.log(hash);
+
 	const { worker } = useWorkerContext();
 
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -74,10 +84,13 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	const [bookMetadataDialogOpen, setBookMetadataDialogOpen] =
 		useState<boolean>(false);
+	const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
 
 	const [computationError, setComputationError] = useState<string>();
 	const [computationErrorDialogOpen, setComputationErrorDialogOpen] =
 		useState<boolean>(false);
+
+	const bookMetadataPurpose = useRef<BookMetadataPurpose>("book-info");
 
 	const loadingBook = loadingBookReal || loadingBookMin;
 	const loadingBookMetadata = loadingBookMetadataReal || loadingBookMetadataMin;
@@ -147,10 +160,12 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 		setTimeout(() => setLoadingBookMin(false), 200);
 	};
 
-	const getBookMetadata = () => {
+	const getBookMetadata = (purpose: BookMetadataPurpose) => {
 		if (!book) {
 			return;
 		}
+
+		bookMetadataPurpose.current = purpose;
 
 		setLoadingBookMetadataReal(true);
 		setLoadingBookMetadataMin(true);
@@ -214,7 +229,12 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 				case "getBookMetadata": {
 					setBookMetadata(data.bookMetadata);
-					setBookMetadataDialogOpen(true);
+
+					if (bookMetadataPurpose.current === "book-info") {
+						setBookMetadataDialogOpen(true);
+					} else if (bookMetadataPurpose.current === "share") {
+						setShareDialogOpen(true);
+					}
 
 					break;
 				}
@@ -364,9 +384,19 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					<BookPageHeader
 						pageNumber={pageNumber}
 						loadingBook={loadingBook}
-						loadingBookMetadata={loadingBookMetadata}
+						loadingGetBookInfo={
+							loadingBookMetadata && bookMetadataPurpose.current === "book-info"
+						}
+						loadingShare={
+							loadingBookMetadata && bookMetadataPurpose.current === "share"
+						}
 						onGetBookMetadataClick={() =>
-							bookMetadata ? setBookMetadataDialogOpen(true) : getBookMetadata()
+							bookMetadata ?
+								setBookMetadataDialogOpen(true)
+							:	getBookMetadata("book-info")
+						}
+						onShareClick={() =>
+							bookMetadata ? setShareDialogOpen(true) : getBookMetadata("share")
 						}
 						showCopySuccess={showCopySuccess}
 						onCopyPageClick={() => copyOrSave("page", "copy")}
@@ -385,12 +415,28 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						onOpenChange={setBookMetadataDialogOpen}
 					/>
 
+					<ShareDialog
+						bookMetadata={bookMetadata}
+						pageNumber={pageNumber}
+						searchTextStart={book.searchTextStart}
+						searchTextEnd={book.searchTextEnd}
+						bookIdChanged={mode === "browse" && bookIdChanged.current}
+						bookImageChanged={mode === "browse" && bookImageChanged.current}
+						searchTextChanged={mode === "search" && searchTextChanged.current}
+						open={shareDialogOpen}
+						onOpenChange={setShareDialogOpen}
+					/>
+
 					<BookPage
 						lines={book.pages[pageNumber - 1].lines}
 						pageNumber={pageNumber}
 						searchTextStart={book.searchTextStart}
 						searchTextEnd={book.searchTextEnd}
 					/>
+
+					<div className="mb-4 mt-8 w-full border-b border-t py-1 text-center text-sm">
+						<AboutDialogLink to="?about">How it works</AboutDialogLink>
+					</div>
 				</div>
 			}
 
@@ -402,7 +448,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 			{/* Displaying the full book isn't possible at the moment for performance issues,
 			    because each space character is a `span` with a CSS gradient, and having
-			    more than a million of them make the page very laggy, and can ever crash.
+			    more than a million of them make the page very laggy, and can even crash.
 			{book?.pages.map(({ key, pageNumber, lines }) => (
 				<BookPage key={key} pageNumber={pageNumber} lines={lines} />
 			))} */}

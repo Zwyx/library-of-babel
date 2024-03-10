@@ -28,6 +28,8 @@ import { useLocalStorage } from "usehooks-ts";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 
+const AUTORERUN_ID = "autorerun";
+
 export const OptionsDialog = ({
 	mode,
 	searchOptions,
@@ -149,9 +151,13 @@ export const OptionsDialog = ({
 						<RadioGroupElement<typeof choice>
 							id="firstBook"
 							title="Find the first book containing the search text"
-							subtitle={`The size of the book ID will be about ${
-								Math.round(BASES_QUOTIENT * 100) / 100
-							} times the size of the search text.`}
+							subtitle={
+								<>
+									The size of the book ID will be about{" "}
+									<strong>{Math.round(BASES_QUOTIENT * 100) / 100}</strong>{" "}
+									times the size of the search text.
+								</>
+							}
 							// eslint-disable-next-line jsx-a11y/no-autofocus
 							autoFocus
 						/>
@@ -247,9 +253,9 @@ export const OptionsDialog = ({
 					/>
 				</RadioGroup>
 
-				<div className="mt-4 flex items-start gap-2">
+				<div className="mt-4 flex items-center gap-2">
 					<Checkbox
-						id="autorerun"
+						id={AUTORERUN_ID}
 						checked={settings.autoRerun}
 						onCheckedChange={(newChecked) =>
 							setSettings((prevSettings) => ({
@@ -259,15 +265,11 @@ export const OptionsDialog = ({
 						}
 					/>
 
-					<label
-						htmlFor="autorerun"
-						// `peer-disabled`: it's not needed here, but I want to remember it exists!
-						className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
+					<Label htmlFor={AUTORERUN_ID}>
 						{mode === "search" ?
 							"Run a new search automatically"
 						:	"Pick a new book automatically"}
-					</label>
+					</Label>
 				</div>
 
 				<DialogFooter>
@@ -307,8 +309,9 @@ const RadioGroupElement = function <T extends string>({
 	autoFocus?: boolean;
 }) {
 	return (
-		<div className="flex items-start gap-2">
+		<div className="flex gap-2">
 			<RadioGroupItem
+				className="mt-0.5"
 				id={id}
 				value={id}
 				// eslint-disable-next-line jsx-a11y/no-autofocus
@@ -321,7 +324,9 @@ const RadioGroupElement = function <T extends string>({
 				disableSelectionPrevention={disableSelectionPrevention}
 			>
 				<div className="font-medium">{title}</div>
-				<div className="mt-0.5 text-muted-foreground">{subtitle}</div>
+				<div className="mt-0.5 font-normal text-muted-foreground">
+					{subtitle}
+				</div>
 			</Label>
 		</div>
 	);

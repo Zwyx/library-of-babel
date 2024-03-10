@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
 import { SmallAlert } from "../common/SmallAlert";
+import { SourceChangedAlert } from "../common/SourceChangedAlert";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Input } from "../ui/input";
 import { AboutDialogLink } from "./about/AboutDialog";
@@ -31,9 +32,9 @@ export const BookMetadataDialog = ({
 }: {
 	bookMetadata?: BookMetadata;
 	originalBookImageDimensions?: BookImageDimensions;
-	bookIdChanged?: boolean;
-	bookImageChanged?: boolean;
-	searchTextChanged?: boolean;
+	bookIdChanged: boolean;
+	bookImageChanged: boolean;
+	searchTextChanged: boolean;
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
@@ -221,17 +222,11 @@ export const BookMetadataDialog = ({
 					<DialogHeader>
 						<DialogTitle>Book info</DialogTitle>
 
-						{(bookIdChanged || bookImageChanged || searchTextChanged) && (
-							<SmallAlert>
-								The{" "}
-								{bookIdChanged ?
-									"book ID"
-								: bookImageChanged ?
-									"book image"
-								:	"search text"}{" "}
-								has been modified since this book was generated.
-							</SmallAlert>
-						)}
+						<SourceChangedAlert
+							bookIdChanged={bookIdChanged}
+							bookImageChanged={bookImageChanged}
+							searchTextChanged={searchTextChanged}
+						/>
 					</DialogHeader>
 
 					<div className="mb-1 mt-6 flex items-center">

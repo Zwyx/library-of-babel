@@ -16,9 +16,11 @@ import { Button } from "../ui/button";
 export const BookPageHeader = ({
 	pageNumber,
 	loadingBook,
-	loadingBookMetadata,
+	loadingGetBookInfo,
+	loadingShare,
 	showCopySuccess,
 	onGetBookMetadataClick,
+	onShareClick,
 	onCopyPageClick,
 	onCopyBookClick,
 	onSavePageClick,
@@ -26,15 +28,17 @@ export const BookPageHeader = ({
 }: {
 	pageNumber: number;
 	loadingBook: boolean;
-	loadingBookMetadata: boolean;
+	loadingGetBookInfo: boolean;
+	loadingShare: boolean;
 	showCopySuccess: boolean;
 	onGetBookMetadataClick: () => void;
+	onShareClick: () => void;
 	onCopyPageClick: () => void;
 	onCopyBookClick: () => void;
 	onSavePageClick: () => void;
 	onSaveBookClick: () => void;
 }) => {
-	const loading = loadingBook || loadingBookMetadata;
+	const loading = loadingBook || loadingGetBookInfo || loadingShare;
 
 	const [showLineNumbers, setShowLineNumbers] = useLocalStorage<boolean>(
 		SHOW_LINE_NUMBERS_KEY,
@@ -55,11 +59,22 @@ export const BookPageHeader = ({
 				variant="ghost"
 				size="sm"
 				disabled={loading}
-				loading={loadingBookMetadata}
+				loading={loadingGetBookInfo}
 				onClick={onGetBookMetadataClick}
 			>
 				Get book info
 			</ButtonLoading>
+
+			{/* <ButtonLoading
+				className="mb-1"
+				variant="ghost"
+				size="sm"
+				disabled={loading}
+				loading={loadingShare}
+				onClick={onShareClick}
+			>
+				Share
+			</ButtonLoading> */}
 
 			<DropdownMenu>
 				<SuccessWrapper showSuccess={showCopySuccess}>
