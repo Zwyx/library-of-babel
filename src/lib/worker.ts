@@ -275,7 +275,10 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 					dataTruncated = bookIndex > getLastBookIndex();
 				}
 
-				const book = bookIndex ? getBookFromBookIndex(bookIndex) : undefined;
+				const book =
+					typeof bookIndex === "bigint" ?
+						getBookFromBookIndex(bookIndex)
+					:	undefined;
 
 				const bookId =
 					data.source === "bookImage" && bookIndex ?
