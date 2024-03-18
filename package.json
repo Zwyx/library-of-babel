@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
-		"build": "npm run lint && tsc && VITE_DOMAIN=$DOMAIN VITE_SENTRY_DSN=$SENTRY_DSN VITE_SENTRY_ENVIRONMENT=$SENTRY_ENVIRONMENT VITE_APP_VERSION=$(jq -r '.version' package.json) vite build",
+		"build": "VITE_ENVIRONMENT=$ENVIRONMENT VITE_APP_VERSION=$APP_VERSION VITE_DOMAIN=$DOMAIN VITE_SENTRY_INGEST=$SENTRY_INGEST VITE_PLAUSIBLE_API_URL=$PLAUSIBLE_API_URL VITE_PB_INSTANCES=$PB_INSTANCES vite build",
 		"lint": "eslint --max-warnings=0 .",
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
@@ -22,8 +22,6 @@
 		"@radix-ui/react-slot": "^1.0.2",
 		"@radix-ui/react-switch": "^1.0.3",
 		"@radix-ui/react-tabs": "^1.0.4",
-		"@sentry/react": "^7.105.0",
-		"@sentry/vite-plugin": "^2.14.2",
 		"class-variance-authority": "^0.7.0",
 		"fast-png": "^6.2.0",
 		"i18next": "^23.7.19",

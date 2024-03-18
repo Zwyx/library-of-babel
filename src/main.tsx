@@ -1,67 +1,57 @@
-import * as Sentry from "@sentry/react";
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import {
+	Navigate,
 	RouterProvider,
 	createBrowserRouter,
-	createRoutesFromChildren,
-	matchRoutes,
-	useLocation,
-	useNavigationType,
 	useRouteError,
 } from "react-router-dom";
 import { App } from "./App.tsx";
-import { Error } from "./components/Error.tsx";
+import { UnexpectedError } from "./components/UnexpectedError.tsx";
 import "./i18n/i18n.ts";
 import "./index.css";
 import { ThemeContextProvider } from "./lib/ThemeContext.tsx";
 import { WorkerContextProvider } from "./lib/WorkerContext.tsx";
+import { initPlausible } from "./lib/plausible.ts";
+import { initSentry, sendToSentry } from "./lib/sentry.ts";
 import { Home } from "./pages/Home.tsx";
 import { Intro } from "./pages/Intro.tsx";
 import { Library } from "./pages/Library.tsx";
 
-const pwa =
-	document.referrer.startsWith("android-app://") ? "twa"
-	: window.matchMedia("(display-mode: standalone)").matches ? "standalone"
-	: "browser";
+// We reimplemented Sentry's and Plausible's client-side behaviours ourselves,
+// in order to ensure that we cannot leak any IDs or encryption keys
+initSentry();
+initPlausible();
 
-if (import.meta.env.PROD) {
-	Sentry.init({
-		dsn: import.meta.env.VITE_SENTRY_DSN,
-		environment: import.meta.env.VITE_SENTRY_ENVIRONMENT,
-		integrations: [
-			Sentry.reactRouterV6BrowserTracingIntegration({
-				useEffect,
-				useLocation,
-				useNavigationType,
-				createRoutesFromChildren,
-				matchRoutes,
-			}),
-		],
-		tracePropagationTargets: [`https://${import.meta.env.VITE_DOMAIN}`],
-		tracesSampleRate: 0.1,
-	});
-
-	Sentry.setTag("pwa", pwa);
-}
-
-const sentryCreateBrowserRouter =
-	Sentry.wrapCreateBrowserRouter(createBrowserRouter);
-
-export const SentryRouteErrorFallback = () => {
+export const RouteErrorElement = () => {
 	const routeError = useRouteError();
 
 	useEffect(() => {
-		Sentry.captureException(routeError);
+		if (
+			typeof routeError === "object" &&
+			routeError &&
+			"stack" in routeError &&
+			typeof routeError.stack === "string"
+		) {
+			sendToSentry({
+				stack: routeError.stack,
+				mechanism: { type: "instrument", handled: false },
+			});
+		} else {
+			sendToSentry({
+				manuallyWrittenSafeErrorMessage: "Unknown route error",
+				mechanism: { type: "generic", handled: false },
+			});
+		}
 	}, [routeError]);
 
-	return <Error />;
+	return <UnexpectedError />;
 };
 
-const router = sentryCreateBrowserRouter([
+const router = createBrowserRouter([
 	{
 		path: "/",
-		errorElement: <SentryRouteErrorFallback />,
+		errorElement: <RouteErrorElement />,
 		element: <App />,
 		children: [
 			{

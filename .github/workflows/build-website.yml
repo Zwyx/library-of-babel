@@ -43,16 +43,12 @@ jobs:
         id: SENTRY_ENVIRONMENT
 
       - env:
+          ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
+          APP_VERSION: "${{ env.APP_VERSION }}"
           DOMAIN: "${{ secrets.DOMAIN }}"
-          PLAUSIBLE_SCRIPT_SRC: "${{ secrets.PLAUSIBLE_SCRIPT_SRC }}"
-        run: sed -i "s@<!-- \$PLAUSIBLE_SCRIPT -->@<script defer data-domain=\"${{ env.DOMAIN }}\" src=\"${{ env.PLAUSIBLE_SCRIPT_SRC }}\"></script>@" index.html
-
-      - env:
-          SENTRY_AUTH_TOKEN: "${{ secrets.SENTRY_AUTH_TOKEN }}"
-          SENTRY_RELEASE: "${{ env.APP_VERSION }}"
-          DOMAIN: "${{ secrets.DOMAIN }}"
-          SENTRY_DSN: "${{ secrets.SENTRY_DSN }}"
-          SENTRY_ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
+          SENTRY_INGEST: "${{ secrets.SENTRY_INGEST }}"
+          PLAUSIBLE_API_URL: "${{ secrets.PLAUSIBLE_API_URL }}"
+          PB_INSTANCES: "${{ secrets.PB_INSTANCES }}"
         run: npm run build
 
       - run: |

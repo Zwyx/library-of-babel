@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 
-export const Error = () => {
+export const UnexpectedError = () => {
 	return (
 		<div className="mt-8 text-center">
 			<h1 className="font-semibold">Oops, something went wrong.</h1>
