@@ -6,6 +6,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Selection } from "@/lib/common";
 import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
 import { LucideMoreHorizontal } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
@@ -15,6 +16,7 @@ import { Button } from "../ui/button";
 
 export const BookPageHeader = ({
 	pageNumber,
+	selection,
 	loadingBook,
 	loadingGetBookInfo,
 	loadingShare,
@@ -25,8 +27,10 @@ export const BookPageHeader = ({
 	onCopyBookClick,
 	onSavePageClick,
 	onSaveBookClick,
+	onDeselectClick,
 }: {
 	pageNumber: number;
+	selection: Selection | undefined;
 	loadingBook: boolean;
 	loadingGetBookInfo: boolean;
 	loadingShare: boolean;
@@ -37,6 +41,7 @@ export const BookPageHeader = ({
 	onCopyBookClick: () => void;
 	onSavePageClick: () => void;
 	onSaveBookClick: () => void;
+	onDeselectClick: () => void;
 }) => {
 	const loading = loadingBook || loadingGetBookInfo || loadingShare;
 
@@ -65,7 +70,7 @@ export const BookPageHeader = ({
 				Get book info
 			</ButtonLoading>
 
-			{/* <ButtonLoading
+			<ButtonLoading
 				className="mb-1"
 				variant="ghost"
 				size="sm"
@@ -74,7 +79,7 @@ export const BookPageHeader = ({
 				onClick={onShareClick}
 			>
 				Share
-			</ButtonLoading> */}
+			</ButtonLoading>
 
 			<DropdownMenu>
 				<SuccessWrapper showSuccess={showCopySuccess}>
@@ -106,6 +111,16 @@ export const BookPageHeader = ({
 					<DropdownMenuItem className="pl-8" onClick={onSaveBookClick}>
 						Save book to file
 					</DropdownMenuItem>
+
+					{selection && (
+						<>
+							<DropdownMenuSeparator />
+
+							<DropdownMenuItem className="pl-8" onClick={onDeselectClick}>
+								Deselect searched text
+							</DropdownMenuItem>
+						</>
+					)}
 
 					<div className="max-lg:hidden">
 						<DropdownMenuSeparator />

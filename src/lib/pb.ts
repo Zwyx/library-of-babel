@@ -1,5 +1,7 @@
+import { FetchErrorType } from "@/components/common/FetchError.const";
 import { EncryptedData } from "./crypto";
-import { getInstance, sleep } from "./utils";
+import { sendToSentry } from "./sentry";
+import { getUrl, sleep } from "./utils";
 
 export const expiryDurations = [
 	["1hour", "1 hour"],
@@ -13,37 +15,110 @@ export const expiryDurationTypes = expiryDurations.map((e) => e[0]);
 export const expiryDurationTexts = expiryDurations.map((e) => e[1]);
 export type ExpiryDuration = (typeof expiryDurationTypes)[number];
 
-interface PbRequestBody {
+interface PbCommonBody {
+	/** Version number */
+	v: 2;
+
+	/**
+	 * - `adata[0][0]` → iv
+	 * - `adata[3]` → delete after first access
+	 * - rest is unused
+	 */
 	adata: [
 		[string, "YmFiZWw=", 100000, 256, 128, "aes", "gcm", "none"],
 		"plaintext",
 		0,
 		0 | 1,
 	];
-	meta: {
-		expire: ExpiryDuration;
-	};
-	v: 2;
+
+	/** Cypher text */
 	ct: string;
 }
 
-interface PbResponseBody {
-	id: string;
-	deletetoken: string;
+interface PbSendRequestBody extends PbCommonBody {
+	meta: {
+		expire: ExpiryDuration;
+	};
 }
 
+type PbSendResponseBody =
+	| {
+			status: 0;
+			id: string;
+			deletetoken: string;
+	  }
+	| {
+			status: 1;
+			message: string;
+	  };
+
+type PbGetResponseBody =
+	| ({
+			status: 0;
+			meta: {
+				created: number;
+				time_to_live: number;
+			};
+	  } & PbCommonBody)
+	| {
+			status: 1;
+			message: string;
+	  };
+
+let pbInstances: string[] = [];
+
+// Cannot be done directly when this file is loaded, as we have to wait for Sentry to be initialised
+const loadPbInstances = () => {
+	try {
+		pbInstances = JSON.parse(import.meta.env.VITE_PB_INSTANCES);
+
+		if (!Array.isArray(pbInstances)) {
+			throw Error("VITE_PB_INSTANCES is not an array");
+		}
+
+		pbInstances.forEach((pbInstance) => {
+			if (typeof pbInstance !== "string") {
+				throw Error("VITE_PB_INSTANCES contains a non-string value");
+			}
+		});
+	} catch (err) {
+		const { name, message } = err as Error;
+
+		sendToSentry({
+			manuallyWrittenSafeErrorMessage: `Invalid json data for PB instances: ${name} - ${message}`,
+			mechanism: { type: "generic", handled: true },
+		});
+
+		return;
+	}
+
+	if (!Array.isArray(pbInstances) || !pbInstances.length) {
+		sendToSentry({
+			manuallyWrittenSafeErrorMessage: "Invalid data for PB instances.",
+			mechanism: { type: "generic", handled: true },
+		});
+	}
+};
+
 const RETRIES_PER_INSTANCE = 3;
+
+export const PB_ID_REGEX = /^[0-9a-f]{18}$/;
 
 export const sendToPb = async (
 	encryptedData: EncryptedData,
 	expiry: ExpiryDuration,
 	deleteAfterFirstAccess: boolean,
-): Promise<{
-	instanceIndex: number;
-	id: string;
-	deleteToken: string;
-} | null> => {
-	const pbRequestBody: PbRequestBody = {
+): Promise<
+	| {
+			id: string;
+			deleteToken: string;
+	  }
+	| { error: FetchErrorType }
+> => {
+	loadPbInstances();
+
+	const pbRequestBody: PbSendRequestBody = {
+		v: 2,
 		adata: [
 			[
 				encryptedData.ivBase64,
@@ -59,11 +134,8 @@ export const sendToPb = async (
 			0,
 			deleteAfterFirstAccess ? 1 : 0,
 		],
-		meta: {
-			expire: expiry,
-		},
-		v: 2,
 		ct: encryptedData.ciphertextBase64,
+		meta: { expire: expiry },
 	};
 
 	const fetchOptions = {
@@ -72,30 +144,107 @@ export const sendToPb = async (
 		body: JSON.stringify(pbRequestBody),
 	};
 
-	const res = await fetchWithRetry(fetchOptions, 0);
+	const json = await sendWithRetry(fetchOptions);
 
-	console.log(res?.instanceIndex);
-	console.log(res?.instanceIndex.toString(16));
+	if (!json) {
+		return { error: "network-error" };
+	}
 
-	return res ?
-			{
-				instanceIndex: res.instanceIndex,
-				id: `${res.instanceIndex.toString(16)}${deleteAfterFirstAccess ? "1" : "0"}${res.id}`,
-				deleteToken: res.deletetoken,
-			}
-		:	null;
+	if (json.status !== 0) {
+		sendToSentry({
+			manuallyWrittenSafeErrorMessage: `PB server error: instance ${json.instanceIndex} - ${json.message}`,
+			mechanism: { type: "generic", handled: true },
+		});
+
+		return { error: "server-error" };
+	}
+
+	return {
+		id: `${json.instanceIndex.toString(16)}${deleteAfterFirstAccess ? "1" : "0"}${json.id}`,
+		deleteToken: json.deletetoken,
+	};
 };
 
-const fetchWithRetry = async (
+const sendWithRetry = async (
 	options: RequestInit,
-	retries: number,
-): Promise<(PbResponseBody & { instanceIndex: number }) | null> => {
-	const urlIndex = Math.floor(retries / RETRIES_PER_INSTANCE);
-	const url = PB_INSTANCES[urlIndex];
+	instanceIndex: number = 0,
+): Promise<
+	| ({
+			instanceIndex: number;
+	  } & PbSendResponseBody)
+	| null
+> => {
+	const instance = pbInstances[instanceIndex];
 
+	const json = await fetchWithRetry<PbSendResponseBody>(
+		getUrl(instance),
+		options,
+	);
+
+	if (!json || json.status !== 0) {
+		if (instanceIndex < pbInstances.length - 1) {
+			return sendWithRetry(options, instanceIndex + 1);
+		}
+
+		if (!json) {
+			return null;
+		}
+	}
+
+	return { ...json, instanceIndex };
+};
+
+export const getFromPb = async (
+	id: string,
+): Promise<
+	| {
+			ivBase64: string;
+			ciphertextBase64: string;
+	  }
+	| { error: FetchErrorType }
+> => {
+	loadPbInstances();
+
+	const instanceIndex = parseInt(id.slice(0, 1), 16);
+	const instance = pbInstances[instanceIndex];
+
+	const fetchOptions = {
+		headers: { "x-requested-with": "JSONHttpRequest" },
+	};
+
+	const json = await fetchWithRetry<PbGetResponseBody>(
+		`${getUrl(instance)}/?pasteid=${id.slice(2)}`,
+		fetchOptions,
+	);
+
+	if (!json) {
+		return { error: "network-error" };
+	}
+
+	if (json.status !== 0) {
+		if (
+			json.message === "Paste does not exist, has expired or has been deleted."
+		) {
+			return { error: "not-found" };
+		}
+
+		return { error: "server-error" };
+	}
+
+	return {
+		ivBase64: json.adata[0][0],
+		ciphertextBase64: json.ct,
+	};
+};
+
+const fetchWithRetry = async <T>(
+	url: string,
+	options?: RequestInit,
+	retries: number = 0,
+): Promise<T | null> => {
 	const onError = () =>
-		retries < PB_INSTANCES.length * RETRIES_PER_INSTANCE - 1 ?
-			fetchWithRetry(options, retries + 1)
+		retries < RETRIES_PER_INSTANCE - 1 ?
+			fetchWithRetry<T>(url, options, retries + 1)
 		:	null;
 
 	if (retries) {
@@ -103,11 +252,10 @@ const fetchWithRetry = async (
 	}
 
 	try {
-		const res = await fetch(`https://${getInstance(url)}`, options);
+		const res = await fetch(url, options);
 
 		if (res.ok) {
-			const json = await res.json();
-			return { instanceIndex: urlIndex, ...json };
+			return (await res.json()) as T;
 		} else {
 			return onError();
 		}

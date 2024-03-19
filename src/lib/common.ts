@@ -81,10 +81,17 @@ export interface Page {
 	lines: Line[];
 }
 
+/**
+ * If `end` is `null`, `start` is only used to mark a page number, not a selection
+ */
+export interface Selection {
+	start: number;
+	end: number | null;
+}
+
 export interface Book {
 	pages: Page[];
-	searchTextStart?: number;
-	searchTextEnd?: number;
+	selection?: Selection;
 }
 
 export type BookImageData = number[];
@@ -148,3 +155,9 @@ export type MessageFromWorker = Pick<MessageToWorker, "operation"> &
 				error?: unknown;
 		  }
 	);
+
+export interface ShareData {
+	bookId: string;
+	pageNumber?: number;
+	selection?: Selection;
+}

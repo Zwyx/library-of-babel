@@ -21,7 +21,7 @@ export const App = () => {
 			<div className="flex flex-col items-center gap-4 px-2 py-4">
 				{pathname !== "/" && <WorkersAlert />}
 
-				<TabBar tab={pathname} />
+				<TabBar tab={pathname.split("/")[1]} />
 
 				<Outlet />
 

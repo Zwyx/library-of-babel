@@ -55,24 +55,32 @@ const router = createBrowserRouter([
 		element: <App />,
 		children: [
 			{
-				path: "/",
+				path: "",
 				element: <Home />,
 			},
 			{
-				path: "/intro",
+				path: "intro",
 				element: <Intro />,
 			},
 			{
-				path: "/browse",
+				path: "browse",
 				element: <Library mode="browse" />,
 			},
 			{
-				path: "/search",
+				path: "search",
 				element: <Library mode="search" />,
 			},
 			{
-				path: "/random",
+				path: "random",
 				element: <Library mode="random" />,
+			},
+			{
+				path: ":id",
+				element: <Library mode="browse" />,
+			},
+			{
+				path: "*",
+				element: <Navigate to="" replace />,
 			},
 		],
 	},

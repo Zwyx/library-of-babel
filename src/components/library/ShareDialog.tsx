@@ -21,13 +21,15 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { BookMetadata } from "@/lib/common";
+import { BookMetadata, Selection, ShareData } from "@/lib/common";
 import { encrypt } from "@/lib/crypto";
 import { ExpiryDuration, expiryDurationTexts, sendToPb } from "@/lib/pb";
 import { LucideInfo } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LinkCopy } from "../LinkCopy";
 import { ButtonLoading } from "../common/ButtonLoading";
+import { FetchError } from "../common/FetchError";
+import { FetchErrorType, isFetchErrorType } from "../common/FetchError.const";
 import { SourceChangedAlert } from "../common/SourceChangedAlert";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
@@ -38,8 +40,6 @@ const INCLUDE_CURRENT_PAGE_NUMBER_ID = "include-current-page-number";
 const DELETE_AFTER_FIRST_ACCESS_ID = "delete-after-first-access";
 
 interface LinksData {
-	instanceIndex: number;
-	deleteAfterFirstAccess: boolean;
 	id: string;
 	key: string;
 	deleteToken: string;
@@ -48,8 +48,7 @@ interface LinksData {
 export const ShareDialog = ({
 	bookMetadata,
 	pageNumber,
-	searchTextStart,
-	searchTextEnd,
+	selection,
 	open,
 	bookIdChanged,
 	bookImageChanged,
@@ -58,15 +57,14 @@ export const ShareDialog = ({
 }: {
 	bookMetadata?: BookMetadata;
 	pageNumber: number;
-	searchTextStart: number | undefined;
-	searchTextEnd: number | undefined;
+	selection: Selection | undefined;
 	bookIdChanged: boolean;
 	bookImageChanged: boolean;
 	searchTextChanged: boolean;
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
-	const [view, setView] = useState<"form" | "links" | "error">("form");
+	const [view, setView] = useState<"form" | "links" | FetchErrorType>("form");
 
 	const [includeSearchTextSelection, setIncludeSearchTextSelection] =
 		useState<boolean>(true);
@@ -82,11 +80,7 @@ export const ShareDialog = ({
 	const [sendDecryptionKeySeparately, setSendDecryptionKeySeparately] =
 		useState<boolean>(false);
 
-	const showIncludeSearchTextSelection =
-		typeof searchTextStart === "number" &&
-		typeof searchTextEnd === "number" &&
-		searchTextStart >= 0 &&
-		searchTextEnd >= 0;
+	const showIncludeSearchTextSelection = selection && selection.end !== null;
 
 	useEffect(() => {
 		setView("form");
@@ -105,31 +99,33 @@ export const ShareDialog = ({
 	}, [bookMetadata, showIncludeSearchTextSelection]);
 
 	const getLink = async () => {
+		if (!bookMetadata) {
+			return;
+		}
+
 		setLoading(true);
 
-		const data = {
-			bookId: bookMetadata?.bookId,
+		const shareData: ShareData = {
+			bookId: bookMetadata.bookId,
 			...(includeCurrentPageNumber && { pageNumber }),
-			...(includeSearchTextSelection && { searchTextStart, searchTextEnd }),
+			...(includeSearchTextSelection && { selection }),
 		};
 
-		const encryptedData = await encrypt(JSON.stringify(data));
+		const encryptedData = await encrypt(JSON.stringify(shareData));
 
-		const res = await sendToPb(encryptedData, expiry, deleteAfterFirstAccess);
+		const json = await sendToPb(encryptedData, expiry, deleteAfterFirstAccess);
 
 		setLoading(false);
 
-		if (!res) {
-			setView("error");
+		if ("error" in json) {
+			setView(json.error);
 			return;
 		}
 
 		setLinksData({
-			instanceIndex: res.instanceIndex,
-			deleteAfterFirstAccess,
-			id: res.id,
+			id: json.id,
 			key: encryptedData.keyBase64Url,
-			deleteToken: res.deleteToken,
+			deleteToken: json.deleteToken,
 		});
 
 		setView("links");
@@ -140,7 +136,10 @@ export const ShareDialog = ({
 			open={open}
 			onOpenChange={(newOpen) => {
 				if (!loading) {
-					if (!newOpen && view === "error") {
+					if (
+						!newOpen &&
+						(view === "network-error" || view === "server-error")
+					) {
 						// To prevent a flash of the form while the dialog closes
 						setTimeout(() => setView("form"), 250);
 					}
@@ -154,7 +153,7 @@ export const ShareDialog = ({
 				notClosable={loading}
 			>
 				<DialogHeader>
-					<DialogTitle>Share </DialogTitle>
+					<DialogTitle>Share</DialogTitle>
 
 					<DialogDescription>
 						Get a shareable link to the current book. Uses{" "}
@@ -277,8 +276,8 @@ export const ShareDialog = ({
 				)}
 
 				{view === "links" && linkData && (
-					<div className="mt-6">
-						<div className="font-semibold">Access link</div>
+					<>
+						<div className="mt-6 font-semibold">Access link</div>
 
 						<div className="text-sm text-muted-foreground">
 							Anyone with this link will be able to access the current book.
@@ -299,7 +298,7 @@ export const ShareDialog = ({
 
 						<LinkCopy
 							className="mt-4"
-							link={`https://${import.meta.env.VITE_DOMAIN}/${linkData.id}${sendDecryptionKeySeparately ? "" : `#${linkData.key}`}`}
+							link={`${location.origin}/${linkData.id}${sendDecryptionKeySeparately ? "" : `#${linkData.key}`}`}
 							buttonLabel="Copy link"
 						/>
 
@@ -319,20 +318,19 @@ export const ShareDialog = ({
 
 						<LinkCopy
 							className="mt-4"
-							link={`https://${import.meta.env.VITE_DOMAIN}/${linkData?.id}?delete#${linkData.deleteToken}`}
+							link={`${location.origin}/${linkData?.id}?delete#${linkData.deleteToken}`}
 							buttonLabel="Copy deletion link"
 						/>
-					</div>
+					</>
 				)}
 
-				{view === "error" && (
-					<div className="my-6 flex flex-col gap-4 text-center text-destructive">
-						<div className="font-semibold">Error</div>
-						<div>
-							An error occurred while sending the data. Please check your
-							internet connection and try again.
-						</div>
-					</div>
+				{isFetchErrorType(view) && (
+					<FetchError
+						className="mt-6"
+						type={view}
+						loading={loading}
+						onRetryClick={getLink}
+					/>
 				)}
 
 				<DialogFooter className="mt-6">

@@ -1,4 +1,4 @@
-import { Line } from "@/lib/common";
+import { Line, Selection } from "@/lib/common";
 import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
 import { cn, isElementInViewport } from "@/lib/utils";
 import { memo, useEffect } from "react";
@@ -7,17 +7,20 @@ import { useReadLocalStorage } from "usehooks-ts";
 const isLineSelected = ({
 	pageNumber,
 	lineIndex,
-	searchTextStart = 0,
-	searchTextEnd = 0,
+	selection,
 }: {
 	pageNumber: number;
 	lineIndex: number;
-	searchTextStart?: number;
-	searchTextEnd?: number;
-}) => {
+	selection: Selection | undefined;
+}): boolean => {
+	if (!selection || selection.end === null) {
+		return false;
+	}
+
 	const linePositions = (pageNumber - 1) * 3200 + lineIndex * 80;
+
 	return (
-		linePositions >= searchTextStart && linePositions + 79 <= searchTextEnd
+		linePositions >= selection.start && linePositions + 79 <= selection.end
 	);
 };
 
@@ -27,32 +30,26 @@ const isLineSelected = ({
  * - 1 if char is the first one to be selected
  * - 2 if char is another one to be selected
  */
-const isCharSelected = ({
+const getCharSelectionState = ({
 	pageNumber,
 	lineIndex,
 	charIndex,
-	searchTextStart,
-	searchTextEnd,
+	selection,
 }: {
 	pageNumber: number;
 	lineIndex: number;
 	charIndex: number;
-	searchTextStart: number | undefined;
-	searchTextEnd: number | undefined;
+	selection: Selection | undefined;
 }): 0 | 1 | 2 => {
-	if (
-		typeof searchTextStart !== "number" ||
-		typeof searchTextEnd !== "number" ||
-		searchTextEnd < 0
-	) {
+	if (!selection || selection.end === null) {
 		return 0;
 	}
 
 	const charPosition = (pageNumber - 1) * 3200 + lineIndex * 80 + charIndex;
 
 	return (
-		charPosition === searchTextStart ? 1
-		: charPosition > searchTextStart && charPosition <= searchTextEnd ? 2
+		charPosition === selection.start ? 1
+		: charPosition > selection.start && charPosition <= selection.end ? 2
 		: 0
 	);
 };
@@ -63,19 +60,17 @@ export const BookPageComponent = ({
 	className,
 	lines,
 	pageNumber,
-	searchTextStart,
-	searchTextEnd,
+	selection,
 }: {
 	className?: string;
 	lines: Line[];
 	pageNumber: number;
-	searchTextStart?: number;
-	searchTextEnd?: number;
+	selection?: Selection;
 }) => {
 	const showLineNumbers = !!useReadLocalStorage(SHOW_LINE_NUMBERS_KEY);
 
 	useEffect(() => {
-		if (typeof searchTextStart === "number") {
+		if (selection) {
 			// Ensures element has been added in the DOM
 			requestAnimationFrame(() => {
 				const element = document.getElementById(FIRST_SELECTED_CHAR_ID);
@@ -85,7 +80,7 @@ export const BookPageComponent = ({
 				}
 			});
 		}
-	}, [lines, searchTextStart]);
+	}, [lines, selection]);
 
 	return (
 		<div
@@ -100,8 +95,7 @@ export const BookPageComponent = ({
 					const lineSelected = isLineSelected({
 						pageNumber,
 						lineIndex,
-						searchTextStart,
-						searchTextEnd,
+						selection,
 					});
 
 					return (
@@ -119,12 +113,11 @@ export const BookPageComponent = ({
 							)}
 
 							{chars.split("").map((char, charIndex) => {
-								const charSelected = isCharSelected({
+								const charSelected = getCharSelectionState({
 									pageNumber,
 									lineIndex,
 									charIndex,
-									searchTextStart,
-									searchTextEnd,
+									selection,
 								});
 
 								return (

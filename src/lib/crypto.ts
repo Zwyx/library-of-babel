@@ -5,9 +5,9 @@ const KEY_LENGTH = 256;
 const IV_LENGTH = 12;
 
 export interface EncryptedData {
-	ciphertextBase64: string;
 	keyBase64Url: string;
 	ivBase64: string;
+	ciphertextBase64: string;
 }
 
 export const encrypt = async (plaintext: string): Promise<EncryptedData> => {
@@ -21,6 +21,7 @@ export const encrypt = async (plaintext: string): Promise<EncryptedData> => {
 	);
 
 	const plaintextEncoded = new TextEncoder().encode(plaintext);
+
 	const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
 
 	const ciphertext = await crypto.subtle.encrypt(
@@ -32,21 +33,19 @@ export const encrypt = async (plaintext: string): Promise<EncryptedData> => {
 		plaintextEncoded,
 	);
 
-	const ciphertextBase64 = await toBase64(ciphertext);
 	const keyPortable = await crypto.subtle.exportKey("raw", key);
 	const keyBase64Url = await toBase64(keyPortable, "base64Url");
 	const ivBase64 = await toBase64(iv);
+	const ciphertextBase64 = await toBase64(ciphertext);
 
-	return { ciphertextBase64, keyBase64Url, ivBase64 };
+	return { keyBase64Url, ivBase64, ciphertextBase64 };
 };
 
 export const decrypt = async ({
-	ciphertextBase64,
 	keyBase64Url,
 	ivBase64,
+	ciphertextBase64,
 }: EncryptedData): Promise<string> => {
-	const ciphertext = await fromBase64(ciphertextBase64);
-
 	const keyPortable = await fromBase64(keyBase64Url);
 
 	const key = await crypto.subtle.importKey(
@@ -58,6 +57,8 @@ export const decrypt = async ({
 	);
 
 	const iv = await fromBase64(ivBase64);
+
+	const ciphertext = await fromBase64(ciphertextBase64);
 
 	const plaintext = await crypto.subtle.decrypt(
 		{

@@ -9,6 +9,7 @@ import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
 import { Privacy } from "@/components/library/Privacy";
+import { RetrieveDialog } from "@/components/library/RetrieveDialog";
 import { ShareDialog } from "@/components/library/ShareDialog";
 import { AboutDialogLink } from "@/components/library/about/AboutDialog";
 import { BrowseMenu } from "@/components/library/browse/BrowseMenu";
@@ -27,20 +28,19 @@ import {
 	PAGES_PER_BOOK,
 	RandomOptions,
 	SearchOptions,
+	ShareData,
 } from "@/lib/common";
 import { RANDOM_OPTIONS_KEY, SEARCH_OPTIONS_KEY } from "@/lib/keys";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 
 type BookMetadataPurpose = "book-info" | "share";
 
 export const Library = ({ mode }: { mode: LibraryMode }) => {
-	// const { id } = useParams();
-	// const { hash } = useLocation();
-
-	// console.log(id);
-	// console.log(hash);
+	const { id } = useParams();
+	const { hash } = useLocation();
 
 	const { worker } = useWorkerContext();
 
@@ -90,6 +90,8 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const [computationErrorDialogOpen, setComputationErrorDialogOpen] =
 		useState<boolean>(false);
 
+	const partialShareData =
+		useRef<Pick<ShareData, "pageNumber" | "selection">>();
 	const bookMetadataPurpose = useRef<BookMetadataPurpose>("book-info");
 
 	const loadingBook = loadingBookReal || loadingBookMin;
@@ -202,7 +204,16 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						return;
 					}
 
-					setBook(data.book);
+					const newBook: Book | undefined =
+						data.book ?
+							{
+								...data.book,
+								selection:
+									partialShareData.current?.selection || data.book.selection,
+							}
+						:	undefined;
+
+					setBook(newBook);
 
 					if (data.bookId) {
 						setBookId(data.bookId);
@@ -217,12 +228,18 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					searchTextChanged.current = false;
 
 					if (operation === "browse") {
-						setPageNumber(1);
-					} else if (typeof data.book?.searchTextStart === "number") {
 						setPageNumber(
-							Math.floor(data.book.searchTextStart / CHARS_PER_PAGE) + 1,
+							typeof partialShareData.current?.pageNumber === "number" ?
+								partialShareData.current?.pageNumber
+							:	1,
+						);
+					} else if (newBook?.selection) {
+						setPageNumber(
+							Math.floor(newBook.selection.start / CHARS_PER_PAGE) + 1,
 						);
 					}
+
+					partialShareData.current = undefined;
 
 					break;
 				}
@@ -280,6 +297,25 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	return (
 		<div className="flex flex-col items-center gap-1">
+			{id && (
+				<RetrieveDialog
+					id={id}
+					key_={hash.slice(1)}
+					navigateToHomeIfCancelled={!(bookId || searchText || book)}
+					onShareDataReady={(shareData) => {
+						setBookId(shareData.bookId);
+
+						partialShareData.current =
+							shareData.selection ? { selection: shareData.selection }
+							: typeof shareData.pageNumber === "number" ?
+								{ pageNumber: shareData.pageNumber }
+							:	undefined;
+
+						getBook({ bookId: shareData.bookId });
+					}}
+				/>
+			)}
+
 			<Privacy />
 
 			{(mode === "browse" || mode === "search") && (
@@ -383,6 +419,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 					<BookPageHeader
 						pageNumber={pageNumber}
+						selection={book.selection}
 						loadingBook={loadingBook}
 						loadingGetBookInfo={
 							loadingBookMetadata && bookMetadataPurpose.current === "book-info"
@@ -403,6 +440,11 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						onCopyBookClick={() => copyOrSave("book", "copy")}
 						onSavePageClick={() => copyOrSave("page", "save")}
 						onSaveBookClick={() => copyOrSave("book", "save")}
+						onDeselectClick={() =>
+							setBook((prevBook) =>
+								prevBook ? { ...prevBook, selection: undefined } : undefined,
+							)
+						}
 					/>
 
 					<BookMetadataDialog
@@ -418,8 +460,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					<ShareDialog
 						bookMetadata={bookMetadata}
 						pageNumber={pageNumber}
-						searchTextStart={book.searchTextStart}
-						searchTextEnd={book.searchTextEnd}
+						selection={book.selection}
 						bookIdChanged={mode === "browse" && bookIdChanged.current}
 						bookImageChanged={mode === "browse" && bookImageChanged.current}
 						searchTextChanged={mode === "search" && searchTextChanged.current}
@@ -430,11 +471,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					<BookPage
 						lines={book.pages[pageNumber - 1].lines}
 						pageNumber={pageNumber}
-						searchTextStart={book.searchTextStart}
-						searchTextEnd={book.searchTextEnd}
+						selection={book.selection}
 					/>
 
-					<div className="mb-4 mt-8 w-full border-b border-t py-1 text-center text-sm">
+					<div className="mb-4 mt-12 w-full border-b border-t py-1 text-center text-sm">
 						<AboutDialogLink to="?about">How it works</AboutDialogLink>
 					</div>
 				</div>
