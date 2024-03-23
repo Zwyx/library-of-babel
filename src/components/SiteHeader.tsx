@@ -14,7 +14,10 @@ export const SiteHeader = () => {
 				</div>
 
 				<div className="flex flex-[10] justify-center">
-					<Link to="/" className="text-center font-bold text-primary">
+					<Link
+						to="/"
+						className="text-center font-bold text-primary dark:text-primary"
+					>
 						{t("libraryOfBabel")}
 					</Link>
 				</div>

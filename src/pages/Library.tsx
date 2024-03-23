@@ -4,7 +4,10 @@ import { SmallAlert } from "@/components/common/SmallAlert";
 import { BookMetadataDialog } from "@/components/library/BookMetadataDialog";
 import { BookPage } from "@/components/library/BookPage";
 import { BookPageHeader } from "@/components/library/BookPageHeader";
-import { ComputationErrorDialog } from "@/components/library/ComputationErrorDialog";
+import {
+	ComputationErrorDialog,
+	ComputationErrorSource,
+} from "@/components/library/ComputationErrorDialog";
 import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
@@ -87,6 +90,8 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
 
 	const [computationError, setComputationError] = useState<string>();
+	const [computationErrorSource, setComputationErrorSource] =
+		useState<ComputationErrorSource>("local");
 	const [computationErrorDialogOpen, setComputationErrorDialogOpen] =
 		useState<boolean>(false);
 
@@ -189,7 +194,13 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 			if (data.error) {
 				setComputationError(String(data.error));
+				setComputationErrorSource(
+					partialShareData.current ? "shared" : "local",
+				);
 				setComputationErrorDialogOpen(true);
+
+				partialShareData.current = undefined;
+
 				return;
 			}
 
@@ -325,7 +336,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					placeholder={
 						mode === "browse" ? "Enter a book ID" : "Enter search text"
 					}
-					// eslint-disable-next-line jsx-a11y/no-autofocus
+					// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
 					autoFocus
 					onChange={(e) =>
 						mode === "browse" ?
@@ -333,7 +344,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						:	onSearchTextChange(e.target.value)
 					}
 					onKeyDown={(e) => {
-						if (e.key === "Enter") {
+						if (e.key === "Enter" && !e.shiftKey) {
 							e.preventDefault();
 							getBook();
 						}
@@ -440,11 +451,6 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						onCopyBookClick={() => copyOrSave("book", "copy")}
 						onSavePageClick={() => copyOrSave("page", "save")}
 						onSaveBookClick={() => copyOrSave("book", "save")}
-						onDeselectClick={() =>
-							setBook((prevBook) =>
-								prevBook ? { ...prevBook, selection: undefined } : undefined,
-							)
-						}
 					/>
 
 					<BookMetadataDialog
@@ -482,6 +488,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 			<ComputationErrorDialog
 				error={computationError}
+				source={computationErrorSource}
 				open={computationErrorDialogOpen}
 				onOpenChange={setComputationErrorDialogOpen}
 			/>

@@ -7,9 +7,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Selection } from "@/lib/common";
-import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
+import { SELECT_SEARCHED_TEXT_KEY, SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
 import { LucideMoreHorizontal } from "lucide-react";
-import { useLocalStorage } from "usehooks-ts";
+import { useLocalStorage, useWindowSize } from "usehooks-ts";
 import { ButtonLoading } from "../common/ButtonLoading";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Button } from "../ui/button";
@@ -27,7 +27,6 @@ export const BookPageHeader = ({
 	onCopyBookClick,
 	onSavePageClick,
 	onSaveBookClick,
-	onDeselectClick,
 }: {
 	pageNumber: number;
 	selection: Selection | undefined;
@@ -41,13 +40,19 @@ export const BookPageHeader = ({
 	onCopyBookClick: () => void;
 	onSavePageClick: () => void;
 	onSaveBookClick: () => void;
-	onDeselectClick: () => void;
 }) => {
+	const { width } = useWindowSize();
+
 	const loading = loadingBook || loadingGetBookInfo || loadingShare;
 
 	const [showLineNumbers, setShowLineNumbers] = useLocalStorage<boolean>(
 		SHOW_LINE_NUMBERS_KEY,
 		false,
+	);
+
+	const [selectSearchedText, setSelectSearchedText] = useLocalStorage<boolean>(
+		SELECT_SEARCHED_TEXT_KEY,
+		true,
 	);
 
 	return (
@@ -112,26 +117,26 @@ export const BookPageHeader = ({
 						Save book to file
 					</DropdownMenuItem>
 
-					{selection && (
-						<>
-							<DropdownMenuSeparator />
+					{(width >= 1024 || selection?.end) && <DropdownMenuSeparator />}
 
-							<DropdownMenuItem className="pl-8" onClick={onDeselectClick}>
-								Deselect searched text
-							</DropdownMenuItem>
-						</>
-					)}
-
-					<div className="max-lg:hidden">
-						<DropdownMenuSeparator />
-
+					{width >= 1024 && (
 						<DropdownMenuCheckboxItem
 							checked={showLineNumbers}
 							onCheckedChange={setShowLineNumbers}
 						>
 							Show line numbers
 						</DropdownMenuCheckboxItem>
-					</div>
+					)}
+
+					{selection?.end && (
+						<DropdownMenuCheckboxItem
+							checked={selectSearchedText}
+							className="pl-8"
+							onCheckedChange={setSelectSearchedText}
+						>
+							Select searched text
+						</DropdownMenuCheckboxItem>
+					)}
 
 					{/* Not possible at the moment, see end of `Library.tsx`
 					<DropdownMenuCheckboxItem checked={false}>

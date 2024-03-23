@@ -68,7 +68,7 @@ export const DECIMAL_PREFIXES = [
 	"YB",
 ];
 
-export const readableFileSize = (
+export const getReadableFileSize = (
 	size: number,
 	prefix: "binary" | "decimal" = "binary",
 	language?: string,
@@ -141,5 +141,5 @@ export const getUrl = (text: string) =>
 			.join(""),
 	);
 
-export const sleep = (seconds: number) =>
-	new Promise((r) => setTimeout(r, seconds * 1000));
+export const sleep = (milliseconds: number) =>
+	new Promise((r) => setTimeout(r, milliseconds));

@@ -1,5 +1,5 @@
 import { Line, Selection } from "@/lib/common";
-import { SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
+import { SELECT_SEARCHED_TEXT_KEY, SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
 import { cn, isElementInViewport } from "@/lib/utils";
 import { memo, useEffect } from "react";
 import { useReadLocalStorage } from "usehooks-ts";
@@ -68,9 +68,11 @@ export const BookPageComponent = ({
 	selection?: Selection;
 }) => {
 	const showLineNumbers = !!useReadLocalStorage(SHOW_LINE_NUMBERS_KEY);
+	const selectSearchedText =
+		useReadLocalStorage(SELECT_SEARCHED_TEXT_KEY) ?? true;
 
 	useEffect(() => {
-		if (selection) {
+		if (selectSearchedText && selection) {
 			// Ensures element has been added in the DOM
 			requestAnimationFrame(() => {
 				const element = document.getElementById(FIRST_SELECTED_CHAR_ID);
@@ -80,7 +82,9 @@ export const BookPageComponent = ({
 				}
 			});
 		}
-	}, [lines, selection]);
+	}, [selectSearchedText, selection]);
+
+	const selectionColors = "bg-blue-200 dark:bg-blue-900";
 
 	return (
 		<div
@@ -92,19 +96,18 @@ export const BookPageComponent = ({
 			{
 				// it's ok to use indexes for lines' and chars' keys, as lines and chars are rendered statelessly
 				lines.map(({ chars }, lineIndex) => {
-					const lineSelected = isLineSelected({
-						pageNumber,
-						lineIndex,
-						selection,
-					});
+					const lineSelected =
+						selectSearchedText &&
+						isLineSelected({
+							pageNumber,
+							lineIndex,
+							selection,
+						});
 
 					return (
 						<div
 							key={lineIndex}
-							className={cn(
-								"max-lg:inline",
-								lineSelected && "bg-blue-200 dark:bg-blue-900",
-							)}
+							className={cn("max-lg:inline", lineSelected && selectionColors)}
 						>
 							{showLineNumbers && (
 								<span className="mr-2 select-none text-sm text-muted-foreground max-lg:hidden">
@@ -113,12 +116,14 @@ export const BookPageComponent = ({
 							)}
 
 							{chars.split("").map((char, charIndex) => {
-								const charSelected = getCharSelectionState({
-									pageNumber,
-									lineIndex,
-									charIndex,
-									selection,
-								});
+								const charSelected =
+									selectSearchedText &&
+									getCharSelectionState({
+										pageNumber,
+										lineIndex,
+										charIndex,
+										selection,
+									});
 
 								return (
 									<span
@@ -129,7 +134,7 @@ export const BookPageComponent = ({
 												"bg-[radial-gradient(circle,_#bbb_0,_transparent_.1rem)] dark:bg-[radial-gradient(circle,_#555_0,_transparent_.1rem)]",
 											!lineSelected &&
 												charSelected &&
-												"inline-block bg-blue-200 dark:bg-blue-800",
+												cn("inline-block", selectionColors),
 										)}
 									>
 										{char}

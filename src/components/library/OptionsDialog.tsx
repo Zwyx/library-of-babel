@@ -20,7 +20,7 @@ import {
 	SearchOptions,
 } from "@/lib/common";
 import { OPTIONS_DIALOG_SETTINGS_KEY } from "@/lib/keys";
-import { cn, readableFileSize } from "@/lib/utils";
+import { cn, getReadableFileSize } from "@/lib/utils";
 import { LucideSettings } from "lucide-react";
 import { equals } from "ramda";
 import { useEffect, useRef, useState } from "react";
@@ -90,7 +90,7 @@ export const OptionsDialog = ({
 	}, [choice, options.numberOfPages, customNumberOfPages]);
 
 	const getBookIdSize = (numberOfPages_: number) =>
-		readableFileSize(
+		getReadableFileSize(
 			Math.ceil(numberOfPages_ * CHARS_PER_PAGE * BASES_QUOTIENT),
 			"decimal",
 		);
@@ -158,7 +158,7 @@ export const OptionsDialog = ({
 									times the size of the search text.
 								</>
 							}
-							// eslint-disable-next-line jsx-a11y/no-autofocus
+							// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
 							autoFocus
 						/>
 					)}
@@ -183,7 +183,7 @@ export const OptionsDialog = ({
 									be about <strong>{getBookIdSize(1)}</strong>.
 								</>
 						}
-						// eslint-disable-next-line jsx-a11y/no-autofocus
+						// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
 						autoFocus={mode !== "search"}
 					/>
 
@@ -314,7 +314,7 @@ const RadioGroupElement = function <T extends string>({
 				className="mt-0.5"
 				id={id}
 				value={id}
-				// eslint-disable-next-line jsx-a11y/no-autofocus
+				// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
 				autoFocus={autoFocus}
 			/>
 

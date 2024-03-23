@@ -105,9 +105,16 @@ const RETRIES_PER_INSTANCE = 3;
 export const PB_ID_REGEX = /^[0-9a-f]{18}$/;
 
 export const sendToPb = async (
-	encryptedData: EncryptedData,
-	expiry: ExpiryDuration,
-	deleteAfterFirstAccess: boolean,
+	{
+		encryptedData,
+		expiry,
+		deleteAfterFirstAccess,
+	}: {
+		encryptedData: EncryptedData;
+		expiry: ExpiryDuration;
+		deleteAfterFirstAccess: boolean;
+	},
+	onUploadProgress: (progress: Progress) => void,
 ): Promise<
 	| {
 			id: string;
@@ -138,24 +145,19 @@ export const sendToPb = async (
 		meta: { expire: expiry },
 	};
 
-	const fetchOptions = {
+	const requestOptions: RequestOptions = {
 		method: "post",
 		headers: { "x-requested-with": "JSONHttpRequest" },
 		body: JSON.stringify(pbRequestBody),
 	};
 
-	const json = await sendWithRetry(fetchOptions);
+	const json = await sendWithRetry(requestOptions, onUploadProgress);
 
 	if (!json) {
 		return { error: "network-error" };
 	}
 
 	if (json.status !== 0) {
-		sendToSentry({
-			manuallyWrittenSafeErrorMessage: `PB server error: instance ${json.instanceIndex} - ${json.message}`,
-			mechanism: { type: "generic", handled: true },
-		});
-
 		return { error: "server-error" };
 	}
 
@@ -166,7 +168,8 @@ export const sendToPb = async (
 };
 
 const sendWithRetry = async (
-	options: RequestInit,
+	options: RequestOptions,
+	onUploadProgress: (progress: Progress) => void,
 	instanceIndex: number = 0,
 ): Promise<
 	| ({
@@ -176,14 +179,23 @@ const sendWithRetry = async (
 > => {
 	const instance = pbInstances[instanceIndex];
 
-	const json = await fetchWithRetry<PbSendResponseBody>(
+	const json = await requestWithRetry<PbSendResponseBody>(
 		getUrl(instance),
 		options,
+		{ onUploadProgress },
 	);
 
 	if (!json || json.status !== 0) {
+		// We want `!== 0`, not `=== 1`, in case `status` can have other values
+		if (json && (json?.status as number) !== 0) {
+			sendToSentry({
+				manuallyWrittenSafeErrorMessage: `PB server error: instance ${instanceIndex} - ${json.message}`,
+				mechanism: { type: "generic", handled: true },
+			});
+		}
+
 		if (instanceIndex < pbInstances.length - 1) {
-			return sendWithRetry(options, instanceIndex + 1);
+			return sendWithRetry(options, onUploadProgress, instanceIndex + 1);
 		}
 
 		if (!json) {
@@ -196,6 +208,7 @@ const sendWithRetry = async (
 
 export const getFromPb = async (
 	id: string,
+	onDownloadProgress: (progress: Progress) => void,
 ): Promise<
 	| {
 			ivBase64: string;
@@ -208,13 +221,14 @@ export const getFromPb = async (
 	const instanceIndex = parseInt(id.slice(0, 1), 16);
 	const instance = pbInstances[instanceIndex];
 
-	const fetchOptions = {
+	const requestOptions: RequestOptions = {
 		headers: { "x-requested-with": "JSONHttpRequest" },
 	};
 
-	const json = await fetchWithRetry<PbGetResponseBody>(
+	const json = await requestWithRetry<PbGetResponseBody>(
 		`${getUrl(instance)}/?pasteid=${id.slice(2)}`,
-		fetchOptions,
+		requestOptions,
+		{ onDownloadProgress },
 	);
 
 	if (!json) {
@@ -237,25 +251,97 @@ export const getFromPb = async (
 	};
 };
 
-const fetchWithRetry = async <T>(
+interface RequestOptions {
+	method?: RequestInit["method"];
+	headers?: Record<string, string>;
+	body?: string;
+}
+
+export interface Progress {
+	loaded: number;
+	total: number;
+}
+
+const requestWithRetry = async <T>(
 	url: string,
-	options?: RequestInit,
+	options?: RequestOptions,
+	progressCallbacks?: {
+		onUploadProgress?: (progress: Progress) => void;
+		onDownloadProgress?: (progress: Progress) => void;
+	},
 	retries: number = 0,
 ): Promise<T | null> => {
-	const onError = () =>
-		retries < RETRIES_PER_INSTANCE - 1 ?
-			fetchWithRetry<T>(url, options, retries + 1)
-		:	null;
-
 	if (retries) {
-		await sleep(2);
+		await sleep(2000);
 	}
 
-	try {
-		const res = await fetch(url, options);
+	const onError = () =>
+		retries < RETRIES_PER_INSTANCE - 1 ?
+			requestWithRetry<T>(url, options, progressCallbacks, retries + 1)
+		:	null;
 
-		if (res.ok) {
-			return (await res.json()) as T;
+	// I put the try-catch in place when using fetch, it looks like it isn't
+	// necessary with XHR, but let's leave it anyway
+	try {
+		const xhr = new XMLHttpRequest();
+
+		xhr.open(options?.method || "GET", url);
+
+		Object.entries(options?.headers || {}).forEach(([name, value]) =>
+			xhr.setRequestHeader(name, value),
+		);
+
+		xhr.responseType = "json";
+
+		if (progressCallbacks?.onUploadProgress) {
+			xhr.upload.addEventListener("progress", (e) => {
+				if (e.lengthComputable) {
+					progressCallbacks.onUploadProgress?.({
+						loaded: e.loaded,
+						total: e.total,
+					});
+				}
+			});
+		}
+
+		if (progressCallbacks?.onDownloadProgress) {
+			xhr.addEventListener("progress", (e) => {
+				if (e.lengthComputable) {
+					progressCallbacks.onDownloadProgress?.({
+						loaded: e.loaded,
+						total: e.total,
+					});
+				} else {
+					const uncompressedContentLength = xhr.getResponseHeader(
+						"X-Uncompressed-Content-Length",
+					);
+
+					if (uncompressedContentLength) {
+						progressCallbacks.onDownloadProgress?.({
+							loaded: e.loaded,
+							total: Number(uncompressedContentLength),
+						});
+					}
+				}
+			});
+		}
+
+		await new Promise<void>((resolve) => {
+			xhr.addEventListener("loadend", () => {
+				// This is mainly useful for Firefox and other browsers that report the size of the
+				// compressed data in `ProgressEvent.loaded`, therefore making the progress bar stop
+				// about three quarter of the way; Chrome reports the size of the decompressed data
+				// in `ProgressEvent.loaded`
+				progressCallbacks?.onDownloadProgress?.({ loaded: 100, total: 100 });
+
+				resolve();
+			});
+
+			xhr.send(options?.body);
+		});
+
+		if (xhr.readyState === 4 && xhr.status === 200) {
+			return xhr.response;
 		} else {
 			return onError();
 		}

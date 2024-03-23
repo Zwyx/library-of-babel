@@ -27,17 +27,25 @@ export default {
 					DEFAULT: "hsl(var(--secondary))",
 					foreground: "hsl(var(--secondary-foreground))",
 				},
+				info: {
+					DEFAULT: "hsl(var(--info))",
+					dim: "hsl(var(--info-dim))",
+				},
+				success: {
+					DEFAULT: "hsl(var(--success))",
+					dim: "hsl(var(--success-dim))",
+				},
+				warning: {
+					DEFAULT: "hsl(var(--warning))",
+				},
 				destructive: {
 					DEFAULT: "hsl(var(--destructive))",
 					foreground: "hsl(var(--destructive-foreground))",
 				},
-				warning: {
-					DEFAULT: "hsl(var(--warning))",
-					foreground: "hsl(var(--warning-foreground))",
-				},
 				muted: {
 					DEFAULT: "hsl(var(--muted))",
 					foreground: "hsl(var(--muted-foreground))",
+					text: "hsl(var(--muted-text))",
 				},
 				accent: {
 					DEFAULT: "hsl(var(--accent))",

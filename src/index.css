@@ -21,15 +21,22 @@
 
 		--muted: 210 40% 96.1%;
 		--muted-foreground: 215.4 16.3% 46.9%;
+		--muted-text: 215.4 16.3% 70%;
 
 		--accent: 210 40% 96.1%;
 		--accent-foreground: 222.2 47.4% 11.2%;
 
+		--info: 217 91% 60%; /* bg-blue-500 */
+		--info-dim: 213 94% 68%; /* bg-blue-400 */
+
+		--success: 142 71% 45%; /* bg-green-500 */
+		--success-dim: 142 69% 58%; /* bg-green-400 */
+
+		--warning: 25 95% 53%; /* bg-orange-500 */
+		--warning-dim: 27 96% 61%; /* bg-orange-400 */
+
 		--destructive: 0 84.2% 60.2%;
 		--destructive-foreground: 210 40% 98%;
-
-		--warning: 27 96% 50%;
-		--warning-foreground: 210 40% 98%;
 
 		--border: 214.3 31.8% 91.4%;
 		--input: 214.3 31.8% 91.4%;
@@ -56,15 +63,22 @@
 
 		--muted: 217.2 32.6% 17.5%;
 		--muted-foreground: 215 20.2% 65.1%;
+		--muted-text: 215 20.2% 35%;
 
 		--accent: 217.2 32.6% 17.5%;
 		--accent-foreground: 210 40% 98%;
 
+		--info: 217 91% 60%; /* bg-blue-500 */
+		--info-dim: 221 83% 53%; /* bg-blue-600 */
+
+		--success: 142 71% 45%; /* bg-green-500 */
+		--success-dim: 142 76% 36%; /* bg-green-600 */
+
+		--warning: 25 95% 53%; /* bg-orange-500 */
+		--warning-dim: 21 90% 48%; /* bg-orange-600 */
+
 		--destructive: 0 62.8% 30.6%;
 		--destructive-foreground: 210 40% 98%;
-
-		--warning: 21 90% 48%;
-		--warning-foreground: 210 40% 98%;
 
 		--border: 217.2 32.6% 17.5%;
 		--input: 217.2 32.6% 17.5%;
@@ -83,5 +97,5 @@
 }
 
 a {
-	@apply text-blue-600;
+	@apply text-blue-600 dark:text-info;
 }

@@ -27,7 +27,7 @@ export const TabBar = ({ tab }: { tab: string }) => {
 			<TabsList>
 				{tabs.map(({ path, label }) => (
 					<TabsTrigger key={path} value={path} asChild>
-						<Link className="text-primary" to={path}>
+						<Link className="text-primary dark:text-primary" to={path}>
 							{label}
 						</Link>
 					</TabsTrigger>

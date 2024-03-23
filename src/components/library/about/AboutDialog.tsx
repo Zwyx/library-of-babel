@@ -656,7 +656,7 @@ const Section = ({
 				<AboutDialogLink to={`?about=${id}`}>
 					<h3 className="mb-3 flex w-full font-semibold text-primary">
 						<span>{title}</span>
-						<span className="text-blue-600 opacity-0">
+						<span className="text-info opacity-0">
 							&nbsp;&nbsp;#&nbsp;&nbsp;
 						</span>
 					</h3>

@@ -10,12 +10,16 @@ import {
 	DialogTitle,
 } from "../ui/dialog";
 
+export type ComputationErrorSource = "local" | "shared";
+
 export const ComputationErrorDialog = ({
 	error,
+	source,
 	open,
 	onOpenChange,
 }: {
 	error?: string;
+	source: ComputationErrorSource;
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
@@ -36,8 +40,17 @@ export const ComputationErrorDialog = ({
 					</div>
 
 					<div className="mt-6">
-						Try again by selecting to return a book with no more than 67 pages
-						of text.
+						{source === "shared" ?
+							<>
+								Try with another browser, or ask the creator of this link to
+								make another one after adjusting the settings to return a book
+								with no more than 67 pages of text.
+							</>
+						:	<>
+								Try again after adjusting the settings to return a book with no
+								more than 67 pages of text.
+							</>
+						}
 					</div>
 
 					{error && (

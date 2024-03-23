@@ -23,13 +23,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { BookMetadata, Selection, ShareData } from "@/lib/common";
 import { encrypt } from "@/lib/crypto";
-import { ExpiryDuration, expiryDurationTexts, sendToPb } from "@/lib/pb";
+import { ExpiryDuration, Progress, expiryDurations, sendToPb } from "@/lib/pb";
 import { LucideInfo } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LinkCopy } from "../LinkCopy";
 import { ButtonLoading } from "../common/ButtonLoading";
 import { FetchError } from "../common/FetchError";
 import { FetchErrorType, isFetchErrorType } from "../common/FetchError.const";
+import { ProgressStatus } from "../common/ProgressStatus";
 import { SourceChangedAlert } from "../common/SourceChangedAlert";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
@@ -75,12 +76,13 @@ export const ShareDialog = ({
 		useState<boolean>(false);
 
 	const [loading, setLoading] = useState<boolean>(false);
+	const [uploadProgress, setUploadProgress] = useState<Progress>();
 
 	const [linkData, setLinksData] = useState<LinksData>();
 	const [sendDecryptionKeySeparately, setSendDecryptionKeySeparately] =
 		useState<boolean>(false);
 
-	const showIncludeSearchTextSelection = selection && selection.end !== null;
+	const showIncludeSearchTextSelection = selection?.end !== null;
 
 	useEffect(() => {
 		setView("form");
@@ -96,6 +98,7 @@ export const ShareDialog = ({
 
 		setExpiry("1month");
 		setDeleteAfterFirstAccess(false);
+		setUploadProgress(undefined);
 	}, [bookMetadata, showIncludeSearchTextSelection]);
 
 	const getLink = async () => {
@@ -113,7 +116,14 @@ export const ShareDialog = ({
 
 		const encryptedData = await encrypt(JSON.stringify(shareData));
 
-		const json = await sendToPb(encryptedData, expiry, deleteAfterFirstAccess);
+		const json = await sendToPb(
+			{
+				encryptedData,
+				expiry,
+				deleteAfterFirstAccess,
+			},
+			setUploadProgress,
+		);
 
 		setLoading(false);
 
@@ -141,7 +151,10 @@ export const ShareDialog = ({
 						(view === "network-error" || view === "server-error")
 					) {
 						// To prevent a flash of the form while the dialog closes
-						setTimeout(() => setView("form"), 250);
+						setTimeout(() => {
+							setView("form");
+							setUploadProgress(undefined);
+						}, 250);
 					}
 
 					onOpenChange(newOpen);
@@ -188,12 +201,12 @@ export const ShareDialog = ({
 								/>
 
 								<Label htmlFor={INCLUDE_SEARCH_TEXT_SELECTION_ID}>
-									Include search text selection
+									Include the search text selection
 								</Label>
 							</div>
-						:	<div className="mt-4" />}
+						:	<div className="mt-3" />}
 
-						<div className="mt-2 flex items-center gap-2">
+						<div className="mt-3 flex items-center gap-2">
 							<Checkbox
 								id={INCLUDE_CURRENT_PAGE_NUMBER_ID}
 								checked={includeCurrentPageNumber}
@@ -208,7 +221,7 @@ export const ShareDialog = ({
 							/>
 
 							<Label htmlFor={INCLUDE_CURRENT_PAGE_NUMBER_ID}>
-								Include current page number
+								Include the current page number
 							</Label>
 
 							{showIncludeSearchTextSelection && includeSearchTextSelection && (
@@ -216,15 +229,15 @@ export const ShareDialog = ({
 									<PopoverTrigger>
 										<LucideInfo size={16} />
 									</PopoverTrigger>
-									<PopoverContent>
-										The page number of the search text selection will be
-										included.
+									<PopoverContent className="text-center">
+										This option is disabled, because it's the page number of the
+										searched text which will be included.
 									</PopoverContent>
 								</Popover>
 							)}
 						</div>
 
-						<div className="mt-4">
+						<div className="mt-5">
 							<Select
 								value={expiry}
 								disabled={loading}
@@ -234,23 +247,21 @@ export const ShareDialog = ({
 							>
 								<SelectTrigger className="max-w-[250px]">
 									<SelectValue>
-										Expires: {expiry.startsWith("1") && "after"} {expiry}
+										Expires: {expiry.startsWith("1") && "after "}
+										{expiryDurations.find(([type]) => type === expiry)?.[1]}
 									</SelectValue>
 								</SelectTrigger>
 								<SelectContent>
-									{expiryDurationTexts.map((expiryDurationText) => (
-										<SelectItem
-											key={expiryDurationText}
-											value={expiryDurationText}
-										>
-											{expiryDurationText}
+									{expiryDurations.map(([type, text]) => (
+										<SelectItem key={type} value={type}>
+											{text}
 										</SelectItem>
 									))}
 								</SelectContent>
 							</Select>
 						</div>
 
-						<div className="mt-4 flex gap-2">
+						<div className="mt-5 flex gap-2">
 							<Checkbox
 								className="mt-0.5"
 								id={DELETE_AFTER_FIRST_ACCESS_ID}
@@ -269,7 +280,9 @@ export const ShareDialog = ({
 							</Label>
 						</div>
 
-						<ButtonLoading className="mt-6" loading={loading} onClick={getLink}>
+						<ProgressStatus className="mt-4" progress={uploadProgress} />
+
+						<ButtonLoading className="mt-2" loading={loading} onClick={getLink}>
 							Get link
 						</ButtonLoading>
 					</>
@@ -283,7 +296,7 @@ export const ShareDialog = ({
 							Anyone with this link will be able to access the current book.
 						</div>
 
-						<div className="mt-4 flex items-center gap-2">
+						<div className="mt-5 flex items-center gap-2">
 							<Label
 								className="flex-1"
 								htmlFor="send-decryption-key-separately"
@@ -317,7 +330,7 @@ export const ShareDialog = ({
 						</div>
 
 						<LinkCopy
-							className="mt-4"
+							className="mt-5"
 							link={`${location.origin}/${linkData?.id}?delete#${linkData.deleteToken}`}
 							buttonLabel="Copy deletion link"
 						/>

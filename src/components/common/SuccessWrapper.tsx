@@ -10,7 +10,7 @@ export const SuccessWrapper = ({
 		<div className="relative flex justify-end">
 			<svg
 				className={cn(
-					"pointer-events-none absolute z-20 animate-[showIcon_2s_ease-in-out_forwards] stroke-green-500",
+					"pointer-events-none absolute z-20 animate-[showIcon_2s_ease-in-out_forwards] stroke-success-dim",
 					!showSuccess && "hidden",
 				)}
 				xmlns="http://www.w3.org/2000/svg"
