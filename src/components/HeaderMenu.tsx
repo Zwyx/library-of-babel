@@ -32,7 +32,7 @@ export const HeaderMenu = () => {
 			>
 				<div className="flex items-center gap-4">
 					<img
-						className="w-8"
+						className="h-8 w-8"
 						src="Babel-220x220-rounded.png"
 						alt="Library of Babel logo"
 					/>
