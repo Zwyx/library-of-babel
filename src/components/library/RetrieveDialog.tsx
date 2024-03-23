@@ -30,9 +30,12 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FetchError } from "../common/FetchError";
-import { FetchErrorType, isFetchErrorType } from "../common/FetchError.const";
 import { ProgressStatus } from "../common/ProgressStatus";
+import { RequestError } from "../common/RequestError";
+import {
+	RequestErrorType,
+	isRequestErrorType,
+} from "../common/RequestError.const";
 import { SmallAlert } from "../common/SmallAlert";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -67,7 +70,7 @@ export const RetrieveDialog = ({
 		| "invalid-link"
 		| "delete-confirmation"
 		| "retrieving"
-		| FetchErrorType
+		| RequestErrorType
 		| "key-input"
 		| "wrong-key-input"
 		| "decrypting"
@@ -268,8 +271,8 @@ export const RetrieveDialog = ({
 						</div>
 					)}
 
-					{isFetchErrorType(view) && (
-						<FetchError
+					{isRequestErrorType(view) && (
+						<RequestError
 							className="mt-6"
 							type={view}
 							onRetryClick={retrieveData}
@@ -360,9 +363,9 @@ export const RetrieveDialog = ({
 						<AlertTitle>This book will be lost</AlertTitle>
 
 						<AlertDescription>
-							The encrypted data of this one-time link has been retrieved and
-							deleted. Cancelling the decryption process now will make this
-							shared book irretrievable.
+							The encrypted data associated to this one-time link has been
+							retrieved and deleted. Cancelling the decryption process now will
+							make this shared book irretrievable.
 						</AlertDescription>
 					</Alert>
 

@@ -37,6 +37,7 @@ export default {
 				},
 				warning: {
 					DEFAULT: "hsl(var(--warning))",
+					dim: "hsl(var(--warning-dim))",
 				},
 				destructive: {
 					DEFAULT: "hsl(var(--destructive))",

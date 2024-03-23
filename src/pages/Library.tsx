@@ -8,6 +8,7 @@ import {
 	ComputationErrorDialog,
 	ComputationErrorSource,
 } from "@/components/library/ComputationErrorDialog";
+import { DeleteDialog } from "@/components/library/DeleteDialog";
 import { InvalidDataDialog } from "@/components/library/InvalidDataDialog";
 import { OptionsDialog } from "@/components/library/OptionsDialog";
 import { Pagination } from "@/components/library/Pagination";
@@ -36,13 +37,15 @@ import {
 import { RANDOM_OPTIONS_KEY, SEARCH_OPTIONS_KEY } from "@/lib/keys";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useLocalStorage } from "usehooks-ts";
 
 type BookMetadataPurpose = "book-info" | "share";
 
 export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const { id } = useParams();
+	const [searchParams] = useSearchParams();
+	const deletion = searchParams.get("delete") === "";
 	const { hash } = useLocation();
 
 	const { worker } = useWorkerContext();
@@ -308,7 +311,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	return (
 		<div className="flex flex-col items-center gap-1">
-			{id && (
+			{id && !deletion && (
 				<RetrieveDialog
 					id={id}
 					key_={hash.slice(1)}
@@ -324,6 +327,14 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 						getBook({ bookId: shareData.bookId });
 					}}
+				/>
+			)}
+
+			{id && deletion && (
+				<DeleteDialog
+					id={id}
+					deleteToken={hash.slice(1)}
+					navigateToHomeWhenClosing={!(bookId || searchText || book)}
 				/>
 			)}
 

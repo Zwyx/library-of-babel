@@ -1,4 +1,4 @@
-import { FetchErrorType } from "@/components/common/FetchError.const";
+import { RequestErrorType } from "@/components/common/RequestError.const";
 import { EncryptedData } from "./crypto";
 import { sendToSentry } from "./sentry";
 import { getUrl, sleep } from "./utils";
@@ -14,6 +14,8 @@ export const expiryDurations = [
 export const expiryDurationTypes = expiryDurations.map((e) => e[0]);
 export const expiryDurationTexts = expiryDurations.map((e) => e[1]);
 export type ExpiryDuration = (typeof expiryDurationTypes)[number];
+
+const PB_REQUEST_HEADERS = { "x-requested-with": "JSONHttpRequest" };
 
 interface PbCommonBody {
 	/** Version number */
@@ -35,22 +37,24 @@ interface PbCommonBody {
 	ct: string;
 }
 
-interface PbSendRequestBody extends PbCommonBody {
+interface PbCreateRequestBody extends PbCommonBody {
 	meta: {
 		expire: ExpiryDuration;
 	};
 }
 
-type PbSendResponseBody =
+interface PbErrorResponseBody {
+	status: 1;
+	message: string;
+}
+
+type PbCreateResponseBody =
 	| {
 			status: 0;
 			id: string;
 			deletetoken: string;
 	  }
-	| {
-			status: 1;
-			message: string;
-	  };
+	| PbErrorResponseBody;
 
 type PbGetResponseBody =
 	| ({
@@ -60,10 +64,19 @@ type PbGetResponseBody =
 				time_to_live: number;
 			};
 	  } & PbCommonBody)
+	| PbErrorResponseBody;
+
+interface PbDeleteRequestBody {
+	pasteid: string;
+	deletetoken: string;
+}
+
+type PbDeleteResponseBody =
 	| {
-			status: 1;
-			message: string;
-	  };
+			status: 0;
+			id: string;
+	  }
+	| PbErrorResponseBody;
 
 let pbInstances: string[] = [];
 
@@ -120,11 +133,11 @@ export const sendToPb = async (
 			id: string;
 			deleteToken: string;
 	  }
-	| { error: FetchErrorType }
+	| { error: RequestErrorType }
 > => {
 	loadPbInstances();
 
-	const pbRequestBody: PbSendRequestBody = {
+	const pbCreateRequestBody: PbCreateRequestBody = {
 		v: 2,
 		adata: [
 			[
@@ -147,11 +160,11 @@ export const sendToPb = async (
 
 	const requestOptions: RequestOptions = {
 		method: "post",
-		headers: { "x-requested-with": "JSONHttpRequest" },
-		body: JSON.stringify(pbRequestBody),
+		headers: PB_REQUEST_HEADERS,
+		body: JSON.stringify(pbCreateRequestBody),
 	};
 
-	const json = await sendWithRetry(requestOptions, onUploadProgress);
+	const json = await createWithRetry(requestOptions, onUploadProgress);
 
 	if (!json) {
 		return { error: "network-error" };
@@ -167,21 +180,21 @@ export const sendToPb = async (
 	};
 };
 
-const sendWithRetry = async (
-	options: RequestOptions,
+const createWithRetry = async (
+	requestOptions: RequestOptions,
 	onUploadProgress: (progress: Progress) => void,
 	instanceIndex: number = 0,
 ): Promise<
 	| ({
 			instanceIndex: number;
-	  } & PbSendResponseBody)
+	  } & PbCreateResponseBody)
 	| null
 > => {
 	const instance = pbInstances[instanceIndex];
 
-	const json = await requestWithRetry<PbSendResponseBody>(
+	const json = await requestWithRetry<PbCreateResponseBody>(
 		getUrl(instance),
-		options,
+		requestOptions,
 		{ onUploadProgress },
 	);
 
@@ -189,13 +202,17 @@ const sendWithRetry = async (
 		// We want `!== 0`, not `=== 1`, in case `status` can have other values
 		if (json && (json?.status as number) !== 0) {
 			sendToSentry({
-				manuallyWrittenSafeErrorMessage: `PB server error: instance ${instanceIndex} - ${json.message}`,
+				manuallyWrittenSafeErrorMessage: `PB create error: instance ${instanceIndex} - ${json.message}`,
 				mechanism: { type: "generic", handled: true },
 			});
 		}
 
 		if (instanceIndex < pbInstances.length - 1) {
-			return sendWithRetry(options, onUploadProgress, instanceIndex + 1);
+			return createWithRetry(
+				requestOptions,
+				onUploadProgress,
+				instanceIndex + 1,
+			);
 		}
 
 		if (!json) {
@@ -206,6 +223,33 @@ const sendWithRetry = async (
 	return { ...json, instanceIndex };
 };
 
+const getPbInstance = (id: string) => {
+	loadPbInstances();
+
+	const instanceIndex = parseInt(id.slice(0, 1), 16);
+
+	return {
+		instanceIndex,
+		instance: pbInstances[instanceIndex],
+	};
+};
+
+const getPbGetOrDeleteError = (
+	message: string,
+	instanceIndex: number,
+): { error: RequestErrorType } => {
+	if (message === "Paste does not exist, has expired or has been deleted.") {
+		return { error: "not-found" };
+	}
+
+	sendToSentry({
+		manuallyWrittenSafeErrorMessage: `PB get or delete error: instance ${instanceIndex} - ${message}`,
+		mechanism: { type: "generic", handled: true },
+	});
+
+	return { error: "server-error" };
+};
+
 export const getFromPb = async (
 	id: string,
 	onDownloadProgress: (progress: Progress) => void,
@@ -214,15 +258,12 @@ export const getFromPb = async (
 			ivBase64: string;
 			ciphertextBase64: string;
 	  }
-	| { error: FetchErrorType }
+	| { error: RequestErrorType }
 > => {
-	loadPbInstances();
-
-	const instanceIndex = parseInt(id.slice(0, 1), 16);
-	const instance = pbInstances[instanceIndex];
+	const { instanceIndex, instance } = getPbInstance(id);
 
 	const requestOptions: RequestOptions = {
-		headers: { "x-requested-with": "JSONHttpRequest" },
+		headers: PB_REQUEST_HEADERS,
 	};
 
 	const json = await requestWithRetry<PbGetResponseBody>(
@@ -236,19 +277,52 @@ export const getFromPb = async (
 	}
 
 	if (json.status !== 0) {
-		if (
-			json.message === "Paste does not exist, has expired or has been deleted."
-		) {
-			return { error: "not-found" };
-		}
-
-		return { error: "server-error" };
+		return getPbGetOrDeleteError(json.message, instanceIndex);
 	}
 
 	return {
 		ivBase64: json.adata[0][0],
 		ciphertextBase64: json.ct,
 	};
+};
+
+export const deleteFromPb = async (
+	id: string,
+	deleteToken: string,
+): Promise<
+	{ ok: true } | { error: RequestErrorType | "wrong-delete-token" }
+> => {
+	const { instanceIndex, instance } = getPbInstance(id);
+
+	const pbDeleteRequestBody: PbDeleteRequestBody = {
+		pasteid: id.slice(2),
+		deletetoken: deleteToken,
+	};
+
+	const requestOptions: RequestOptions = {
+		method: "post",
+		headers: PB_REQUEST_HEADERS,
+		body: JSON.stringify(pbDeleteRequestBody),
+	};
+
+	const json = await requestWithRetry<PbDeleteResponseBody>(
+		getUrl(instance),
+		requestOptions,
+	);
+
+	if (!json) {
+		return { error: "network-error" };
+	}
+
+	if (json.status !== 0) {
+		if (json.message === "Wrong deletion token. Paste was not deleted.") {
+			return { error: "wrong-delete-token" };
+		}
+
+		return getPbGetOrDeleteError(json.message, instanceIndex);
+	}
+
+	return { ok: true };
 };
 
 interface RequestOptions {
@@ -264,7 +338,7 @@ export interface Progress {
 
 const requestWithRetry = async <T>(
 	url: string,
-	options?: RequestOptions,
+	requestOptions?: RequestOptions,
 	progressCallbacks?: {
 		onUploadProgress?: (progress: Progress) => void;
 		onDownloadProgress?: (progress: Progress) => void;
@@ -277,7 +351,7 @@ const requestWithRetry = async <T>(
 
 	const onError = () =>
 		retries < RETRIES_PER_INSTANCE - 1 ?
-			requestWithRetry<T>(url, options, progressCallbacks, retries + 1)
+			requestWithRetry<T>(url, requestOptions, progressCallbacks, retries + 1)
 		:	null;
 
 	// I put the try-catch in place when using fetch, it looks like it isn't
@@ -285,9 +359,9 @@ const requestWithRetry = async <T>(
 	try {
 		const xhr = new XMLHttpRequest();
 
-		xhr.open(options?.method || "GET", url);
+		xhr.open(requestOptions?.method || "GET", url);
 
-		Object.entries(options?.headers || {}).forEach(([name, value]) =>
+		Object.entries(requestOptions?.headers || {}).forEach(([name, value]) =>
 			xhr.setRequestHeader(name, value),
 		);
 
@@ -337,7 +411,7 @@ const requestWithRetry = async <T>(
 				resolve();
 			});
 
-			xhr.send(options?.body);
+			xhr.send(requestOptions?.body);
 		});
 
 		if (xhr.readyState === 4 && xhr.status === 200) {

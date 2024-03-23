@@ -28,9 +28,12 @@ import { LucideInfo } from "lucide-react";
 import { useEffect, useState } from "react";
 import { LinkCopy } from "../LinkCopy";
 import { ButtonLoading } from "../common/ButtonLoading";
-import { FetchError } from "../common/FetchError";
-import { FetchErrorType, isFetchErrorType } from "../common/FetchError.const";
 import { ProgressStatus } from "../common/ProgressStatus";
+import { RequestError } from "../common/RequestError";
+import {
+	RequestErrorType,
+	isRequestErrorType,
+} from "../common/RequestError.const";
 import { SourceChangedAlert } from "../common/SourceChangedAlert";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
@@ -65,7 +68,7 @@ export const ShareDialog = ({
 	open: boolean;
 	onOpenChange: (newOpen: boolean) => void;
 }) => {
-	const [view, setView] = useState<"form" | "links" | FetchErrorType>("form");
+	const [view, setView] = useState<"form" | "links" | RequestErrorType>("form");
 
 	const [includeSearchTextSelection, setIncludeSearchTextSelection] =
 		useState<boolean>(true);
@@ -337,8 +340,8 @@ export const ShareDialog = ({
 					</>
 				)}
 
-				{isFetchErrorType(view) && (
-					<FetchError
+				{isRequestErrorType(view) && (
+					<RequestError
 						className="mt-6"
 						type={view}
 						loading={loading}

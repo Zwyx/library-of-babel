@@ -1,15 +1,15 @@
 import { cn } from "@/lib/utils";
 import { ButtonLoading } from "./ButtonLoading";
-import { FetchErrorType } from "./FetchError.const";
+import { RequestErrorType } from "./RequestError.const";
 
-export const FetchError = ({
+export const RequestError = ({
 	className,
 	type,
 	loading,
 	onRetryClick,
 }: {
 	className?: string;
-	type: FetchErrorType;
+	type: RequestErrorType;
 	loading?: boolean;
 	onRetryClick?: () => void;
 }) => {
