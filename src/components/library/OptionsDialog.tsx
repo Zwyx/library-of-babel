@@ -27,6 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { AboutDialogLink } from "./about/AboutDialog";
 
 const AUTORERUN_ID = "autorerun";
 
@@ -153,7 +154,11 @@ export const OptionsDialog = ({
 							title="Find the first book containing the search text"
 							subtitle={
 								<>
-									The size of the book ID will be about{" "}
+									The size of the{" "}
+									<AboutDialogLink to="?about=the-book-id">
+										book ID
+									</AboutDialogLink>{" "}
+									will be about{" "}
 									<strong>{Math.round(BASES_QUOTIENT * 100) / 100}</strong>{" "}
 									times the size of the search text.
 								</>
@@ -179,8 +184,11 @@ export const OptionsDialog = ({
 									will be returned.
 								</>
 							:	<>
-									The rest of the pages will be blank. The size of book ID will
-									be about <strong>{getBookIdSize(1)}</strong>.
+									The rest of the pages will be blank. The size of{" "}
+									<AboutDialogLink to="?about=the-book-id">
+										book ID
+									</AboutDialogLink>{" "}
+									will be about <strong>{getBookIdSize(1)}</strong>.
 								</>
 						}
 						// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case

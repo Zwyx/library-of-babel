@@ -261,7 +261,7 @@ export const AboutDialog = ({
 							way to the beginning of the book) would be spaces. Then:
 						</p>
 
-						<ul className="ml-4 list-inside list-disc">
+						<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
 							<li>
 								book index <Math>2</Math> would contain 1,311,999 spaces
 								followed by <Code>b</Code>,
@@ -310,7 +310,7 @@ export const AboutDialog = ({
 							the rest of the book consists of 1,311,999 spaces. Then:
 						</p>
 
-						<ul className="ml-4 list-inside list-disc">
+						<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
 							<li>
 								book index <Math>2</Math> contains <Code>b</Code> followed by
 								1,311,999 spaces,
@@ -402,6 +402,76 @@ export const AboutDialog = ({
 						</p>
 					</Section>
 
+					<Section id="privacy" title="Privacy" highlightedId={highlightedId}>
+						<p className="mt-4 text-sm font-semibold">Disclaimer</p>
+
+						<p>
+							The following statements are made to the best of my knowledge, but
+							are not guaranteed. Many things could happen that could compromise
+							the data you enter and get from this app (software bug,
+							vulnerability, etc.).
+						</p>
+
+						<p className="mt-4 text-sm font-semibold">Book production</p>
+
+						<p>
+							The calculations made to produce books run entirely on your
+							device. They are written in JavaScript and executed by your web
+							browser's JavaScript engine. Nothing is sent to any server during
+							this step.
+						</p>
+
+						<p className="mt-4 text-sm font-semibold">Share feature</p>
+
+						<p>
+							The Share feature uses end-to-end encryption. When using the Share
+							feature, the current book index is encrypted using the{" "}
+							<ExternalLink
+								href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#aes-gcm"
+								showIcon
+							>
+								AES-GCM
+							</ExternalLink>{" "}
+							algorithm. The resulting encrypted content is sent to a server,
+							which stores it and returns an identifier. The encryption key
+							never leaves your device. The link, which is then provided to you,
+							is in the format:
+						</p>
+
+						<Code block>
+							{location.origin}/&lt;identifier&gt;#&lt;encryption-key&gt;
+						</Code>
+
+						<p>
+							When entering this link in a web browser, or directly in the
+							Library of Babel, the decryption key (the part following the{" "}
+							<Code>#</Code>) stays on the user's device. Only the identifier is
+							sent to a server, in order to retrieve the corresponding encrypted
+							content. This encrypted content is then decrypted, on the user's
+							device, using the decryption key.
+						</p>
+
+						<p className="border-l-2 pl-2">
+							<strong>Note</strong>: do not rely on the Share feature being
+							available indefinitely. Servers can go down at any time. If a
+							particular book is important to you, make sure to have your own
+							backup of its book ID.
+						</p>
+
+						<p className="mt-6 text-sm font-semibold">
+							Analytics and error reporting
+						</p>
+
+						<p>
+							Analytics and error reporting code has been implemented
+							specifically for the Library of Babel, in order to remove the need
+							to load third-party scripts at runtime, and to ensure that data
+							sent does not contain sensitive information. Please consult our
+							privacy policy accessible from the main menu to learn more about
+							the information that may be collected.
+						</p>
+					</Section>
+
 					<Section
 						id="fast-base-conversion-algorithms"
 						title="Fast base conversion algorithms"
@@ -478,7 +548,7 @@ export const AboutDialog = ({
 						<div>
 							To represent a number containing 1,312,000 base-29 digits, we
 							need:
-							<ul className="ml-4 list-inside list-disc">
+							<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
 								<li>
 									<Math>1,312,000 * log(29) / log(2) = 6,373,672</Math> bits,
 									or,

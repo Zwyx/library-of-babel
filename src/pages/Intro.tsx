@@ -25,7 +25,9 @@ export const Intro = () => {
 			<div>To find one, start by searching for text:</div>
 
 			<Button asChild>
-				<Link to="/search">Search for text</Link>
+				<Link className="dark:text-primary-foreground" to="/search">
+					Search for text
+				</Link>
 			</Button>
 		</div>
 	);
