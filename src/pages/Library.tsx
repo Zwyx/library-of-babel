@@ -241,15 +241,15 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					bookImageChanged.current = false;
 					searchTextChanged.current = false;
 
-					if (operation === "browse") {
+					if (newBook?.selection) {
+						setPageNumber(
+							Math.floor(newBook.selection.start / CHARS_PER_PAGE) + 1,
+						);
+					} else if (operation === "browse") {
 						setPageNumber(
 							typeof partialShareData.current?.pageNumber === "number" ?
 								partialShareData.current?.pageNumber
 							:	1,
-						);
-					} else if (newBook?.selection) {
-						setPageNumber(
-							Math.floor(newBook.selection.start / CHARS_PER_PAGE) + 1,
 						);
 					}
 
