@@ -167,17 +167,13 @@ export const AboutDialog = ({
 						<p>
 							This is the main difference between this app and all the other
 							recreations of the Library of Babel that I know of — like{" "}
-							<span className="whitespace-nowrap">
-								<ExternalLink href="https://libraryofbabel.info" showIcon>
-									libraryofbabel.info
-								</ExternalLink>
-							</span>{" "}
+							<ExternalLink href="https://libraryofbabel.info" showIcon>
+								libraryofbabel.info
+							</ExternalLink>{" "}
 							by Jonathan Basile, or{" "}
-							<span className="whitespace-nowrap">
-								<ExternalLink href="https://libraryofbabel.app" showIcon>
-									libraryofbabel.app
-								</ExternalLink>
-							</span>{" "}
+							<ExternalLink href="https://libraryofbabel.app" showIcon>
+								libraryofbabel.app
+							</ExternalLink>{" "}
 							by Tom Snelling. In these apps, the content of a book and the
 							identifier are two distinct pieces of data, and a reversible
 							algorithm is used to generate one from the other.
@@ -438,7 +434,7 @@ export const AboutDialog = ({
 							is in the format:
 						</p>
 
-						<Code block>
+						<Code block breakAll>
 							{location.origin}/&lt;identifier&gt;#&lt;encryption-key&gt;
 						</Code>
 
@@ -537,7 +533,7 @@ export const AboutDialog = ({
 									href="https://open-web-advocacy.org/apple-browser-ban"
 									showIcon
 								>
-									open-web-advocacy.org/apple-browser-ban
+									open-web-advocacy.org
 								</ExternalLink>
 								.
 							</span>
