@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content"
+		/>
+
+		<title>Library of Babel</title>
+		<meta name="description" content="Explore all the books." />
+
+		<meta property="og:title" content="The Library of Babel" />
+
+		<link rel="icon" type="image/png" href="Babel-220x220-rounded.png" />
+
+		<script>
+			// Set the theme's class as soon as possible to prevent a flash of the wrong theme
+
+			var lightThemeName = "light";
+			var darkThemeName = "dark";
+
+			var theme;
+
+			try {
+				theme = localStorage.getItem("theme");
+			} catch {}
+
+			if (theme === lightThemeName || theme === darkThemeName) {
+				document.documentElement.classList.add(theme);
+			} else if (matchMedia("(prefers-color-scheme: dark)").matches) {
+				document.documentElement.classList.add(darkThemeName);
+			} else {
+				document.documentElement.classList.add(lightThemeName);
+			}
+		</script>
+		<script type="module" crossorigin src="/assets/index-aQFuePbo.js"></script>
+		<link rel="stylesheet" crossorigin href="/assets/index-QPeh1q7Y.css">
+	</head>
+	<body>
+		<div id="root"></div>
+	</body>
+</html>
