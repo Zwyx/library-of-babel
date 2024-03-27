@@ -7,7 +7,7 @@ export const SiteHeader = () => {
 	const { t } = useTranslation(["siteHeader"]);
 
 	return (
-		<header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm backdrop-blur">
+		<header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm">
 			<div className="container flex h-14 items-center justify-between gap-2 p-2">
 				<div className="flex flex-1 items-center justify-start">
 					<HeaderMenu />
