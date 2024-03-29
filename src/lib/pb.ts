@@ -128,6 +128,7 @@ export const sendToPb = async (
 		deleteAfterFirstAccess: boolean;
 	},
 	onUploadProgress: (progress: Progress) => void,
+	onRequestTooLong: () => void,
 ): Promise<
 	| {
 			id: string;
@@ -164,7 +165,11 @@ export const sendToPb = async (
 		body: JSON.stringify(pbCreateRequestBody),
 	};
 
-	const json = await createWithRetry(requestOptions, onUploadProgress);
+	const json = await createWithRetry(
+		requestOptions,
+		onUploadProgress,
+		onRequestTooLong,
+	);
 
 	if (!json) {
 		return { error: "network-error" };
@@ -183,6 +188,7 @@ export const sendToPb = async (
 const createWithRetry = async (
 	requestOptions: RequestOptions,
 	onUploadProgress: (progress: Progress) => void,
+	onRequestTooLong: () => void,
 	instanceIndex: number = 0,
 ): Promise<
 	| ({
@@ -195,7 +201,7 @@ const createWithRetry = async (
 	const json = await requestWithRetry<PbCreateResponseBody>(
 		getUrl(instance),
 		requestOptions,
-		{ onUploadProgress },
+		{ onUploadProgress, onRequestTooLong },
 	);
 
 	if (!json || json.status !== 0) {
@@ -211,6 +217,7 @@ const createWithRetry = async (
 			return createWithRetry(
 				requestOptions,
 				onUploadProgress,
+				onRequestTooLong,
 				instanceIndex + 1,
 			);
 		}
@@ -342,6 +349,7 @@ const requestWithRetry = async <T>(
 	progressCallbacks?: {
 		onUploadProgress?: (progress: Progress) => void;
 		onDownloadProgress?: (progress: Progress) => void;
+		onRequestTooLong?: () => void;
 	},
 	retries: number = 0,
 ): Promise<T | null> => {
@@ -359,6 +367,14 @@ const requestWithRetry = async <T>(
 	try {
 		const xhr = new XMLHttpRequest();
 
+		const timeout = setTimeout(
+			() => {
+				xhr.abort();
+				progressCallbacks?.onRequestTooLong?.();
+			},
+			30_000 + 10_000 * retries,
+		);
+
 		xhr.open(requestOptions?.method || "GET", url);
 
 		Object.entries(requestOptions?.headers || {}).forEach(([name, value]) =>
@@ -367,19 +383,21 @@ const requestWithRetry = async <T>(
 
 		xhr.responseType = "json";
 
-		if (progressCallbacks?.onUploadProgress) {
-			xhr.upload.addEventListener("progress", (e) => {
-				if (e.lengthComputable) {
-					progressCallbacks.onUploadProgress?.({
-						loaded: e.loaded,
-						total: e.total,
-					});
-				}
-			});
-		}
+		xhr.upload.addEventListener("progress", (e) => {
+			clearTimeout(timeout);
 
-		if (progressCallbacks?.onDownloadProgress) {
-			xhr.addEventListener("progress", (e) => {
+			if (e.lengthComputable) {
+				progressCallbacks?.onUploadProgress?.({
+					loaded: e.loaded,
+					total: e.total,
+				});
+			}
+		});
+
+		xhr.addEventListener("progress", (e) => {
+			clearTimeout(timeout);
+
+			if (progressCallbacks?.onDownloadProgress) {
 				if (e.lengthComputable) {
 					progressCallbacks.onDownloadProgress?.({
 						loaded: e.loaded,
@@ -397,11 +415,13 @@ const requestWithRetry = async <T>(
 						});
 					}
 				}
-			});
-		}
+			}
+		});
 
 		await new Promise<void>((resolve) => {
 			xhr.addEventListener("loadend", () => {
+				clearTimeout(timeout);
+
 				// This is mainly useful for Firefox and other browsers that report the size of the
 				// compressed data in `ProgressEvent.loaded`, therefore making the progress bar stop
 				// about three quarter of the way; Chrome reports the size of the decompressed data

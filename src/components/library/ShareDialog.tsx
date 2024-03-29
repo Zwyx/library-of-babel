@@ -80,6 +80,7 @@ export const ShareDialog = ({
 
 	const [loading, setLoading] = useState<boolean>(false);
 	const [uploadProgress, setUploadProgress] = useState<Progress>();
+	const [requestTooLong, setRequestTooLong] = useState<boolean>(false);
 
 	const [linkData, setLinksData] = useState<LinksData>();
 	const [sendDecryptionKeySeparately, setSendDecryptionKeySeparately] =
@@ -102,6 +103,7 @@ export const ShareDialog = ({
 		setExpiry("1month");
 		setDeleteAfterFirstAccess(false);
 		setUploadProgress(undefined);
+		setRequestTooLong(false);
 	}, [bookMetadata, showIncludeSearchTextSelection]);
 
 	const getLink = async () => {
@@ -126,6 +128,7 @@ export const ShareDialog = ({
 				deleteAfterFirstAccess,
 			},
 			setUploadProgress,
+			() => setRequestTooLong(true),
 		);
 
 		setLoading(false);
@@ -157,6 +160,7 @@ export const ShareDialog = ({
 						setTimeout(() => {
 							setView("form");
 							setUploadProgress(undefined);
+							setRequestTooLong(false);
 						}, 250);
 					}
 
@@ -284,6 +288,12 @@ export const ShareDialog = ({
 						</div>
 
 						<ProgressStatus className="mt-4" progress={uploadProgress} />
+
+						{requestTooLong && !uploadProgress?.loaded && (
+							<span className="text-center text-sm">
+								Hm... it seems longer than usual, please keep waiting...
+							</span>
+						)}
 
 						<ButtonLoading className="mt-2" loading={loading} onClick={getLink}>
 							Get link
