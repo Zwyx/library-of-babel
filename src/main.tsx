@@ -18,6 +18,9 @@ import { Home } from "./pages/Home.tsx";
 import { Intro } from "./pages/Intro.tsx";
 import { Library } from "./pages/Library.tsx";
 
+// Clear the state to prevent dialogs from showing up again if the user reloads the page
+history.replaceState(undefined, "");
+
 // We reimplemented Sentry's and Plausible's client-side behaviours ourselves,
 // in order to ensure that we cannot leak any IDs or encryption keys
 initSentry();
