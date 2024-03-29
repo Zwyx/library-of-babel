@@ -49,7 +49,7 @@ export const BASES_QUOTIENT = Math.log(BASE_29) / Math.log(BASE_94);
 // const lastBookIndex = BASE_29_BIGINT ** CHARS_PER_BOOK_BIGINT - 1n;
 // console.log(toBase94(lastBookIndex).length);
 export const MAX_BOOK_ID_LENGTH = 972_399;
-// Values are between 0 and 255; there are 4 values per pixel (RGBA) so the result must is ceilled to the nearest greater multiple of 4
+// Values are between 0 and 255; there are 4 values per pixel (RGBA) so the result must be ceilled to the nearest greater multiple of 4
 // console.log(lastBookIndex.toString(16).length / 2);
 export const MAX_BOOK_IMAGE_DATA_LENGTH = 796_712;
 

@@ -62,13 +62,6 @@ export const BookMetadataDialog = ({
 		imageWidth * imageHeight * 4 < bookMetadata.bookImageData.length; // 4 values between 0 and 255 per pixel (RGBA)
 
 	useEffect(() => {
-		if (originalBookImageDimensions) {
-			setImageWidth(originalBookImageDimensions.width);
-			setImageHeight(originalBookImageDimensions.height);
-		}
-	}, [originalBookImageDimensions]);
-
-	useEffect(() => {
 		if (!bookMetadata) {
 			return;
 		}
@@ -107,13 +100,18 @@ export const BookMetadataDialog = ({
 	}, [bookMetadata]);
 
 	const applyAutoDimensions = useCallback(() => {
-		setImageWidth(autoDimensions.width);
-		setImageHeight(autoDimensions.height);
-	}, [autoDimensions]);
+		if (originalBookImageDimensions) {
+			setImageWidth(originalBookImageDimensions.width);
+			setImageHeight(originalBookImageDimensions.height);
+		} else {
+			setImageWidth(autoDimensions.width);
+			setImageHeight(autoDimensions.height);
+		}
+	}, [originalBookImageDimensions, autoDimensions]);
 
 	useEffect(() => {
 		if (
-			!originalBookImageDimensions &&
+			originalBookImageDimensions ||
 			!equals(autoDimensions, previousAutoDimensions)
 		) {
 			applyAutoDimensions();
@@ -313,7 +311,7 @@ export const BookMetadataDialog = ({
 					<div className="mb-2 mt-3 flex flex-wrap items-center gap-2">
 						<div className="flex items-center">
 							<Input
-								className="w-[5rem]"
+								className="w-[5rem] text-center"
 								variantSize="sm"
 								type="number"
 								min={1}
@@ -325,7 +323,7 @@ export const BookMetadataDialog = ({
 							<>&nbsp;×&nbsp;</>
 
 							<Input
-								className="w-[5rem]"
+								className="w-[5rem] text-center"
 								variantSize="sm"
 								type="number"
 								min={1}

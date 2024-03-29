@@ -5,8 +5,12 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookImage, LibraryMode } from "@/lib/common";
-import { cn } from "@/lib/utils";
+import {
+	BookImage,
+	LibraryMode,
+	MAX_BOOK_IMAGE_DATA_LENGTH,
+} from "@/lib/common";
+import { cn, getDataFromFile, getImageFromFile } from "@/lib/utils";
 import { decode } from "fast-png";
 import { LucideMoreHorizontal } from "lucide-react";
 import { InputHTMLAttributes, RefObject, useRef } from "react";
@@ -29,47 +33,61 @@ export const BrowseMenu = ({
 	const loadText = (file: File) =>
 		file.text().then((text) => onBookIdLoaded(text.split("\n")[0]));
 
-	const loadImage = (file: File) =>
-		Promise.all([
-			new Promise<number[]>((resolve, reject) => {
-				const fileReader = new FileReader();
+	const loadImage = async (file: File) => {
+		try {
+			const image = await getImageFromFile(file);
 
-				fileReader.onload = (e) => {
-					const data = e.target?.result as ArrayBuffer;
+			const imageDataLength = image.width * image.height * 4;
+			const imageDataTooLong = imageDataLength > MAX_BOOK_IMAGE_DATA_LENGTH;
 
-					// Errors inside the callback aren't caught
-					try {
-						// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
-						resolve(Array.from(decode(data).data));
-					} catch (err) {
-						reject(err);
-					}
-				};
+			let pngImageData: ArrayBuffer;
+			let width: number;
+			let height: number;
 
-				fileReader.readAsArrayBuffer(file);
-			}),
+			if (file.type === "image/png" && !imageDataTooLong) {
+				pngImageData = await getDataFromFile(file);
+				width = image.width;
+				height = image.height;
+			} else {
+				const canvas = document.createElement("canvas");
+				const canvasContext = canvas.getContext("2d");
 
-			new Promise<{ width: number; height: number }>((resolve) => {
-				const fileReader = new FileReader();
+				if (!canvasContext) {
+					throw Error(
+						"Error while creating HTML canvas. Your browser might not support this feature.",
+					);
+				}
 
-				fileReader.onload = (e) => {
-					const data = e.target?.result as string;
+				const ratio =
+					imageDataTooLong ?
+						Math.sqrt(
+							// Not all the values of the last pixel (most significant, as the data is reversed) are usable,
+							// so we remove 1 pixel (4 bytes) from the maximum book image data length
+							imageDataLength / (MAX_BOOK_IMAGE_DATA_LENGTH - 4),
+						)
+					:	1;
 
-					const image = new Image();
+				width = Math.floor(image.width / ratio);
+				height = Math.floor(image.height / ratio);
 
-					image.onload = () =>
-						resolve({ width: image.width, height: image.height });
+				canvas.width = width;
+				canvas.height = height;
 
-					image.src = data;
-				};
+				canvasContext.drawImage(image, 0, 0, width, height);
 
-				fileReader.readAsDataURL(file);
-			}),
-		])
-			.then(([data, { width, height }]) =>
-				onBookImageLoaded({ data, width, height }),
-			)
-			.catch(alert);
+				pngImageData = await (await fetch(canvas.toDataURL())).arrayBuffer();
+			}
+
+			onBookImageLoaded({
+				// See `copyOrSave` in `BookMetadataDialog.tsx` about why we use `fast-png`
+				data: Array.from(decode(pngImageData).data),
+				width,
+				height,
+			});
+		} catch (err) {
+			alert(err);
+		}
+	};
 
 	return (
 		<div>
@@ -106,7 +124,7 @@ export const BrowseMenu = ({
 
 			<FileInput
 				forwardedRef={imageInputRef}
-				accept="image/png"
+				accept="image/*"
 				onFile={loadImage}
 			/>
 		</div>

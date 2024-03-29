@@ -63,7 +63,7 @@ export const Pagination = ({
 			</Button>
 
 			<Input
-				className="w-[5.5rem]"
+				className="w-[5.5rem] text-center"
 				variantSize="sm"
 				type="number"
 				min={min}

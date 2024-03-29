@@ -81,6 +81,38 @@ export const getReadableFileSize = (
 	);
 };
 
+export const getImageFromFile = (file: File) =>
+	new Promise<HTMLImageElement>((resolve, reject) => {
+		const fileReader = new FileReader();
+
+		fileReader.onload = (e) => {
+			try {
+				const newImage = new Image();
+				newImage.onload = () => resolve(newImage);
+				newImage.src = e.target?.result as string;
+			} catch (err) {
+				reject(err);
+			}
+		};
+
+		fileReader.readAsDataURL(file);
+	});
+
+export const getDataFromFile = (file: File) =>
+	new Promise<ArrayBuffer>((resolve, reject) => {
+		const fileReader = new FileReader();
+
+		fileReader.onload = (e) => {
+			try {
+				resolve(e.target?.result as ArrayBuffer);
+			} catch (err) {
+				reject(err);
+			}
+		};
+
+		fileReader.readAsArrayBuffer(file);
+	});
+
 export const copyToClipboard = (content: string | Blob) =>
 	new Promise((resolve) =>
 		(typeof content === "string" ?

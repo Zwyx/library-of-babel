@@ -257,6 +257,10 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 				} else {
 					let bookImageData;
 
+					// Image data should never be longer than MAX_BOOK_IMAGE_DATA_LENGTH, now that we
+					// resize the image if necessary, but it doesn't cost anything to leave this check here;
+					// however, it can still be exactly MAX_BOOK_IMAGE_DATA_LENGTH long, which
+					// might result in the need to truncate it
 					if (data.bookImageData.length <= MAX_BOOK_IMAGE_DATA_LENGTH) {
 						maybeDataTruncated =
 							data.bookImageData.length === MAX_BOOK_IMAGE_DATA_LENGTH;
