@@ -26,8 +26,8 @@ import { encrypt } from "@/lib/crypto";
 import { ExpiryDuration, Progress, expiryDurations, sendToPb } from "@/lib/pb";
 import { LucideInfo } from "lucide-react";
 import { useEffect, useState } from "react";
-import { LinkCopy } from "../LinkCopy";
 import { ButtonLoading } from "../common/ButtonLoading";
+import { LinkCopy } from "../common/LinkCopy";
 import { ProgressStatus } from "../common/ProgressStatus";
 import { RequestError } from "../common/RequestError";
 import {

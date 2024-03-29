@@ -1,4 +1,4 @@
-import { PRIVACY_BANNER_KEY } from "@/lib/keys";
+import { PRIVACY_BANNER_KEY } from "@/lib/local-storage-keys";
 import { LucideX } from "lucide-react";
 import { useLocalStorage } from "usehooks-ts";
 import { Button } from "../ui/button";

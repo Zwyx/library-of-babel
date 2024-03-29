@@ -1,7 +1,10 @@
+// Was extracted from the main file to allow React Refresh to work
+// (see ESLint `react-refresh/only-export-components`);
+// it doesn't seem to work though, we still see `hmr invalidate` warnings,
+// maybe because it doesn't work with contexts
+
 import { useContext } from "react";
 import { ThemeContext } from "./ThemeContext";
-
-// Was extracted from the main context file because of the ESLint warning `react-refresh/only-export-components`
 
 export const useThemeContext = () => {
 	const context = useContext(ThemeContext);

@@ -10,9 +10,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { HistoryStateUserAction, useHistoryState } from "@/lib/useHistoryState";
 import { cn } from "@/lib/utils";
 import { PropsWithChildren, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
 	ABOUT,
 	ABOUT_DELIMITER,
@@ -29,15 +30,25 @@ type AboutDialogLinkTo =
 export const AboutDialogLink = ({
 	className,
 	to,
+	replace,
 	onClick,
 	children,
 }: {
 	className?: string;
 	to: AboutDialogLinkTo;
+	replace?: boolean;
 	onClick?: () => void;
 } & PropsWithChildren) => {
+	const { state, Link } = useHistoryState<HistoryStateUserAction>();
+
 	return (
-		<Link className={cn("font-semibold", className)} to={to} onClick={onClick}>
+		<Link
+			className={cn("font-semibold", className)}
+			to={to}
+			state={{ ...state, userAction: true }}
+			replace={replace}
+			onClick={onClick}
+		>
 			{children}
 		</Link>
 	);
@@ -719,7 +730,7 @@ const Section = ({
 			)}
 		>
 			{title && (
-				<AboutDialogLink to={`?about=${id}`}>
+				<AboutDialogLink to={`?about=${id}`} replace>
 					<h3 className="mb-3 flex w-full font-semibold text-primary">
 						<span>{title}</span>
 						<span className="text-info opacity-0">

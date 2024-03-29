@@ -8,7 +8,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { BookImageDimensions, BookMetadata } from "@/lib/common";
-import { copyToClipboard, saveToFile, usePrevious } from "@/lib/utils";
+import { usePrevious } from "@/lib/usePrevious";
+import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { encode } from "fast-png";
 import { LucideHelpCircle } from "lucide-react";
 import { equals } from "ramda";

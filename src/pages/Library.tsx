@@ -34,7 +34,11 @@ import {
 	SearchOptions,
 	ShareData,
 } from "@/lib/common";
-import { RANDOM_OPTIONS_KEY, SEARCH_OPTIONS_KEY } from "@/lib/keys";
+import {
+	RANDOM_OPTIONS_KEY,
+	SEARCH_OPTIONS_KEY,
+} from "@/lib/local-storage-keys";
+import { useHistoryState } from "@/lib/useHistoryState";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
@@ -61,9 +65,6 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const bookImageChanged = useRef<boolean>(false);
 	const searchTextChanged = useRef<boolean>(false);
 
-	const [invalidDataDialogOpen, setInvalidDataDialogOpen] =
-		useState<boolean>(false);
-
 	const [searchOptions, setSearchOptions] = useLocalStorage<SearchOptions>(
 		SEARCH_OPTIONS_KEY,
 		{ numberOfPages: 10 },
@@ -88,15 +89,16 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 	const [showCopySuccess, setShowCopySuccess] = useState<boolean>(false);
 
-	const [bookMetadataDialogOpen, setBookMetadataDialogOpen] =
-		useState<boolean>(false);
-	const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
-
 	const [computationError, setComputationError] = useState<string>();
 	const [computationErrorSource, setComputationErrorSource] =
 		useState<ComputationErrorSource>("local");
-	const [computationErrorDialogOpen, setComputationErrorDialogOpen] =
-		useState<boolean>(false);
+
+	const { state, pushState, pushStateOrNavigateBack } = useHistoryState<{
+		invalidDataDialogOpen?: boolean;
+		bookMetadataDialogOpen?: boolean;
+		shareDialogOpen?: boolean;
+		computationErrorDialogOpen?: boolean;
+	}>();
 
 	const partialShareData =
 		useRef<Pick<ShareData, "pageNumber" | "selection">>();
@@ -200,7 +202,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				setComputationErrorSource(
 					partialShareData.current ? "shared" : "local",
 				);
-				setComputationErrorDialogOpen(true);
+				pushState({ computationErrorDialogOpen: true });
 
 				partialShareData.current = undefined;
 
@@ -214,7 +216,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				case "search":
 				case "random": {
 					if (data.invalidData) {
-						setInvalidDataDialogOpen(true);
+						pushState({ invalidDataDialogOpen: true });
 						return;
 					}
 
@@ -262,16 +264,16 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					setBookMetadata(data.bookMetadata);
 
 					if (bookMetadataPurpose.current === "book-info") {
-						setBookMetadataDialogOpen(true);
+						pushState({ bookMetadataDialogOpen: true });
 					} else if (bookMetadataPurpose.current === "share") {
-						setShareDialogOpen(true);
+						pushState({ shareDialogOpen: true });
 					}
 
 					break;
 				}
 			}
 		},
-		[],
+		[pushState],
 	);
 
 	useEffect(() => {
@@ -402,10 +404,11 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 			<InvalidDataDialog
 				mode={mode}
-				open={invalidDataDialogOpen}
-				onOpenChange={(newOpen) => {
-					setInvalidDataDialogOpen(newOpen);
-					if (!newOpen) {
+				open={!!state.invalidDataDialogOpen}
+				onOpenChange={(open) => {
+					pushStateOrNavigateBack(open, { invalidDataDialogOpen: true });
+
+					if (!open) {
 						// Ensures the textarea is accessible by our code
 						requestAnimationFrame(() => textareaRef.current?.focus());
 					}
@@ -451,11 +454,13 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						}
 						onGetBookMetadataClick={() =>
 							bookMetadata ?
-								setBookMetadataDialogOpen(true)
+								pushState({ bookMetadataDialogOpen: true })
 							:	getBookMetadata("book-info")
 						}
 						onShareClick={() =>
-							bookMetadata ? setShareDialogOpen(true) : getBookMetadata("share")
+							bookMetadata ?
+								pushState({ shareDialogOpen: true })
+							:	getBookMetadata("share")
 						}
 						showCopySuccess={showCopySuccess}
 						onCopyPageClick={() => copyOrSave("page", "copy")}
@@ -470,8 +475,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						bookIdChanged={mode === "browse" && bookIdChanged.current}
 						bookImageChanged={mode === "browse" && bookImageChanged.current}
 						searchTextChanged={mode === "search" && searchTextChanged.current}
-						open={bookMetadataDialogOpen}
-						onOpenChange={setBookMetadataDialogOpen}
+						open={!!state.bookMetadataDialogOpen}
+						onOpenChange={(open) =>
+							pushStateOrNavigateBack(open, { bookMetadataDialogOpen: true })
+						}
 					/>
 
 					<ShareDialog
@@ -481,8 +488,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						bookIdChanged={mode === "browse" && bookIdChanged.current}
 						bookImageChanged={mode === "browse" && bookImageChanged.current}
 						searchTextChanged={mode === "search" && searchTextChanged.current}
-						open={shareDialogOpen}
-						onOpenChange={setShareDialogOpen}
+						open={!!state.shareDialogOpen}
+						onOpenChange={(open) =>
+							pushStateOrNavigateBack(open, { shareDialogOpen: true })
+						}
 					/>
 
 					<BookPage
@@ -500,8 +509,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 			<ComputationErrorDialog
 				error={computationError}
 				source={computationErrorSource}
-				open={computationErrorDialogOpen}
-				onOpenChange={setComputationErrorDialogOpen}
+				open={!!state.computationErrorDialogOpen}
+				onOpenChange={(open) =>
+					pushStateOrNavigateBack(open, { computationErrorDialogOpen: true })
+				}
 			/>
 
 			{/* Displaying the full book isn't possible at the moment for performance issues,

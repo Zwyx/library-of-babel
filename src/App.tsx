@@ -4,10 +4,12 @@ import { TabBar } from "./components/TabBar";
 import { WorkersAlert } from "./components/WorkersAlert";
 import { AboutDialog } from "./components/library/about/AboutDialog";
 import { ABOUT } from "./components/library/about/AboutDialog.const";
+import { HistoryStateUserAction, useHistoryState } from "./lib/useHistoryState";
 
 export const App = () => {
 	const { pathname } = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams();
+	const { state, navigate } = useHistoryState<HistoryStateUserAction>();
 
 	return (
 		// We used to have `flex h-[100svh] flex-col` in this root div, but it had
@@ -28,8 +30,12 @@ export const App = () => {
 				<AboutDialog
 					open={typeof searchParams.get(ABOUT) === "string"}
 					onOpenChange={() => {
-						searchParams.delete(ABOUT);
-						setSearchParams(searchParams);
+						if (state.userAction) {
+							navigate(-1);
+						} else {
+							searchParams.delete(ABOUT);
+							setSearchParams(searchParams, { replace: true });
+						}
 					}}
 				/>
 			</div>

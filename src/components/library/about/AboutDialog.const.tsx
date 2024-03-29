@@ -1,4 +1,5 @@
-// Was extracted from the main file because of the ESLint warning `react-refresh/only-export-components`
+// Was extracted from the main file to allow React Refresh to work
+// (see ESLint `react-refresh/only-export-components`)
 
 export const ABOUT = "about";
 export const ABOUT_DELIMITER = "--";

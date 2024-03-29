@@ -6,7 +6,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
-import { THEME_CHOICE_KEY } from "./keys";
+import { THEME_CHOICE_KEY } from "./local-storage-keys";
 
 const themeSchemes = ["light", "dark"] as const;
 type ThemeScheme = (typeof themeSchemes)[number];

@@ -1,5 +1,8 @@
 import { Line, Selection } from "@/lib/common";
-import { SELECT_SEARCHED_TEXT_KEY, SHOW_LINE_NUMBERS_KEY } from "@/lib/keys";
+import {
+	SELECT_SEARCHED_TEXT_KEY,
+	SHOW_LINE_NUMBERS_KEY,
+} from "@/lib/local-storage-keys";
 import { cn, isElementInViewport } from "@/lib/utils";
 import { memo, useEffect } from "react";
 import { useReadLocalStorage } from "usehooks-ts";

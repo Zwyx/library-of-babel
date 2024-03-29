@@ -19,7 +19,8 @@ import {
 	RandomOptions,
 	SearchOptions,
 } from "@/lib/common";
-import { OPTIONS_DIALOG_SETTINGS_KEY } from "@/lib/keys";
+import { OPTIONS_DIALOG_SETTINGS_KEY } from "@/lib/local-storage-keys";
+import { useHistoryState } from "@/lib/useHistoryState";
 import { cn, getReadableFileSize } from "@/lib/utils";
 import { LucideSettings } from "lucide-react";
 import { equals } from "ramda";
@@ -60,6 +61,10 @@ export const OptionsDialog = ({
 	const optionsAtDialogOpening = useRef<
 		SearchOptions | RandomOptions | undefined
 	>();
+
+	const { state, pushStateOrNavigateBack } = useHistoryState<{
+		open: boolean;
+	}>();
 
 	const customNumberOfPages =
 		mode === "search" ?
@@ -103,8 +108,11 @@ export const OptionsDialog = ({
 
 	return (
 		<Dialog
-			onOpenChange={(newOpen) => {
-				if (newOpen) {
+			open={!!state.open}
+			onOpenChange={(open) => {
+				pushStateOrNavigateBack(open, { open: true });
+
+				if (open) {
 					optionsAtDialogOpening.current = options;
 				} else {
 					if (

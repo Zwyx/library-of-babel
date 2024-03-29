@@ -1,8 +1,8 @@
 import { cn, copyToClipboard } from "@/lib/utils";
 import { useRef, useState } from "react";
-import { SuccessWrapper } from "./common/SuccessWrapper";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { SuccessWrapper } from "./SuccessWrapper";
 
 export const LinkCopy = ({
 	className,
