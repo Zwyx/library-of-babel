@@ -154,6 +154,7 @@ export const OptionsDialog = ({
 							: PAGES_PER_BOOK;
 
 						onOptionChange({ numberOfPages: newNumberOfPages });
+						setRawNumberOfPagesInvalid(false);
 					}}
 				>
 					{mode === "search" && (
@@ -211,6 +212,7 @@ export const OptionsDialog = ({
 								<Input
 									className="w-[5rem]"
 									variantSize="sm"
+									state={rawNumberOfPagesInvalid ? "error" : "default"}
 									type="number"
 									min={minRawNumberOfPages}
 									max={maxRawNumberOfPages}
