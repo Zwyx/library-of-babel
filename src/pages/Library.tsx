@@ -494,7 +494,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 						selection={book.selection}
 					/>
 
-					<div className="mb-4 mt-12 w-full border-b border-t py-1 text-center text-sm">
+					<div className="mb-4 mt-12 w-[50%] border-b border-t py-1 text-center text-sm">
 						<AboutDialogLink to="?about">How it works</AboutDialogLink>
 					</div>
 				</div>

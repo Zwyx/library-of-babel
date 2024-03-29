@@ -67,31 +67,39 @@ export const AboutDialogIntro = ({
 			>
 				"The Library of Babel"
 			</ExternalLink>{" "}
-			is a short story by Argentine author and librarian Jorge Luis Borges,
-			conceiving of a universe in the form of a vast library containing all
-			possible 410-page books of a certain format and character set.{" "}
+			is a short story by Jorge Luis Borges, Argentine author and librarian, in
+			which he explores a vast library containing all the books that it is
+			possible to write using the latin alphabet, and that are 410 pages long.
 		</p>
-
-		<p className="border-l-2 pl-2 italic">
-			All — the detailed history of the future, the autobiographies of the
-			archangels, the faithful catalog of the Library, thousands and thousands
-			of false catalogs, the proof of the falsity of those false catalogs, a
-			proof of the falsity of the true catalog, [...].
-		</p>
-
-		<p className="mt-2">This app is a digital recreation of this concept.</p>
 
 		<p>
-			It works by manipulating numbers to convert the identifier of a book to
-			its content, which also allows to know the book's location in the library.{" "}
-			{showLearnMore && (
-				<AboutDialogLink
-					to={`?about=the-library${ABOUT_DELIMITER}${NO_HIGHLIGHT}`}
-				>
-					Learn more
-				</AboutDialogLink>
-			)}
+			Visitors grapple with the enormity of knowledge and the futility of
+			finding meaning in an endless sea of randomness.
 		</p>
+
+		<p className="italic">
+			«&nbsp;All — the detailed history of the future, the autobiographies of
+			the archangels, the faithful catalog of the Library, thousands and
+			thousands of false catalogs, the proof of the falsity of those false
+			catalogs, a proof of the falsity of the true catalog, [...].&nbsp;»
+		</p>
+
+		{showLearnMore && <div className="mx-auto mb-2 mt-4 w-[50%] border-b" />}
+
+		<p>This app is a digital recreation of this concept.</p>
+
+		<p>
+			It uses mathematics to retrieve the content of a book from its index in
+			the library.
+		</p>
+
+		{showLearnMore && (
+			<AboutDialogLink
+				to={`?about=the-library${ABOUT_DELIMITER}${NO_HIGHLIGHT}`}
+			>
+				Learn more
+			</AboutDialogLink>
+		)}
 	</>
 );
 
@@ -139,9 +147,9 @@ export const AboutDialog = ({
 						highlightedId={highlightedId}
 					>
 						<p>
-							As described in the novel, the library contains all possible
-							410-page books, each page having 40 lines, and each line having 80
-							characters from a set of 29 distinct symbols.
+							The library contains all possible books that are 410 pages long,
+							each page having 40 lines, and each line having 80 characters from
+							a set of 29 distinct symbols.
 						</p>
 
 						<p>
