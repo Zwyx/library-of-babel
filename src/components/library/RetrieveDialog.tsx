@@ -47,16 +47,13 @@ import { Label } from "../ui/label";
 export const RetrieveDialog = ({
 	id,
 	key_: key,
-	navigateToHomeIfCancelled,
+	navigateHomeIfCancelled,
 	onShareDataReady,
 }: {
 	id: string;
 	key_?: string;
-	/**
-	 * Set to `true` if the user just arrived on the app, `false` if the dialog
-	 * opens because the user clicked Previous in his browser
-	 */
-	navigateToHomeIfCancelled: boolean;
+	/** Set to `true` if the user just arrived on the app, `false` otherwise */
+	navigateHomeIfCancelled: boolean;
 	onShareDataReady: (data: ShareData) => void;
 }) => {
 	const navigate = useNavigate();
@@ -164,7 +161,7 @@ export const RetrieveDialog = ({
 	};
 
 	const closeDialogs = () => {
-		if (navigateToHomeIfCancelled) {
+		if (navigateHomeIfCancelled) {
 			navigate("/");
 		} else {
 			setOpen(false);

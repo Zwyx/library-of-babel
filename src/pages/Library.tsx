@@ -317,7 +317,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				<RetrieveDialog
 					id={id}
 					key_={hash.slice(1)}
-					navigateToHomeIfCancelled={!(bookId || searchText || book)}
+					navigateHomeIfCancelled={!(bookId || searchText || book)}
 					onShareDataReady={(shareData) => {
 						setBookId(shareData.bookId);
 
@@ -332,13 +332,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 				/>
 			)}
 
-			{id && deletion && (
-				<DeleteDialog
-					id={id}
-					deleteToken={hash.slice(1)}
-					navigateToHomeWhenClosing={!(bookId || searchText || book)}
-				/>
-			)}
+			{id && deletion && <DeleteDialog id={id} deleteToken={hash.slice(1)} />}
 
 			<Privacy />
 

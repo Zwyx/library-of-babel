@@ -26,15 +26,11 @@ import {
 export const DeleteDialog = ({
 	id,
 	deleteToken,
-	navigateToHomeWhenClosing,
 }: {
 	id: string;
 	deleteToken: string;
-	navigateToHomeWhenClosing: boolean;
 }) => {
 	const navigate = useNavigate();
-
-	const [open, setOpen] = useState<boolean>(true);
 
 	const [view, setView] = useState<
 		| "invalid-link"
@@ -67,7 +63,7 @@ export const DeleteDialog = ({
 
 	return (
 		<>
-			<Dialog open={open}>
+			<Dialog open>
 				<DialogContent
 					className="max-h-full max-w-xl gap-0 overflow-auto"
 					notClosable
@@ -157,9 +153,7 @@ export const DeleteDialog = ({
 						<Button
 							variant="secondary"
 							disabled={view === "deleting"}
-							onClick={() =>
-								navigateToHomeWhenClosing ? navigate("/") : setOpen(false)
-							}
+							onClick={() => navigate("/")}
 						>
 							{(
 								view === "delete-confirmation" ||
