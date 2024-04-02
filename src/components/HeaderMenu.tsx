@@ -29,8 +29,8 @@ export const HeaderMenu = () => {
 			onOpenChange={(open) => pushStateOrNavigateBack(open, { menuOpen: true })}
 		>
 			<SheetTrigger asChild>
-				<Button variant="ghost" className="px-2">
-					<LucideMenu className="h-6 w-6" />
+				<Button variant="ghost" size="icon">
+					<LucideMenu />
 					<span className="sr-only">{t("openMenu")}</span>
 				</Button>
 			</SheetTrigger>
@@ -42,7 +42,7 @@ export const HeaderMenu = () => {
 				<div className="flex items-center gap-4">
 					<img
 						className="h-8 w-8"
-						src="Babel-220x220-rounded.png"
+						src="favicon-196.png"
 						alt="Library of Babel logo"
 					/>
 					<span className="font-bold">{t("libraryOfBabel")}</span>
@@ -251,7 +251,7 @@ export const HeaderMenu = () => {
 
 				<div className="mt-2 w-full border-b" />
 
-				<div className="mt-4 w-full text-xs text-muted-foreground">
+				<div className="mt-3 w-full text-xs text-muted-foreground">
 					{"© "}
 					<ExternalLink href="https://zwyx.dev">{"Zwyx.dev"}</ExternalLink>
 				</div>

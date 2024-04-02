@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { HeaderMenu } from "./HeaderMenu";
+import { PwaRefresher } from "./PwaRefresher";
 import { ThemeSelector } from "./ThemeSelector";
 
 export const SiteHeader = () => {
@@ -23,6 +24,7 @@ export const SiteHeader = () => {
 				</div>
 
 				<div className="flex flex-1 items-center justify-end gap-1">
+					<PwaRefresher />
 					<ThemeSelector />
 					{/* TODO: activate once translations ready <LanguageSelector /> */}
 				</div>
