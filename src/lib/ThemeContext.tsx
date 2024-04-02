@@ -68,21 +68,20 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
 	}, [themeChoice]);
 
 	useEffect(() => {
-		if (themeScheme === "light") {
-			if (!document.documentElement.classList.contains(lightThemeName)) {
-				document.documentElement.classList.add(lightThemeName);
-			}
-			if (document.documentElement.classList.contains(darkThemeName)) {
-				document.documentElement.classList.remove(darkThemeName);
-			}
-		} else {
-			if (!document.documentElement.classList.contains(darkThemeName)) {
-				document.documentElement.classList.add(darkThemeName);
-			}
-			if (document.documentElement.classList.contains(lightThemeName)) {
-				document.documentElement.classList.remove(lightThemeName);
-			}
-		}
+		document.documentElement.classList.add(
+			themeScheme === "light" ? lightThemeName : darkThemeName,
+		);
+
+		document.documentElement.classList.remove(
+			themeScheme === "light" ? darkThemeName : lightThemeName,
+		);
+
+		document
+			.querySelector('meta[name="theme-color"]')
+			?.setAttribute(
+				"content",
+				themeScheme === "light" ? "#ffffff" : "#020817",
+			);
 	}, [themeScheme]);
 
 	const updateThemeChoice = useCallback((newThemeChoice: ThemeChoice) => {
