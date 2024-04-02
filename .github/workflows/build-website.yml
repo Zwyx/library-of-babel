@@ -43,6 +43,10 @@ jobs:
         id: SENTRY_ENVIRONMENT
 
       - env:
+          DOMAIN: "${{ secrets.DOMAIN }}"
+        run: sed -i "s/\$DOMAIN/${{ env.DOMAIN }}/" index.html
+
+      - env:
           ENVIRONMENT: "${{ env.SENTRY_ENVIRONMENT }}"
           APP_VERSION: "${{ env.APP_VERSION }}"
           DOMAIN: "${{ secrets.DOMAIN }}"
