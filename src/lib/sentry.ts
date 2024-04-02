@@ -50,10 +50,14 @@ export const initSentry = () => {
 			},
 		}),
 	);
+
+	if (!Math.floor(Math.random() * 100)) {
+		sendToSentry({ message: "Sentry health check" });
+	}
 };
 
 export const sendToSentry = (
-	error:
+	event:
 		| {
 				stack: string;
 				mechanism: {
@@ -67,6 +71,9 @@ export const sendToSentry = (
 					type: "generic";
 					handled: boolean;
 				};
+		  }
+		| {
+				message: string;
 		  },
 ) => {
 	try {
@@ -74,17 +81,32 @@ export const sendToSentry = (
 			return;
 		}
 
-		const errorType =
-			"stack" in error ?
-				ERROR_TYPES.find((errorType_) =>
-					error.stack.startsWith(`${errorType_}:`),
-				) || "Error"
-			:	"Error";
-
-		const errorMessage =
-			"stack" in error ?
-				"[Redacted error message]"
-			:	error.manuallyWrittenSafeErrorMessage;
+		const eventPayload =
+			"message" in event ?
+				{
+					level: "info",
+					message: event.message,
+				}
+			:	{
+					level: "error",
+					exception: {
+						values: [
+							{
+								type:
+									"stack" in event ?
+										ERROR_TYPES.find((errorType_) =>
+											event.stack.startsWith(`${errorType_}:`),
+										) || "Error"
+									:	"Error",
+								value:
+									"stack" in event ?
+										"[Redacted error message]"
+									:	event.manuallyWrittenSafeErrorMessage,
+								mechanism: event.mechanism,
+							},
+						],
+					},
+				};
 
 		fetch(getUrl(sentryIngest), {
 			method: "POST",
@@ -100,16 +122,7 @@ export const sendToSentry = (
 				JSON.stringify({ type: "event" }) +
 				"\n" +
 				JSON.stringify({
-					exception: {
-						values: [
-							{
-								type: errorType,
-								value: errorMessage,
-								mechanism: error.mechanism,
-							},
-						],
-					},
-					level: "error",
+					...eventPayload,
 					platform: "javascript",
 					timestamp: Date.now() / 1000,
 					environment: import.meta.env.VITE_ENVIRONMENT,
