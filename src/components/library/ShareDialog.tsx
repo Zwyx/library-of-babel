@@ -237,8 +237,8 @@ export const ShareDialog = ({
 										<LucideInfo size={16} />
 									</PopoverTrigger>
 									<PopoverContent className="text-center">
-										This option is disabled, because it's the page number of the
-										searched text which will be included.
+										This option is disabled, because the page number included
+										will be the one of the searched text.
 									</PopoverContent>
 								</Popover>
 							)}

@@ -21,19 +21,27 @@ export const PwaRefresher = () => {
 						<div className="relative">
 							<LucideRefreshCw />
 
-							<span className="absolute left-[-8px] top-[-8px] flex h-3 w-3">
-								<span className="absolute h-full w-full animate-ping rounded-full bg-info opacity-75" />
-								<span className="absolute left-[2px] top-[2px] h-2 w-2 rounded-full bg-info" />
-							</span>
+							{popoverOpen && (
+								<span className="absolute left-[-8px] top-[-8px] flex h-3 w-3">
+									<span className="absolute h-full w-full animate-ping rounded-full bg-info opacity-75" />
+									<span className="absolute left-[2px] top-[2px] h-2 w-2 rounded-full bg-info" />
+								</span>
+							)}
 						</div>
 					</Button>
 				</PopoverTrigger>
 
-				<PopoverContent className="flex items-start justify-between border-info-dim">
+				<PopoverContent
+					// z-40 prevents the popover from showing up above a dialog overlay
+					className="z-40 flex items-start justify-between border-info-dim"
+					// Prevent stealing the focus from an open dialog
+					onOpenAutoFocus={(e) => e.preventDefault()}
+					onEscapeKeyDown={() => setPopoverOpen(false)}
+				>
 					<div>
 						<div className="flex-1">New version available</div>
 						<div className="text-sm text-muted-foreground">
-							Reload the app to update.
+							Save your changes then reload the app to update.
 						</div>
 					</div>
 

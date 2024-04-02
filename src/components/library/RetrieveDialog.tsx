@@ -17,19 +17,18 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { usePwaContext } from "@/lib/PwaContext.const";
 import { ShareData } from "@/lib/common";
 import { EncryptedData, decrypt } from "@/lib/crypto";
 import { PB_ID_REGEX, Progress, getFromPb } from "@/lib/pb";
 import { cn, sleep } from "@/lib/utils";
-import {
-	LucideAlertOctagon,
-	LucideAlertTriangle,
-	LucideCheck,
-	LucideLoader2,
-	LucideMinus,
-} from "lucide-react";
+import { LucideAlertOctagon, LucideAlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+	OperationStatus,
+	OperationStatusGroup,
+} from "../common/OperationStatus";
 import { ProgressStatus } from "../common/ProgressStatus";
 import { RequestError } from "../common/RequestError";
 import {
@@ -57,6 +56,7 @@ export const RetrieveDialog = ({
 	onShareDataReady: (data: ShareData) => void;
 }) => {
 	const navigate = useNavigate();
+	const { update, needsRefresh, refresh } = usePwaContext();
 
 	const firstRender = useRef<boolean>(true);
 	const [open, setOpen] = useState<boolean>(true);
@@ -65,6 +65,7 @@ export const RetrieveDialog = ({
 
 	const [view, setView] = useState<
 		| "invalid-link"
+		| "app-version-check"
 		| "delete-confirmation"
 		| "retrieving"
 		| RequestErrorType
@@ -144,11 +145,32 @@ export const RetrieveDialog = ({
 		if (!PB_ID_REGEX.test(id)) {
 			setView("invalid-link");
 		} else if (onetimeLink) {
-			setView("delete-confirmation");
+			setView("app-version-check");
 		} else {
 			retrieveData();
 		}
 	}, [id, onetimeLink, retrieveData]);
+
+	useEffect(() => {
+		if (view === "app-version-check" && update) {
+			update().then(() =>
+				// I'm not really happy with this potential race condition,
+				// but I haven't found a way to use the object returned by `update`
+				// to know if a new version is available
+				setTimeout(() => setView("delete-confirmation"), 5000),
+			);
+		}
+	}, [view, update]);
+
+	useEffect(() => {
+		if (
+			(view === "app-version-check" || view === "delete-confirmation") &&
+			needsRefresh &&
+			refresh
+		) {
+			setTimeout(refresh, view === "app-version-check" ? 1000 : 0);
+		}
+	}, [view, needsRefresh, refresh]);
 
 	const onDecryptClick = () => {
 		if (!encryptedData.current) {
@@ -191,7 +213,7 @@ export const RetrieveDialog = ({
 						</div>
 					)}
 
-					{view === "delete-confirmation" && (
+					{(view === "app-version-check" || view === "delete-confirmation") && (
 						<>
 							<Alert className="mt-6" variant="warning">
 								<LucideAlertTriangle className="h-4 w-4" />
@@ -224,9 +246,23 @@ export const RetrieveDialog = ({
 								</AlertDescription>
 							</Alert>
 
+							<OperationStatusGroup className="mt-2">
+								<OperationStatus
+									label={
+										view === "app-version-check" ?
+											needsRefresh ?
+												"New version available, reloading"
+											:	"Checking for new app version"
+										:	"Your app is up to date"
+									}
+									status={view === "app-version-check" ? "running" : "success"}
+								/>
+							</OperationStatusGroup>
+
 							<Button
-								className="mt-6 sm:mx-auto sm:w-fit"
+								className="mt-2 sm:mx-auto sm:w-fit"
 								variant="destructive"
+								disabled={view !== "delete-confirmation"}
 								onClick={retrieveData}
 							>
 								Confirm retrieval and deletion
@@ -237,35 +273,24 @@ export const RetrieveDialog = ({
 					{(view === "retrieving" ||
 						view === "decrypting" ||
 						view === "finished") && (
-						<div className="mt-6 flex flex-col items-center gap-2 py-4 text-sm text-muted-foreground">
-							<div className="flex items-center gap-2">
-								<span>Retrieving encrypted data</span>
-
-								{view === "retrieving" ?
-									<LucideLoader2 className="h-4 w-4 animate-spin text-info-dim" />
-								:	<LucideCheck className="h-4 w-4 text-success-dim" />}
-							</div>
+						<OperationStatusGroup className="mt-6">
+							<OperationStatus
+								label="Retrieving encrypted data"
+								status={view === "retrieving" ? "running" : "success"}
+							/>
 
 							<ProgressStatus className="my-1" progress={downloadProgress} />
 
-							<div className="flex items-center gap-2">
-								<span
-									className={cn(
-										view !== "decrypting" &&
-											view !== "finished" &&
-											"text-muted-text",
-									)}
-								>
-									Decrypting
-								</span>
-
-								{view === "decrypting" ?
-									<LucideLoader2 className="h-4 w-4 animate-spin text-info-dim" />
-								: view === "finished" ?
-									<LucideCheck className="h-4 w-4 text-success-dim" />
-								:	<LucideMinus className="h-4 w-4 text-muted-text" />}
-							</div>
-						</div>
+							<OperationStatus
+								label="Decrypting"
+								status={
+									view === "decrypting" ? "running"
+									: view === "finished" ?
+										"success"
+									:	"idle"
+								}
+							/>
+						</OperationStatusGroup>
 					)}
 
 					{isRequestErrorType(view) && (
@@ -333,6 +358,7 @@ export const RetrieveDialog = ({
 							}
 						>
 							{(
+								view === "app-version-check" ||
 								view === "delete-confirmation" ||
 								view === "retrieving" ||
 								view === "network-error" ||

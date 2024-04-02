@@ -3,28 +3,38 @@ import { registerSW } from "virtual:pwa-register";
 
 export const PwaContext = createContext<
 	| {
+			update: (() => Promise<void>) | undefined;
 			needsRefresh: boolean;
-			refresh: (() => void) | undefined;
+			refresh: (() => Promise<void>) | undefined;
 	  }
 	| undefined
 >(undefined);
 
 export const PwaContextProvider = ({ children }: { children: ReactNode }) => {
+	const [update, setUpdate] = useState<() => Promise<void>>();
 	const [needsRefresh, setNeedsRefresh] = useState<boolean>(false);
-	const [refresh, setRefresh] = useState<() => void>();
+	const [refresh, setRefresh] = useState<() => Promise<void>>();
 
 	useEffect(() => {
 		setRefresh(() =>
 			registerSW({
-				onRegisteredSW: (_, r) =>
-					r && setInterval(() => r.update(), 60 * 60 * 1000),
+				onRegisteredSW: (_, serviceWorkerRegistration) => {
+					if (serviceWorkerRegistration) {
+						setUpdate(() => () => serviceWorkerRegistration.update());
+
+						setInterval(
+							() => serviceWorkerRegistration.update(),
+							60 * 60 * 1000,
+						);
+					}
+				},
 				onNeedRefresh: () => setNeedsRefresh(true),
 			}),
 		);
 	}, []);
 
 	return (
-		<PwaContext.Provider value={{ needsRefresh, refresh }}>
+		<PwaContext.Provider value={{ update, needsRefresh, refresh }}>
 			{children}
 		</PwaContext.Provider>
 	);

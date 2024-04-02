@@ -9,10 +9,14 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { PB_ID_REGEX, deleteFromPb } from "@/lib/pb";
-import { LucideAlertOctagon, LucideCheck, LucideLoader2 } from "lucide-react";
+import { LucideAlertOctagon, LucideCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Code } from "../common/Code";
+import {
+	OperationStatus,
+	OperationStatusGroup,
+} from "../common/OperationStatus";
 import { RequestError } from "../common/RequestError";
 import {
 	RequestErrorType,
@@ -41,6 +45,14 @@ export const DeleteDialog = ({
 		| "finished"
 	>();
 
+	useEffect(() => {
+		if (!PB_ID_REGEX.test(id) || !deleteToken) {
+			setView("invalid-link");
+		} else {
+			setView("delete-confirmation");
+		}
+	}, [deleteToken, id]);
+
 	const deleteData = async () => {
 		setView("deleting");
 
@@ -52,14 +64,6 @@ export const DeleteDialog = ({
 			setView("finished");
 		}
 	};
-
-	useEffect(() => {
-		if (!PB_ID_REGEX.test(id) || !deleteToken) {
-			setView("invalid-link");
-		} else {
-			setView("delete-confirmation");
-		}
-	}, [deleteToken, id]);
 
 	return (
 		<>
@@ -107,14 +111,11 @@ export const DeleteDialog = ({
 					)}
 
 					{(view === "deleting" || view === "finished") && (
-						<div className="mt-6 flex flex-col items-center gap-2 py-4 text-sm text-muted-foreground">
-							<div className="flex items-center gap-2">
-								<span>Deleting encrypted data</span>
-
-								{view === "deleting" ?
-									<LucideLoader2 className="h-4 w-4 animate-spin text-info-dim" />
-								:	<LucideCheck className="h-4 w-4 text-success-dim" />}
-							</div>
+						<OperationStatusGroup className="mt-6">
+							<OperationStatus
+								label="Deleting encrypted data"
+								status={view === "deleting" ? "running" : "success"}
+							/>
 
 							{view === "finished" && (
 								<Alert className="mt-2" variant="success">
@@ -125,7 +126,7 @@ export const DeleteDialog = ({
 									</AlertTitle>
 								</Alert>
 							)}
-						</div>
+						</OperationStatusGroup>
 					)}
 
 					{isRequestErrorType(view) && (
