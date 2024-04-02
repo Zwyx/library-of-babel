@@ -1,15 +1,43 @@
+import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { SiteHeader } from "./components/SiteHeader";
 import { TabBar } from "./components/TabBar";
 import { WorkersAlert } from "./components/WorkersAlert";
 import { AboutDialog } from "./components/library/about/AboutDialog";
 import { ABOUT } from "./components/library/about/AboutDialog.const";
-import { HistoryStateUserAction, useHistoryState } from "./lib/useHistoryState";
+import { OutletContext, isLibraryMode } from "./lib/common";
+import { LAST_LIBRARY_MODE_KEY } from "./lib/local-storage-keys";
+import { useHistoryState } from "./lib/useHistoryState";
 
 export const App = () => {
 	const { pathname } = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const { state, navigate } = useHistoryState<HistoryStateUserAction>();
+	const { state, navigate } = useHistoryState();
+
+	const [lastLibraryModeCheckDone, setLastLibraryModeCheckDone] =
+		useState<boolean>(false);
+
+	const firstRender = useRef<boolean>(true);
+
+	useEffect(() => {
+		if (!firstRender.current) {
+			return;
+		}
+
+		firstRender.current = false;
+
+		if (location.pathname === "/") {
+			const lastLibraryMode = localStorage.getItem(LAST_LIBRARY_MODE_KEY);
+
+			if (isLibraryMode(lastLibraryMode)) {
+				navigate(lastLibraryMode);
+			}
+		}
+
+		setLastLibraryModeCheckDone(true);
+	}, [navigate]);
+
+	const outletContext: OutletContext = { lastLibraryModeCheckDone };
 
 	return (
 		// We used to have `flex h-[100svh] flex-col` in this root div, but it had
@@ -25,7 +53,7 @@ export const App = () => {
 
 				<TabBar tab={pathname.split("/")[1]} />
 
-				<Outlet />
+				<Outlet context={outletContext} />
 
 				<AboutDialog
 					open={typeof searchParams.get(ABOUT) === "string"}

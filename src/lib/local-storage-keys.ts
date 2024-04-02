@@ -1,5 +1,6 @@
 export const LOCALE_KEY = "locale";
 export const THEME_CHOICE_KEY = "theme";
+export const LAST_LIBRARY_MODE_KEY = "lastLibraryMode";
 export const PRIVACY_BANNER_KEY = "privacyBanner";
 export const SEARCH_OPTIONS_KEY = "searchOptions";
 export const RANDOM_OPTIONS_KEY = "randomOptions";

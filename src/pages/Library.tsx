@@ -35,6 +35,7 @@ import {
 	ShareData,
 } from "@/lib/common";
 import {
+	LAST_LIBRARY_MODE_KEY,
 	RANDOM_OPTIONS_KEY,
 	SEARCH_OPTIONS_KEY,
 } from "@/lib/local-storage-keys";
@@ -107,6 +108,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const loadingBook = loadingBookReal || loadingBookMin;
 	const loadingBookMetadata = loadingBookMetadataReal || loadingBookMetadataMin;
 	const loading = loadingBook || loadingBookMetadata;
+
+	useEffect(() => {
+		localStorage.setItem(LAST_LIBRARY_MODE_KEY, mode);
+	}, [mode]);
 
 	const canRun =
 		((mode === "browse" && !!bookId.trim()) ||

@@ -1,3 +1,7 @@
+export interface OutletContext {
+	lastLibraryModeCheckDone: boolean;
+}
+
 export const WALLS_PER_ROOM = 4;
 export const SHELVES_PER_WALLS = 5;
 export const BOOKS_PER_SHELVES = 32;
@@ -53,7 +57,10 @@ export const MAX_BOOK_ID_LENGTH = 972_399;
 // console.log(lastBookIndex.toString(16).length / 2);
 export const MAX_BOOK_IMAGE_DATA_LENGTH = 796_712;
 
-export type LibraryMode = "browse" | "search" | "random";
+const libraryModes = ["browse", "search", "random"] as const;
+export type LibraryMode = (typeof libraryModes)[number];
+export const isLibraryMode = (value: unknown): value is LibraryMode =>
+	typeof value === "string" && libraryModes.includes(value as LibraryMode);
 
 export interface SearchOptions {
 	/** min: 0; max: 410; `0` means only the search text */
