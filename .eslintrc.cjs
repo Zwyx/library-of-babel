@@ -19,7 +19,7 @@ module.exports = {
 		"plugin:jsx-a11y/recommended",
 		"prettier",
 	],
-	plugins: ["react-refresh", "i18next", "only-warn"],
+	plugins: ["import", "react-refresh", "i18next", "only-warn"],
 	// Type-checked rules disabled – see above
 	// parserOptions: {
 	// 	ecmaVersion: "latest",
@@ -99,6 +99,11 @@ module.exports = {
 		// 		ignorePrimitives: true,
 		// 	},
 		// ],
+
+		// ---------- Import ----------
+
+		// Disallow circular dependencies, which can make constants declared in a file undefined, at first, for the function in this file
+		"import/no-cycle": ["error", { maxDepth: Infinity }],
 
 		// ---------- React ----------
 

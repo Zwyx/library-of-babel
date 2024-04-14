@@ -10,7 +10,9 @@
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
 		"prettier": "prettier -w .",
-		"generate-pwa-assets": "./generate-pwa-assets.sh"
+		"generate-pwa-assets": "./generate-pwa-assets.sh",
+		"madge:circular": "npx madge --extensions ts,tsx --circular ./",
+		"madge:circular:image": "npx madge --extensions ts,tsx --circular --image circular-dependencies.svg ./"
 	},
 	"dependencies": {
 		"@radix-ui/react-alert-dialog": "^1.0.5",
@@ -48,6 +50,7 @@
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-i18next": "^6.0.3",
+		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-jsx-a11y": "^6.8.0",
 		"eslint-plugin-only-warn": "^1.1.0",
 		"eslint-plugin-react": "^7.33.2",
