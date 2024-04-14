@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
-		"build": "VITE_ENVIRONMENT=$ENVIRONMENT VITE_APP_VERSION=$APP_VERSION VITE_DOMAIN=$DOMAIN VITE_SENTRY_INGEST=$SENTRY_INGEST VITE_PLAUSIBLE_API_URL=$PLAUSIBLE_API_URL VITE_PB_INSTANCES=$PB_INSTANCES vite build",
+		"build": "npm run lint && tsc && VITE_ENVIRONMENT=$ENVIRONMENT VITE_APP_VERSION=$APP_VERSION VITE_DOMAIN=$DOMAIN VITE_SENTRY_INGEST=$SENTRY_INGEST VITE_PLAUSIBLE_API_URL=$PLAUSIBLE_API_URL VITE_PB_INSTANCES=$PB_INSTANCES vite build",
 		"lint": "eslint --max-warnings=0 .",
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
