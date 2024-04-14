@@ -418,7 +418,7 @@ export const AboutDialog = ({
 					</Section>
 
 					<Section id="privacy" title="Privacy" highlightedId={highlightedId}>
-						<p className="mt-4 text-sm font-semibold">Disclaimer</p>
+						<p className="mt-2 text-sm font-semibold">Disclaimer</p>
 
 						<p>
 							The following statements are made to the best of my knowledge, but
@@ -427,7 +427,7 @@ export const AboutDialog = ({
 							vulnerability, etc.).
 						</p>
 
-						<p className="mt-4 text-sm font-semibold">Book production</p>
+						<p className="mt-2 text-sm font-semibold">Book production</p>
 
 						<p>
 							The calculations made to produce books run entirely on your
@@ -436,7 +436,7 @@ export const AboutDialog = ({
 							this step.
 						</p>
 
-						<p className="mt-4 text-sm font-semibold">Share feature</p>
+						<p className="mt-2 text-sm font-semibold">Share feature</p>
 
 						<p>
 							The Share feature uses end-to-end encryption. When using the Share
@@ -473,7 +473,7 @@ export const AboutDialog = ({
 							backup of its book ID.
 						</p>
 
-						<p className="mt-6 text-sm font-semibold">
+						<p className="mt-2 text-sm font-semibold">
 							Analytics and error reporting
 						</p>
 
@@ -558,7 +558,7 @@ export const AboutDialog = ({
 							</span>
 						</p>
 
-						<p className="mt-6 text-sm font-semibold">In-depth explanation</p>
+						<p className="mt-2 text-sm font-semibold">In-depth explanation</p>
 
 						<div>
 							To represent a number containing 1,312,000 base-29 digits, we
@@ -653,14 +653,14 @@ export const AboutDialog = ({
 						title="Miscellaneous"
 						highlightedId={highlightedId}
 					>
-						<p className="mt-6 text-sm font-semibold">Longer books</p>
+						<p className="mt-2 text-sm font-semibold">Longer books</p>
 
 						<p>
 							A written book that is longer than 410 pages exists in the library
 							anyway: it is simply cut into multiple volumes.
 						</p>
 
-						<p className="mt-6 text-sm font-semibold">Books order</p>
+						<p className="mt-2 text-sm font-semibold">Books order</p>
 
 						<p>
 							The novel gives a hint that the books might be ordered
@@ -733,13 +733,13 @@ const Section = ({
 		<div
 			id={id}
 			className={cn(
-				"my-2 rounded px-2 py-1",
+				"mb-6 mt-2 flex flex-col gap-3 rounded px-2 py-1",
 				id === highlightedId && "bg-muted",
 			)}
 		>
 			{title && (
 				<AboutDialogLink to={`?about=${id}`} replace>
-					<h3 className="mb-3 flex w-full font-semibold text-primary">
+					<h3 className="mb-2 flex w-full font-semibold text-primary">
 						<span>{title}</span>
 						<span className="text-info opacity-0">
 							&nbsp;&nbsp;#&nbsp;&nbsp;
@@ -748,9 +748,7 @@ const Section = ({
 				</AboutDialogLink>
 			)}
 
-			<div className="[&_code]:mb-3 [&_div]:mb-3 [&_p]:mb-3 [&_ul]:mb-3">
-				{children}
-			</div>
+			{children}
 		</div>
 	);
 };
