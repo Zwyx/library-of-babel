@@ -343,6 +343,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 			{(mode === "browse" || mode === "search") && (
 				<HighCapacityTextarea
+					className="max-h-96 resize-y"
 					forwardedRef={textareaRef}
 					value={mode === "search" ? searchText : bookId}
 					placeholder={
