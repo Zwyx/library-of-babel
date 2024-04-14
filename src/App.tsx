@@ -7,12 +7,12 @@ import { AboutDialog } from "./components/library/about/AboutDialog";
 import { ABOUT } from "./components/library/about/AboutDialog.const";
 import { OutletContext, isLibraryMode } from "./lib/common";
 import { LAST_LIBRARY_MODE_KEY } from "./lib/local-storage-keys";
-import { useHistoryState } from "./lib/useHistoryState";
+import { HistoryStateUserAction, useHistoryState } from "./lib/useHistoryState";
 
 export const App = () => {
-	const { pathname } = useLocation();
+	const { pathname, search } = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const { state, navigate } = useHistoryState();
+	const { state, navigate } = useHistoryState<HistoryStateUserAction>();
 
 	const [lastLibraryModeCheckDone, setLastLibraryModeCheckDone] =
 		useState<boolean>(false);
@@ -26,7 +26,7 @@ export const App = () => {
 
 		firstRender.current = false;
 
-		if (location.pathname === "/") {
+		if (location.pathname === "/" && !search) {
 			const lastLibraryMode = localStorage.getItem(LAST_LIBRARY_MODE_KEY);
 
 			if (isLibraryMode(lastLibraryMode)) {
@@ -35,7 +35,7 @@ export const App = () => {
 		}
 
 		setLastLibraryModeCheckDone(true);
-	}, [navigate]);
+	}, [pathname, search, navigate]);
 
 	const outletContext: OutletContext = { lastLibraryModeCheckDone };
 
