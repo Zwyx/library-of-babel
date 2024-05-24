@@ -60,7 +60,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const [bookId, setBookId] = useState<string>("");
 	const [bookImageDimensions, setBookImageDimensions] =
 		useState<BookImageDimensions>();
-	const [searchText, setSearchText] = useState<string>("");
+	const [searchText, setSearchText] = useState<string>(new URLSearchParams(window.location.search).get("q") ?? "");
 
 	const bookIdChanged = useRef<boolean>(false);
 	const bookImageChanged = useRef<boolean>(false);
