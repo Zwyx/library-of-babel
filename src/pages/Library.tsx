@@ -50,8 +50,11 @@ type BookMetadataPurpose = "book-info" | "share";
 export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const { id } = useParams();
 	const [searchParams] = useSearchParams();
+	const search = searchParams.get("q");
 	const deletion = searchParams.get("delete") === "";
 	const { hash } = useLocation();
+
+	const firstRender = useRef<boolean>(true);
 
 	const { worker } = useWorkerContext();
 
@@ -60,7 +63,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const [bookId, setBookId] = useState<string>("");
 	const [bookImageDimensions, setBookImageDimensions] =
 		useState<BookImageDimensions>();
-	const [searchText, setSearchText] = useState<string>(new URLSearchParams(window.location.search).get("q") ?? "");
+	const [searchText, setSearchText] = useState<string>(search ?? "");
 
 	const bookIdChanged = useRef<boolean>(false);
 	const bookImageChanged = useRef<boolean>(false);
@@ -133,49 +136,52 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 		searchTextChanged.current = true;
 	};
 
-	const getBook = (param?: { bookId?: string; bookImage?: BookImage }) => {
-		setLoadingBookReal(true);
-		setLoadingBookMin(true);
+	const getBook = useCallback(
+		(param?: { bookId?: string; bookImage?: BookImage }) => {
+			setLoadingBookReal(true);
+			setLoadingBookMin(true);
 
-		setBookImageDimensions(
-			param?.bookImage?.data ?
-				{
-					width: param.bookImage.width,
-					height: param.bookImage.height,
-				}
-			:	undefined,
-		);
+			setBookImageDimensions(
+				param?.bookImage?.data ?
+					{
+						width: param.bookImage.width,
+						height: param.bookImage.height,
+					}
+				:	undefined,
+			);
 
-		const operation = mode;
+			const operation = mode;
 
-		const message: MessageToWorker =
-			operation === "browse" && param?.bookImage?.data ?
-				{
-					operation,
-					source: "bookImage",
-					bookImageData: param.bookImage.data,
-				}
-			: operation === "browse" ?
-				{
-					operation,
-					source: "bookId",
-					bookId: param?.bookId || bookId,
-				}
-			: operation === "search" ?
-				{
-					operation,
-					searchText,
-					searchOptions,
-				}
-			:	{
-					operation,
-					randomOptions,
-				};
+			const message: MessageToWorker =
+				operation === "browse" && param?.bookImage?.data ?
+					{
+						operation,
+						source: "bookImage",
+						bookImageData: param.bookImage.data,
+					}
+				: operation === "browse" ?
+					{
+						operation,
+						source: "bookId",
+						bookId: param?.bookId || bookId,
+					}
+				: operation === "search" ?
+					{
+						operation,
+						searchText,
+						searchOptions,
+					}
+				:	{
+						operation,
+						randomOptions,
+					};
 
-		worker.postMessage(message);
+			worker.postMessage(message);
 
-		setTimeout(() => setLoadingBookMin(false), 200);
-	};
+			setTimeout(() => setLoadingBookMin(false), 200);
+		},
+		[bookId, mode, randomOptions, searchOptions, searchText, worker],
+	);
 
 	const getBookMetadata = (purpose: BookMetadataPurpose) => {
 		if (!book) {
@@ -280,6 +286,18 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 		},
 		[pushState],
 	);
+
+	useEffect(() => {
+		if (!firstRender.current) {
+			return;
+		}
+
+		firstRender.current = false;
+
+		if (search) {
+			getBook();
+		}
+	}, [search, getBook]);
 
 	useEffect(() => {
 		worker.addEventListener("message", onWorkerMessage);
