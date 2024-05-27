@@ -1,0 +1,16 @@
+[build]
+	publish = "docs"
+
+# Prevent 404 when navigating to `/something`
+[[redirects]]
+	from = "/*"
+	to = "/index.html"
+	status = 200
+
+[[headers]]
+	for = "/assets/*"
+	[headers.values]
+		cache-control = '''
+		max-age=31536000,
+		immutable
+		'''
