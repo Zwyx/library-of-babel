@@ -1,4 +1,4 @@
-import { ReactNode, createContext } from "react";
+import { PropsWithChildren, createContext } from "react";
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
 	type: "module",
@@ -11,11 +11,7 @@ export const WorkerContext = createContext<
 	| undefined
 >(undefined);
 
-export const WorkerContextProvider = ({
-	children,
-}: {
-	children: ReactNode;
-}) => {
+export const WorkerContextProvider = ({ children }: PropsWithChildren) => {
 	return (
 		<WorkerContext.Provider value={{ worker }}>
 			{children}

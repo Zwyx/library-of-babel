@@ -212,12 +212,12 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 		return acc;
 	}, [] as number[]);
 
-	lg(`'getBookMetadata' took ${Date.now() - startTime}ms`);
-
 	const roomIndexString = toBase10(roomIndex + 1n);
 	const wallIndexInRoomString = (wallIndexInRoom + 1n).toString();
 	const shelfIndexInWallString = (shelfIndexInWall + 1n).toString();
 	const bookIndexInShelfString = (bookIndexInShelf + 1n).toString();
+
+	lg(`'getBookMetadataFromBookIndex' took ${Date.now() - startTime}ms`);
 
 	return {
 		bookId,

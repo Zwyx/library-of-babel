@@ -329,7 +329,7 @@ const RadioGroupElement = function <T extends string>({
 	return (
 		<div className="flex gap-2">
 			<RadioGroupItem
-				className="mt-0.5"
+				className="mt-0.5 flex-shrink-0"
 				id={id}
 				value={id}
 				// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case

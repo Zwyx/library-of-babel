@@ -24,11 +24,7 @@ import { lg } from "@/lib/utils";
 // 	return binary.length + Math.log10(Number("0." + binary.substring(0, 15)));
 // };
 
-export const toBase = (
-	value: bigint,
-	base: bigint,
-	alphabet: string,
-): string => {
+const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 	const startTime = Date.now();
 
 	let result = "";
@@ -90,11 +86,7 @@ export const toBase = (
 	return result;
 };
 
-export const fromBase = (
-	text: string,
-	base: bigint,
-	alphabet: string,
-): bigint => {
+const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 	const startTime = Date.now();
 
 	// let result = 0n;

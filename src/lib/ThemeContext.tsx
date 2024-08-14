@@ -1,6 +1,6 @@
 import {
 	Dispatch,
-	ReactNode,
+	PropsWithChildren,
 	createContext,
 	useCallback,
 	useEffect,
@@ -41,7 +41,7 @@ const getThemeSchemeFromChoice = (themeChoice: ThemeChoice): ThemeScheme =>
 	: matchMedia("(prefers-color-scheme: dark)").matches ? "dark"
 	: "light";
 
-export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
+export const ThemeContextProvider = ({ children }: PropsWithChildren) => {
 	const [themeChoice, setThemeChoice] = useState<ThemeChoice>(
 		getStartupThemeChoice,
 	);
