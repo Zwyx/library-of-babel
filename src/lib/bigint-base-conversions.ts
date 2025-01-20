@@ -61,15 +61,15 @@ const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 		divisors.push(divisors[divisors.length - 1] ** 2n);
 	}
 
-	const devide = (dividend: bigint, divisorIndex: number) => {
+	const divide = (dividend: bigint, divisorIndex: number) => {
 		const divisor = divisors[divisorIndex];
 
 		const remainder = dividend % divisor;
 		const newDividend = dividend / divisor;
 
 		if (divisorIndex > 0) {
-			devide(remainder, divisorIndex - 1);
-			devide(newDividend, divisorIndex - 1);
+			divide(remainder, divisorIndex - 1);
+			divide(newDividend, divisorIndex - 1);
 		} else {
 			result = `${alphabet[Number(newDividend)]}${
 				alphabet[Number(remainder)]
@@ -77,7 +77,7 @@ const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 		}
 	};
 
-	devide(value, divisors.length - 1);
+	divide(value, divisors.length - 1);
 
 	result = result.replace(new RegExp(`^${alphabet[0]}*`), "");
 

@@ -1,15 +1,9 @@
-import { PropsWithChildren, createContext } from "react";
+import { PropsWithChildren } from "react";
+import { WorkerContext } from "./WorkerContext.const";
 
 const worker = new Worker(new URL("./worker.ts", import.meta.url), {
 	type: "module",
 });
-
-export const WorkerContext = createContext<
-	| {
-			worker: Worker;
-	  }
-	| undefined
->(undefined);
 
 export const WorkerContextProvider = ({ children }: PropsWithChildren) => {
 	return (

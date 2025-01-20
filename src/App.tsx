@@ -7,7 +7,8 @@ import { AboutDialog } from "./components/library/about/AboutDialog";
 import { ABOUT } from "./components/library/about/AboutDialog.const";
 import { OutletContext, isLibraryMode } from "./lib/common";
 import { LAST_LIBRARY_MODE_KEY } from "./lib/local-storage-keys";
-import { HistoryStateUserAction, useHistoryState } from "./lib/useHistoryState";
+import { HistoryStateUserAction } from "./lib/useHistoryState";
+import { useHistoryState } from "./lib/useHistoryState.const";
 
 export const App = () => {
 	const { pathname, search } = useLocation();

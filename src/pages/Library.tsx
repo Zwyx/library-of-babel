@@ -39,7 +39,7 @@ import {
 	RANDOM_OPTIONS_KEY,
 	SEARCH_OPTIONS_KEY,
 } from "@/lib/local-storage-keys";
-import { useHistoryState } from "@/lib/useHistoryState";
+import { useHistoryState } from "@/lib/useHistoryState.const";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";

@@ -20,7 +20,7 @@ import {
 	SearchOptions,
 } from "@/lib/common";
 import { OPTIONS_DIALOG_SETTINGS_KEY } from "@/lib/local-storage-keys";
-import { useHistoryState } from "@/lib/useHistoryState";
+import { useHistoryState } from "@/lib/useHistoryState.const";
 import { cn, getReadableFileSize } from "@/lib/utils";
 import { LucideSettings } from "lucide-react";
 import { equals } from "ramda";
@@ -172,7 +172,7 @@ export const OptionsDialog = ({
 									times the size of the search text.
 								</>
 							}
-							// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
+							// eslint-disable-next-line jsx-a11y/no-autofocus -- useful in this case
 							autoFocus
 						/>
 					)}
@@ -200,7 +200,7 @@ export const OptionsDialog = ({
 									will be about <strong>{getBookIdSize(1)}</strong>.
 								</>
 						}
-						// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
+						// eslint-disable-next-line jsx-a11y/no-autofocus -- useful in this case
 						autoFocus={mode !== "search"}
 					/>
 
@@ -332,7 +332,7 @@ const RadioGroupElement = function <T extends string>({
 				className="mt-0.5 flex-shrink-0"
 				id={id}
 				value={id}
-				// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
+				// eslint-disable-next-line jsx-a11y/no-autofocus -- useful in this case
 				autoFocus={autoFocus}
 			/>
 

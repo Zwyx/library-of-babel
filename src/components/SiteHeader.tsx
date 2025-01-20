@@ -9,7 +9,7 @@ export const SiteHeader = () => {
 
 	return (
 		<header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm">
-			<div className="container flex h-14 items-center justify-between gap-2 p-2">
+			<div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-2 p-2">
 				<div className="flex flex-1 items-center justify-start">
 					<HeaderMenu />
 				</div>

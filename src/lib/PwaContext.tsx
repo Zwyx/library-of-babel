@@ -1,14 +1,6 @@
-import { PropsWithChildren, createContext, useEffect, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { registerSW } from "virtual:pwa-register";
-
-export const PwaContext = createContext<
-	| {
-			update: (() => Promise<void>) | undefined;
-			needsRefresh: boolean;
-			refresh: (() => Promise<void>) | undefined;
-	  }
-	| undefined
->(undefined);
+import { PwaContext } from "./PwaContext.const";
 
 export const PwaContextProvider = ({ children }: PropsWithChildren) => {
 	const [update, setUpdate] = useState<() => Promise<void>>();

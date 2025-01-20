@@ -7,7 +7,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useHistoryState } from "@/lib/useHistoryState";
+import { useHistoryState } from "@/lib/useHistoryState.const";
 import { LucideMenu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Code } from "./common/Code";

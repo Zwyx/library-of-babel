@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode, useEffect } from "react";
+import { createRoot } from "react-dom/client";
 import {
 	Navigate,
 	RouterProvider,
@@ -91,8 +91,8 @@ const router = createBrowserRouter([
 ]);
 
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-ReactDOM.createRoot(document.getElementById("root")!).render(
-	<React.StrictMode>
+createRoot(document.getElementById("root")!).render(
+	<StrictMode>
 		<PwaContextProvider>
 			<ThemeContextProvider>
 				<WorkerContextProvider>
@@ -100,5 +100,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 				</WorkerContextProvider>
 			</ThemeContextProvider>
 		</PwaContextProvider>
-	</React.StrictMode>,
+	</StrictMode>,
 );
