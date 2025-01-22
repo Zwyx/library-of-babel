@@ -1,20 +1,19 @@
-import { StrictMode, useEffect } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import {
 	Navigate,
 	RouterProvider,
 	createBrowserRouter,
-	useRouteError,
 } from "react-router-dom";
 import { App } from "./App.tsx";
-import { UnexpectedError } from "./components/UnexpectedError.tsx";
+import { RouteErrorElement } from "./components/error/RouteErrorElement.tsx";
 import "./i18n/i18n.ts";
 import "./index.css";
 import { PwaContextProvider } from "./lib/PwaContext.tsx";
 import { ThemeContextProvider } from "./lib/ThemeContext.tsx";
 import { WorkerContextProvider } from "./lib/WorkerContext.tsx";
 import { initPlausible } from "./lib/plausible.ts";
-import { initSentry, sendToSentry } from "./lib/sentry.ts";
+import { initSentry } from "./lib/sentry.ts";
 import { Home } from "./pages/Home.tsx";
 import { Intro } from "./pages/Intro.tsx";
 import { Library } from "./pages/Library.tsx";
@@ -27,35 +26,14 @@ history.replaceState(undefined, "");
 initSentry();
 initPlausible();
 
-export const RouteErrorElement = () => {
-	const routeError = useRouteError();
-
-	useEffect(() => {
-		if (
-			typeof routeError === "object" &&
-			routeError &&
-			"stack" in routeError &&
-			typeof routeError.stack === "string"
-		) {
-			sendToSentry({
-				stack: routeError.stack,
-				mechanism: { type: "instrument", handled: false },
-			});
-		} else {
-			sendToSentry({
-				manuallyWrittenSafeErrorMessage: "Unknown route error",
-				mechanism: { type: "generic", handled: false },
-			});
-		}
-	}, [routeError]);
-
-	return <UnexpectedError />;
-};
-
 const router = createBrowserRouter([
 	{
 		path: "/",
+
+		// Note: this only catches rendering errors, other errors are reported to Sentry
+		// but don't make the error element to show up
 		errorElement: <RouteErrorElement />,
+
 		element: <App />,
 		children: [
 			{
