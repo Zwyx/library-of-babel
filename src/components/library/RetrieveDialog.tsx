@@ -249,20 +249,23 @@ export const RetrieveDialog = ({
 							<OperationStatusGroup className="mt-2">
 								<OperationStatus
 									label={
-										view === "app-version-check" ?
-											needsRefresh ?
-												"New version available, reloading"
-											:	"Checking for new app version"
+										needsRefresh ? "New version available, updating"
+										: view === "app-version-check" ?
+											"Checking for new app version"
 										:	"Your app is up to date"
 									}
-									status={view === "app-version-check" ? "running" : "success"}
+									status={
+										view === "app-version-check" || needsRefresh ?
+											"running"
+										:	"success"
+									}
 								/>
 							</OperationStatusGroup>
 
 							<Button
 								className="mt-2 sm:mx-auto sm:w-fit"
 								variant="destructive"
-								disabled={view !== "delete-confirmation"}
+								disabled={view !== "delete-confirmation" || needsRefresh}
 								onClick={retrieveData}
 							>
 								Confirm retrieval and deletion
@@ -310,7 +313,7 @@ export const RetrieveDialog = ({
 							<Input
 								className="mt-2"
 								id="decryption-key"
-								// eslint-disable-next-line jsx-a11y/no-autofocus -- usefull in this case
+								// eslint-disable-next-line jsx-a11y/no-autofocus -- useful in this case
 								autoFocus
 								spellCheck={false}
 								autoComplete="off"
