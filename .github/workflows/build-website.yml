@@ -5,9 +5,10 @@ name: Build website
 
 on:
   push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
     branches:
-      - main
-      - staging/**
+      - "staging**"
   workflow_dispatch:
 
 permissions:
@@ -19,6 +20,9 @@ concurrency:
 
 jobs:
   build-website:
+    # Note: `github.event.base_ref` is equal to `refs/heads/main` only when the workflow is triggered
+    # by a lightweight tag (_not_ an annotated tag) placed on the last commit of the `main` branch
+    if: github.event.base_ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/staging') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +40,7 @@ jobs:
       - run: echo "APP_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
         id: APP_VERSION
 
-      - run: echo "BRANCH=$([[ "$(git branch --show-current)" == "main" ]] && echo "dist" || echo "staging/dist")" >> $GITHUB_ENV
+      - run: echo "BRANCH=$(${{ github.event.base_ref == 'refs/heads/main' || github.ref == 'refs/heads/main' }} && echo "dist" || echo "staging/dist")" >> $GITHUB_ENV
         id: BRANCH
 
       - run: echo "SENTRY_ENVIRONMENT=$([[ "${{ env.BRANCH }}" == "dist" ]] && echo "production" || echo "staging")" >> $GITHUB_ENV
@@ -57,7 +61,7 @@ jobs:
 
       - run: |
           git checkout index.html
-          [[ "${{ env.BRANCH }}" != "dist" ]] && git fetch && git branch main remotes/origin/main
+          [[ "$(git branch --show-current)" != "main" ]] && git fetch && git branch main remotes/origin/main
           git switch --orphan ${{ env.BRANCH }}
           git checkout main netlify.toml
           git add docs

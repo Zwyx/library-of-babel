@@ -23,15 +23,20 @@
 		"AUTORERUN",
 		"behavior",
 		"CCPA",
+		"dialog",
 		"libraryofbabel",
 		"lucide",
 		"magick",
 		"maskable",
 		"mxschmitt",
+		"nvmrc",
+		"objectname",
+		"objecttype",
 		"onetime",
 		"overscroll",
 		"Popover",
 		"Snelling",
-		"usehooks"
+		"usehooks",
+		"Zwyx"
 	]
 }
