@@ -5,9 +5,10 @@ name: Build website
 
 on:
   push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
     branches:
-      - main
-      - staging/**
+      - "staging**"
   workflow_dispatch:
 
 permissions:
@@ -19,6 +20,7 @@ concurrency:
 
 jobs:
   build-website:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/staging')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
