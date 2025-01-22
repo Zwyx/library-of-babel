@@ -10,7 +10,7 @@
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
 		"prettier": "prettier -w .",
-		"generate-pwa-assets": "./generate-pwa-assets.sh",
+		"generate-pwa-assets": "res/generate-pwa-assets.sh",
 		"madge:circular": "npx madge --extensions ts,tsx --circular ./",
 		"madge:circular:image": "npx madge --extensions ts,tsx --circular --image circular-dependencies.svg ./"
 	},
