@@ -7,7 +7,7 @@
 		"dev": "VITE_APP_VERSION=$(jq -r '.version' package.json) vite",
 		"build": "npm run lint && tsc && VITE_ENVIRONMENT=$ENVIRONMENT VITE_APP_VERSION=$APP_VERSION VITE_DOMAIN=$DOMAIN VITE_SENTRY_INGEST=$SENTRY_INGEST VITE_PLAUSIBLE_API_URL=$PLAUSIBLE_API_URL VITE_PB_INSTANCES=$PB_INSTANCES vite build",
 		"lint": "eslint --max-warnings=0 .",
-		"postversion": "res/convert-annotated-tags-to-lightweight.sh",
+		"postversion": "res/convert-annotated-tag-to-lightweight.sh",
 		"preview": "vite preview",
 		"eslint:print-active-rules": "eslint --print-config src/index.ts",
 		"prettier": "prettier -w .",
