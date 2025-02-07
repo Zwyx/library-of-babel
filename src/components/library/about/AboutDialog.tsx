@@ -10,8 +10,10 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { HistoryStateUserAction } from "@/lib/useHistoryState";
-import { useHistoryState } from "@/lib/useHistoryState.const";
+import {
+	HistoryStateUserAction,
+	useHistoryState,
+} from "@/lib/useHistoryState.const";
 import { cn } from "@/lib/utils";
 import { PropsWithChildren, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";

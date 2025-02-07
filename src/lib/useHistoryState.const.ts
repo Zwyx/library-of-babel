@@ -20,6 +20,10 @@ interface HistoryNavigateFunction<T> {
 	(delta: number): void;
 }
 
+export interface HistoryStateUserAction {
+	userAction: boolean;
+}
+
 export function useHistoryState<T>() {
 	const { state, pathname }: Location<Partial<T>> = useLocation();
 	const originalNavigate = useNavigate();
