@@ -81,10 +81,10 @@ export const AboutDialogIntro = ({
 		</p>
 
 		<p className="italic">
-			«&nbsp;All — the detailed history of the future, the autobiographies of
-			the archangels, the faithful catalog of the Library, thousands and
-			thousands of false catalogs, the proof of the falsity of those false
-			catalogs, a proof of the falsity of the true catalog, [...].&nbsp;»
+			"All — the detailed history of the future, the autobiographies of the
+			archangels, the faithful catalog of the Library, thousands and thousands
+			of false catalogs, the proof of the falsity of those false catalogs, a
+			proof of the falsity of the true catalog, [...]."
 		</p>
 
 		{showLearnMore && <div className="mx-auto mb-2 mt-4 w-[50%] border-b" />}

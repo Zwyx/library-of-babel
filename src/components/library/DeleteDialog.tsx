@@ -83,7 +83,7 @@ export const DeleteDialog = ({
 					{view === "invalid-link" && (
 						<div className="my-6 flex flex-col gap-2 text-center text-destructive">
 							<div className="font-semibold">Error</div>
-							The provided link is invalid.
+							The link provided is invalid.
 						</div>
 					)}
 

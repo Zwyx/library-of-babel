@@ -18,8 +18,9 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { usePwaContext } from "@/lib/PwaContext.const";
-import { ShareData } from "@/lib/common";
+import { ShareData, isLibraryMode } from "@/lib/common";
 import { EncryptedData, decrypt } from "@/lib/crypto";
+import { LAST_LIBRARY_MODE_KEY } from "@/lib/local-storage-keys";
 import { PB_ID_REGEX, Progress, getFromPb } from "@/lib/pb";
 import { cn, sleep } from "@/lib/utils";
 import { LucideAlertOctagon, LucideAlertTriangle } from "lucide-react";
@@ -64,6 +65,7 @@ export const RetrieveDialog = ({
 		useState<boolean>(false);
 
 	const [view, setView] = useState<
+		| "welcome"
 		| "invalid-link"
 		| "app-version-check"
 		| "delete-confirmation"
@@ -105,6 +107,7 @@ export const RetrieveDialog = ({
 
 		onShareDataReady(shareData);
 		setOpen(false);
+		localStorage.setItem(LAST_LIBRARY_MODE_KEY, "browse");
 	}, [onShareDataReady]);
 
 	const retrieveData = useCallback(async () => {
@@ -131,6 +134,16 @@ export const RetrieveDialog = ({
 		}
 	}, [decryptData, id, key]);
 
+	const checkData = useCallback(() => {
+		if (!PB_ID_REGEX.test(id)) {
+			setView("invalid-link");
+		} else if (onetimeLink) {
+			setView("app-version-check");
+		} else {
+			retrieveData();
+		}
+	}, [id, onetimeLink, retrieveData]);
+
 	useEffect(() => {
 		// When `onShareDataReady` is called, the parent rerenders, which updates `onShareDataReady`,
 		// which recreates `decryptData` then `retrieveData`, which triggers this `useEffect` (and also,
@@ -142,14 +155,14 @@ export const RetrieveDialog = ({
 
 		firstRender.current = false;
 
-		if (!PB_ID_REGEX.test(id)) {
-			setView("invalid-link");
-		} else if (onetimeLink) {
-			setView("app-version-check");
+		const lastLibraryMode = localStorage.getItem(LAST_LIBRARY_MODE_KEY);
+
+		if (!isLibraryMode(lastLibraryMode)) {
+			setView("welcome");
 		} else {
-			retrieveData();
+			checkData();
 		}
-	}, [id, onetimeLink, retrieveData]);
+	}, [checkData]);
 
 	useEffect(() => {
 		if (view === "app-version-check" && update) {
@@ -198,18 +211,68 @@ export const RetrieveDialog = ({
 					className="max-h-full max-w-xl gap-0 overflow-auto"
 					notClosable
 				>
-					<DialogHeader>
-						<DialogTitle>Retrieve a shared book</DialogTitle>
+					{view !== "welcome" && (
+						<DialogHeader>
+							<DialogTitle>Retrieve a shared book</DialogTitle>
 
-						<DialogDescription>
-							Sharing books uses end-to-end encryption.
-						</DialogDescription>
-					</DialogHeader>
+							<DialogDescription>
+								Sharing books uses end-to-end encryption.
+							</DialogDescription>
+						</DialogHeader>
+					)}
+
+					{view === "welcome" && (
+						<>
+							<div className="mb-2 mt-2 text-center">
+								<h1 className="text-xl font-semibold">Welcome, visitor</h1>
+
+								<p className="mt-6">
+									You are about to retrieve a book from the Library of Babel.
+								</p>
+
+								<p className="mt-4">
+									The Library of Babel contains <em>all the books</em>. Every
+									book{" "}
+									<em>
+										that has <strong>ever been</strong> written
+									</em>
+									. Every book{" "}
+									<em>
+										that will <strong>ever be</strong> written
+									</em>
+									. And the vast majority of books{" "}
+									<em>
+										that will <strong>never be</strong> written
+									</em>
+									.
+								</p>
+
+								<p className="mt-4">
+									Each book contains 410 pages. Each page, 40 lines. Each line,
+									80 characters. Each character can be a space, a letter, a
+									comma, or a period.
+								</p>
+
+								<p className="mt-4">
+									The number of atoms in the observable Universe is estimated to
+									be a number with <strong>80 digits</strong>. There are 29
+									<sup>1,312,000</sup> books in the Library of Babel — a number
+									with <strong>1,918,667 digits</strong>.
+								</p>
+
+								<p className="mt-4">They are all available here.</p>
+
+								<Button className="mt-6" onClick={checkData}>
+									Retrieve your book
+								</Button>
+							</div>
+						</>
+					)}
 
 					{view === "invalid-link" && (
 						<div className="my-6 flex flex-col gap-2 text-center text-destructive">
 							<div className="font-semibold">Error</div>
-							The provided link is invalid.
+							The link provided is invalid.
 						</div>
 					)}
 
@@ -343,37 +406,39 @@ export const RetrieveDialog = ({
 						</>
 					)}
 
-					<DialogFooter className="mt-6">
-						<Button
-							variant="secondary"
-							disabled={
-								view === "retrieving" ||
-								view === "decrypting" ||
-								view === "finished"
-							}
-							onClick={() =>
-								(
-									onetimeLink &&
-									(view === "key-input" || view === "wrong-key-input")
+					{view !== "welcome" && (
+						<DialogFooter className="mt-6">
+							<Button
+								variant="secondary"
+								disabled={
+									view === "retrieving" ||
+									view === "decrypting" ||
+									view === "finished"
+								}
+								onClick={() =>
+									(
+										onetimeLink &&
+										(view === "key-input" || view === "wrong-key-input")
+									) ?
+										setDecryptionCancelDialogOpen(true)
+									:	closeDialogs()
+								}
+							>
+								{(
+									view === "app-version-check" ||
+									view === "delete-confirmation" ||
+									view === "retrieving" ||
+									view === "network-error" ||
+									view === "key-input" ||
+									view === "wrong-key-input" ||
+									view === "decrypting" ||
+									view === "finished"
 								) ?
-									setDecryptionCancelDialogOpen(true)
-								:	closeDialogs()
-							}
-						>
-							{(
-								view === "app-version-check" ||
-								view === "delete-confirmation" ||
-								view === "retrieving" ||
-								view === "network-error" ||
-								view === "key-input" ||
-								view === "wrong-key-input" ||
-								view === "decrypting" ||
-								view === "finished"
-							) ?
-								"Cancel"
-							:	"Close"}
-						</Button>
-					</DialogFooter>
+									"Cancel"
+								:	"Close"}
+							</Button>
+						</DialogFooter>
+					)}
 				</DialogContent>
 			</Dialog>
 

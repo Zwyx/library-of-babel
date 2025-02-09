@@ -113,8 +113,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const loading = loadingBook || loadingBookMetadata;
 
 	useEffect(() => {
-		localStorage.setItem(LAST_LIBRARY_MODE_KEY, mode);
-	}, [mode]);
+		if (!id) {
+			localStorage.setItem(LAST_LIBRARY_MODE_KEY, mode);
+		}
+	}, [id, mode]);
 
 	const canRun =
 		((mode === "browse" && !!bookId.trim()) ||
