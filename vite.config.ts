@@ -13,7 +13,7 @@ export default defineConfig({
 			manifestFilename: "manifest.json",
 			manifest: {
 				name: "The Library of Babel",
-				short_name: "Library of Babel",
+				short_name: "Babel",
 				description: "Explore all the books.",
 				categories: ["books", "concepts", "experiments"],
 				display: "standalone",
