@@ -72,9 +72,9 @@ export const HeaderMenu = () => {
 				</div>
 
 				{refreshNeeded && (
-					<div className="mt-2 flex flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
+					<div className="mt-2 flex w-full flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
 						<div className="w-full">New version available</div>
-						<div className="text-sm text-muted-foreground">
+						<div className="w-full text-sm text-muted-foreground">
 							Save your changes then reload the app to update.
 						</div>
 						<Button className="m-1" size="sm" onClick={refresh}>
