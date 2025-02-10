@@ -1,11 +1,13 @@
 // Was extracted from the main file for React Refresh (see ESLint `react-refresh/only-export-components`)
 
-import { createContext, useContext } from "react";
+import { Dispatch, createContext, useContext } from "react";
 
 export const PwaContext = createContext<
 	| {
 			update: (() => Promise<void>) | undefined;
-			needsRefresh: boolean;
+			refreshNeeded: boolean;
+			refreshNeededAcknowledged: boolean;
+			setRefreshNeededAcknowledged: Dispatch<boolean>;
 			refresh: (() => Promise<void>) | undefined;
 	  }
 	| undefined

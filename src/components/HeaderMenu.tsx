@@ -7,6 +7,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { usePwaContext } from "@/lib/PwaContext.const";
 import { useHistoryState } from "@/lib/useHistoryState.const";
 import { LucideMenu } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -15,6 +16,12 @@ import { ExternalLink } from "./common/ExternalLink";
 import { AboutDialogIntro } from "./library/about/AboutDialog";
 
 export const HeaderMenu = () => {
+	const {
+		refreshNeeded,
+		refreshNeededAcknowledged,
+		setRefreshNeededAcknowledged,
+		refresh,
+	} = usePwaContext();
 	const { t } = useTranslation(["headerMenu"]);
 
 	const { state, pushStateOrNavigateBack } = useHistoryState<{
@@ -29,9 +36,25 @@ export const HeaderMenu = () => {
 			onOpenChange={(open) => pushStateOrNavigateBack(open, { menuOpen: true })}
 		>
 			<SheetTrigger asChild>
-				<Button variant="ghost" size="icon">
+				<Button
+					className="relative"
+					variant="ghost"
+					size="icon"
+					onClick={() => {
+						if (refreshNeeded && !refreshNeededAcknowledged) {
+							setRefreshNeededAcknowledged(true);
+						}
+					}}
+				>
 					<LucideMenu />
 					<span className="sr-only">{t("openMenu")}</span>
+
+					{refreshNeeded && !refreshNeededAcknowledged && (
+						<span className="absolute right-0 top-0 flex h-3 w-3">
+							<span className="absolute h-full w-full animate-ping rounded-full bg-info opacity-75" />
+							<span className="absolute left-[2px] top-[2px] h-2 w-2 rounded-full bg-info" />
+						</span>
+					)}
 				</Button>
 			</SheetTrigger>
 
@@ -39,7 +62,7 @@ export const HeaderMenu = () => {
 				side="left"
 				className="flex w-auto flex-col items-start gap-0 overflow-auto"
 			>
-				<div className="flex items-center gap-4">
+				<div className="mb-2 flex items-center gap-4">
 					<img
 						className="h-8 w-8"
 						src="favicon-196.png"
@@ -48,7 +71,19 @@ export const HeaderMenu = () => {
 					<span className="font-bold">{t("libraryOfBabel")}</span>
 				</div>
 
-				<div className="mt-6 flex flex-col gap-3">
+				{refreshNeeded && (
+					<div className="mt-2 flex flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
+						<div className="w-full">New version available</div>
+						<div className="text-sm text-muted-foreground">
+							Save your changes then reload the app to update.
+						</div>
+						<Button className="m-1" size="sm" onClick={refresh}>
+							Reload app
+						</Button>
+					</div>
+				)}
+
+				<div className="mt-4 flex flex-col gap-3">
 					<AboutDialogIntro showLearnMore />
 				</div>
 

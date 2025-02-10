@@ -4,7 +4,9 @@ import { PwaContext } from "./PwaContext.const";
 
 export const PwaContextProvider = ({ children }: PropsWithChildren) => {
 	const [update, setUpdate] = useState<() => Promise<void>>();
-	const [needsRefresh, setNeedsRefresh] = useState<boolean>(false);
+	const [refreshNeeded, setRefreshNeeded] = useState<boolean>(false);
+	const [refreshNeededAcknowledged, setRefreshNeededAcknowledged] =
+		useState<boolean>(false);
 	const [refresh, setRefresh] = useState<() => Promise<void>>();
 
 	useEffect(() => {
@@ -20,13 +22,24 @@ export const PwaContextProvider = ({ children }: PropsWithChildren) => {
 						);
 					}
 				},
-				onNeedRefresh: () => setNeedsRefresh(true),
+				onNeedRefresh: () => {
+					setRefreshNeeded(true);
+					setRefreshNeededAcknowledged(false);
+				},
 			}),
 		);
 	}, []);
 
 	return (
-		<PwaContext.Provider value={{ update, needsRefresh, refresh }}>
+		<PwaContext.Provider
+			value={{
+				update,
+				refreshNeeded,
+				refreshNeededAcknowledged,
+				setRefreshNeededAcknowledged,
+				refresh,
+			}}
+		>
 			{children}
 		</PwaContext.Provider>
 	);

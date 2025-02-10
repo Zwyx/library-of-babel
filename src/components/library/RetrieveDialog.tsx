@@ -57,7 +57,7 @@ export const RetrieveDialog = ({
 	onShareDataReady: (data: ShareData) => void;
 }) => {
 	const navigate = useNavigate();
-	const { update, needsRefresh, refresh } = usePwaContext();
+	const { update, refreshNeeded, refresh } = usePwaContext();
 
 	const firstRender = useRef<boolean>(true);
 	const [open, setOpen] = useState<boolean>(true);
@@ -178,12 +178,12 @@ export const RetrieveDialog = ({
 	useEffect(() => {
 		if (
 			(view === "app-version-check" || view === "delete-confirmation") &&
-			needsRefresh &&
+			refreshNeeded &&
 			refresh
 		) {
 			setTimeout(refresh, view === "app-version-check" ? 1000 : 0);
 		}
-	}, [view, needsRefresh, refresh]);
+	}, [view, refreshNeeded, refresh]);
 
 	const onDecryptClick = () => {
 		if (!encryptedData.current) {
@@ -312,13 +312,13 @@ export const RetrieveDialog = ({
 							<OperationStatusGroup className="mt-2">
 								<OperationStatus
 									label={
-										needsRefresh ? "New version available, updating"
+										refreshNeeded ? "New version available, updating"
 										: view === "app-version-check" ?
 											"Checking for new app version"
 										:	"Your app is up to date"
 									}
 									status={
-										view === "app-version-check" || needsRefresh ?
+										view === "app-version-check" || refreshNeeded ?
 											"running"
 										:	"success"
 									}
@@ -328,7 +328,7 @@ export const RetrieveDialog = ({
 							<Button
 								className="mt-2 sm:mx-auto sm:w-fit"
 								variant="destructive"
-								disabled={view !== "delete-confirmation" || needsRefresh}
+								disabled={view !== "delete-confirmation" || refreshNeeded}
 								onClick={retrieveData}
 							>
 								Confirm retrieval and deletion
