@@ -132,7 +132,7 @@ export const OptionsDialog = ({
 					title="Search settings"
 					disabled={disabled}
 				>
-					<LucideSettings size={20} />
+					<LucideSettings />
 				</Button>
 			</DialogTrigger>
 

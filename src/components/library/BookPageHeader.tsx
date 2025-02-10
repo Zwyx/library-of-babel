@@ -98,7 +98,7 @@ export const BookPageHeader = ({
 							size="sm"
 							disabled={loading}
 						>
-							<LucideMoreHorizontal size={20} />
+							<LucideMoreHorizontal />
 						</Button>
 					</DropdownMenuTrigger>
 				</SuccessWrapper>

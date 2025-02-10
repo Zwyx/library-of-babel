@@ -253,7 +253,7 @@ export const BookMetadataDialog = ({
 
 						<Button variant="ghostLink" size="sm" asChild>
 							<AboutDialogLink to="?about=the-book-id">
-								<LucideHelpCircle size={20} />
+								<LucideHelpCircle />
 							</AboutDialogLink>
 						</Button>
 					</div>
@@ -372,7 +372,7 @@ export const BookMetadataDialog = ({
 
 							<Button variant="ghostLink" size="sm" asChild>
 								<AboutDialogLink to="?about=the-book-image">
-									<LucideHelpCircle size={20} />
+									<LucideHelpCircle />
 								</AboutDialogLink>
 							</Button>
 						</div>

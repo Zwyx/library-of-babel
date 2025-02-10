@@ -19,6 +19,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
+      // Removed backdrop-blur to fix scroll lag in Firefox on Linux and Chrome on Android
       "fixed inset-0 z-50 bg-background/95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
@@ -29,6 +30,7 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
+  // Added `notClosable`
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { notClosable?: boolean }
 >(({ className, notClosable, children, ...props }, ref) => (
   <DialogPortal>
@@ -73,7 +75,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      // changed manually
+      // Changed gap
       "flex flex-col-reverse sm:flex-row sm:justify-end gap-2",
       className
     )}

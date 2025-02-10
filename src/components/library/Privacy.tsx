@@ -23,8 +23,13 @@ export const Privacy = () => {
 					.
 				</div>
 
-				<Button variant="ghost" size="2xs" onClick={hideBanner}>
-					<LucideX size={12} />
+				<Button
+					className="[&_svg]:size-3"
+					variant="ghost"
+					size="2xs"
+					onClick={hideBanner}
+				>
+					<LucideX />
 				</Button>
 			</div>
 		)
