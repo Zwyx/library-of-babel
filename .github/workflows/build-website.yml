@@ -40,7 +40,7 @@ jobs:
       - run: echo "APP_VERSION=$(jq -r '.version' package.json)" >> $GITHUB_ENV
         id: APP_VERSION
 
-      - run: echo "BRANCH=$(${{ github.event.base_ref == 'refs/heads/main' || github.ref == 'refs/heads/main' }} && echo "dist" || echo "staging/dist")" >> $GITHUB_ENV
+      - run: echo "BRANCH=$(${{ github.event.base_ref == 'refs/heads/main' || github.ref == 'refs/heads/main' }} && echo "dist" || echo "staging-dist")" >> $GITHUB_ENV
         id: BRANCH
 
       - run: echo "SENTRY_ENVIRONMENT=$([[ "${{ env.BRANCH }}" == "dist" ]] && echo "production" || echo "staging")" >> $GITHUB_ENV
