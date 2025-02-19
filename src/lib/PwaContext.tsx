@@ -18,7 +18,7 @@ export const PwaContextProvider = ({ children }: PropsWithChildren) => {
 
 						setInterval(
 							() => serviceWorkerRegistration.update(),
-							60 * 60 * 1000,
+							24 * 60 * 60 * 1000,
 						);
 					}
 				},
