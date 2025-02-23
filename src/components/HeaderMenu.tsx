@@ -9,31 +9,32 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { usePwaContext } from "@/lib/PwaContext.const";
 import { useHistoryState } from "@/lib/useHistoryState.const";
-import { LucideMenu } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { LucideLoader2, LucideMenu } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Code } from "./common/Code";
 import { ExternalLink } from "./common/ExternalLink";
 import { AboutDialogIntro } from "./library/about/AboutDialog";
 
 export const HeaderMenu = () => {
-	const {
-		refreshNeeded,
-		refreshNeededAcknowledged,
-		setRefreshNeededAcknowledged,
-		refresh,
-	} = usePwaContext();
+	const pwa = usePwaContext();
 	const { t } = useTranslation(["headerMenu"]);
 
 	const { state, pushStateOrNavigateBack } = useHistoryState<{
-		menuOpen: boolean;
-		termsOfUseOpen?: boolean;
-		privacyPolicyOpen?: boolean;
+		headerMenuOpen: boolean;
+		termsOfUseDialogOpen?: boolean;
+		privacyPolicyDialogOpen?: boolean;
 	}>();
+
+	const [checkForUpdateLoading, setCheckForUpdateLoading] = useState(false);
 
 	return (
 		<Sheet
-			open={!!state.menuOpen}
-			onOpenChange={(open) => pushStateOrNavigateBack(open, { menuOpen: true })}
+			open={!!state.headerMenuOpen}
+			onOpenChange={(open) =>
+				pushStateOrNavigateBack(open, { headerMenuOpen: true })
+			}
 		>
 			<SheetTrigger asChild>
 				<Button
@@ -41,15 +42,15 @@ export const HeaderMenu = () => {
 					variant="ghost"
 					size="icon"
 					onClick={() => {
-						if (refreshNeeded && !refreshNeededAcknowledged) {
-							setRefreshNeededAcknowledged(true);
+						if (pwa.refreshNeeded && !pwa.refreshNeededAcknowledged) {
+							pwa.setRefreshNeededAcknowledged(true);
 						}
 					}}
 				>
 					<LucideMenu />
 					<span className="sr-only">{t("openMenu")}</span>
 
-					{refreshNeeded && !refreshNeededAcknowledged && (
+					{pwa.refreshNeeded && !pwa.refreshNeededAcknowledged && (
 						<span className="absolute right-0 top-0 flex h-3 w-3">
 							<span className="absolute h-full w-full animate-ping rounded-full bg-info opacity-75" />
 							<span className="absolute left-[2px] top-[2px] h-2 w-2 rounded-full bg-info" />
@@ -71,13 +72,13 @@ export const HeaderMenu = () => {
 					<span className="font-bold">{t("libraryOfBabel")}</span>
 				</div>
 
-				{refreshNeeded && (
+				{pwa.refreshNeeded && (
 					<div className="mt-2 flex w-full flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
 						<div className="w-full">New version available</div>
 						<div className="w-full text-sm text-muted-foreground">
 							Save your changes then reload the app to update.
 						</div>
-						<Button className="m-1" size="sm" onClick={refresh}>
+						<Button className="m-1" size="sm" onClick={pwa.refresh}>
 							Reload app
 						</Button>
 					</div>
@@ -91,11 +92,11 @@ export const HeaderMenu = () => {
 
 				<div className="mt-6 flex w-full items-center justify-center gap-2">
 					<Dialog
-						open={!!state.termsOfUseOpen}
+						open={!!state.termsOfUseDialogOpen}
 						onOpenChange={(open) =>
 							pushStateOrNavigateBack(open, {
-								menuOpen: true,
-								termsOfUseOpen: true,
+								headerMenuOpen: true,
+								termsOfUseDialogOpen: true,
 							})
 						}
 					>
@@ -175,11 +176,11 @@ export const HeaderMenu = () => {
 					<span className="font-bold text-muted-foreground">·</span>
 
 					<Dialog
-						open={!!state.privacyPolicyOpen}
+						open={!!state.privacyPolicyDialogOpen}
 						onOpenChange={(open) =>
 							pushStateOrNavigateBack(open, {
-								menuOpen: true,
-								privacyPolicyOpen: true,
+								headerMenuOpen: true,
+								privacyPolicyDialogOpen: true,
 							})
 						}
 					>
@@ -301,6 +302,29 @@ export const HeaderMenu = () => {
 				<div className="mt-2 w-full text-right text-xs text-muted-foreground">
 					{t("version")}{" "}
 					<span className="font-bold">{import.meta.env.VITE_APP_VERSION}</span>
+					{" – "}
+					<Button
+						variant="link"
+						size="sm"
+						className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline"
+						onClick={() => {
+							setCheckForUpdateLoading(true);
+							setTimeout(() => setCheckForUpdateLoading(false), 2500);
+							pwa.update?.();
+						}}
+					>
+						<div className={cn(checkForUpdateLoading && "opacity-15")}>
+							Check for updates
+						</div>
+
+						<LucideLoader2
+							className={cn(
+								"absolute",
+								!checkForUpdateLoading && "invisible",
+								checkForUpdateLoading && "animate-spin",
+							)}
+						/>
+					</Button>
 				</div>
 			</SheetContent>
 		</Sheet>
