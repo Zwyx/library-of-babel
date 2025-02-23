@@ -63,7 +63,7 @@ export const OptionsDialog = ({
 	>();
 
 	const { state, pushStateOrNavigateBack } = useHistoryState<{
-		open: boolean;
+		optionsDialogOpen: boolean;
 	}>();
 
 	const customNumberOfPages =
@@ -108,9 +108,9 @@ export const OptionsDialog = ({
 
 	return (
 		<Dialog
-			open={!!state.open}
+			open={!!state.optionsDialogOpen}
 			onOpenChange={(open) => {
-				pushStateOrNavigateBack(open, { open: true });
+				pushStateOrNavigateBack(open, { optionsDialogOpen: true });
 
 				if (open) {
 					optionsAtDialogOpening.current = options;
