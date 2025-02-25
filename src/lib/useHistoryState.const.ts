@@ -33,6 +33,12 @@ export function useHistoryState<T>() {
 		[originalNavigate, pathname],
 	);
 
+	const replaceState = useCallback(
+		(newState: T) =>
+			originalNavigate(pathname, { state: newState, replace: true }),
+		[originalNavigate, pathname],
+	);
+
 	const navigate: HistoryNavigateFunction<T> = originalNavigate;
 
 	const pushStateOrNavigateBack = (push: boolean, newState: T) =>
@@ -41,6 +47,7 @@ export function useHistoryState<T>() {
 	return {
 		state: state || {},
 		pushState,
+		replaceState,
 		navigate,
 		pushStateOrNavigateBack,
 		Link: HistoryStateLink<T>,
