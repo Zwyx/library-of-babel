@@ -2,6 +2,8 @@
 
 ## The Library of Babel
 
+<img style="margin-bottom: 12px;" src="public/favicon-196.png" width="50">
+
 ["The Library of Babel"](https://en.wikipedia.org/wiki/The_Library_of_Babel) is a short story by Jorge Luis Borges, Argentine author and librarian, in which he explores a vast library containing all the books that it is possible to write using the latin alphabet, and that are 410 pages long.
 
 Visitors grapple with the enormity of knowledge and the futility of finding meaning in an endless sea of randomness.
