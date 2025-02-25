@@ -2,16 +2,26 @@ import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
-	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useThemeContext } from "@/lib/ThemeContext.const";
-import { LucideLaptop, LucideMoon, LucideSunMedium } from "lucide-react";
+import { ThemeChoice, useThemeContext } from "@/lib/ThemeContext.const";
+import { LucideMoon, LucideSunMedium } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const ThemeSelector = () => {
 	const { t } = useTranslation(["themeSelector"]);
-	const { updateThemeChoice } = useThemeContext();
+
+	const { themeChoice, updateThemeChoice } = useThemeContext();
+
+	const themeChoices: { [themeChoice in ThemeChoice]: string } = {
+		system: t("sameAsDevice"),
+		light: t("light"),
+		dark: t("dark"),
+	};
 
 	return (
 		<DropdownMenu>
@@ -24,32 +34,23 @@ export const ThemeSelector = () => {
 			</DropdownMenuTrigger>
 
 			<DropdownMenuContent align="end">
-				<DropdownMenuItem
-					onClick={() => {
-						updateThemeChoice("system");
-					}}
-				>
-					<LucideLaptop className="mr-2 h-4 w-4" />
-					<span>{t("sameAsDevice")}</span>
-				</DropdownMenuItem>
+				<DropdownMenuLabel>{t("theme")}</DropdownMenuLabel>
 
-				<DropdownMenuItem
-					onClick={() => {
-						updateThemeChoice("light");
-					}}
-				>
-					<LucideSunMedium className="mr-2 h-4 w-4" />
-					<span>{t("light")}</span>
-				</DropdownMenuItem>
+				<DropdownMenuSeparator />
 
-				<DropdownMenuItem
-					onClick={() => {
-						updateThemeChoice("dark");
-					}}
-				>
-					<LucideMoon className="mr-2 h-4 w-4" />
-					<span>{t("dark")}</span>
-				</DropdownMenuItem>
+				<DropdownMenuRadioGroup value={themeChoice}>
+					{Object.entries(themeChoices).map(
+						([themeChoiceId, themeChoiceName]) => (
+							<DropdownMenuRadioItem
+								key={themeChoiceId}
+								value={themeChoiceId}
+								onClick={() => updateThemeChoice(themeChoiceId as ThemeChoice)}
+							>
+								<span>{themeChoiceName}</span>
+							</DropdownMenuRadioItem>
+						),
+					)}
+				</DropdownMenuRadioGroup>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	);

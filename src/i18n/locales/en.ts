@@ -20,6 +20,7 @@ export const en = {
 		dark: "Dark",
 		light: "Light",
 		sameAsDevice: "Same as device",
+		theme: "Theme",
 	},
 } as const;
 

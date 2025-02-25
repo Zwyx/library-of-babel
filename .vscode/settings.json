@@ -41,5 +41,11 @@
 		"Takedown",
 		"usehooks",
 		"Zwyx"
+	],
+	"cSpell.overrides": [
+		{
+			"filename": "src/i18n/locales/fr.ts",
+			"language": "fr-90"
+		}
 	]
 }

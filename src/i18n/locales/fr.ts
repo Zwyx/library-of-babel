@@ -20,5 +20,6 @@ export const fr: I18nLocale = {
 		dark: "Foncé",
 		light: "Clair",
 		sameAsDevice: "Identique à l'appareil",
+		theme: "Thème",
 	},
 } as const;
