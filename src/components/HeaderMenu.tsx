@@ -303,28 +303,32 @@ export const HeaderMenu = () => {
 					{t("version")}{" "}
 					<span className="font-bold">{import.meta.env.VITE_APP_VERSION}</span>
 					{" – "}
-					<Button
-						variant="link"
-						size="sm"
-						className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline dark:text-info"
-						onClick={() => {
-							setCheckForUpdateLoading(true);
-							setTimeout(() => setCheckForUpdateLoading(false), 2500);
-							pwa.update?.();
-						}}
-					>
-						<div className={cn(checkForUpdateLoading && "opacity-15")}>
-							Check for updates
-						</div>
+					{pwa.refreshNeeded ?
+						<span className="font-bold">Update available, see above</span>
+					:	<Button
+							variant="link"
+							size="sm"
+							className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline disabled:opacity-100 dark:text-info"
+							disabled={checkForUpdateLoading}
+							onClick={() => {
+								setCheckForUpdateLoading(true);
+								setTimeout(() => setCheckForUpdateLoading(false), 2500);
+								pwa.update?.();
+							}}
+						>
+							<div className={cn(checkForUpdateLoading && "opacity-15")}>
+								Check for updates
+							</div>
 
-						<LucideLoader2
-							className={cn(
-								"absolute",
-								!checkForUpdateLoading && "invisible",
-								checkForUpdateLoading && "animate-spin",
-							)}
-						/>
-					</Button>
+							<LucideLoader2
+								className={cn(
+									"absolute",
+									!checkForUpdateLoading && "invisible",
+									checkForUpdateLoading && "animate-spin",
+								)}
+							/>
+						</Button>
+					}
 				</div>
 			</SheetContent>
 		</Sheet>
