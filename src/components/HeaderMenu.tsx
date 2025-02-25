@@ -306,7 +306,7 @@ export const HeaderMenu = () => {
 					<Button
 						variant="link"
 						size="sm"
-						className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline"
+						className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline dark:text-info"
 						onClick={() => {
 							setCheckForUpdateLoading(true);
 							setTimeout(() => setCheckForUpdateLoading(false), 2500);
