@@ -17,6 +17,7 @@ module.exports = {
 		"plugin:react/jsx-runtime",
 		"plugin:react-hooks/recommended",
 		"plugin:jsx-a11y/recommended",
+		"plugin:react-ref/recommended-legacy",
 		"prettier",
 	],
 	plugins: ["import", "react-refresh", "i18next", "only-warn"],
@@ -59,9 +60,6 @@ module.exports = {
 		// Disallow `new` operators with the `Function` object, as this is similar to `eval()`; if necessary, use `// eslint-disable-next-line no-new-func` where it's needed
 		"no-new-func": "warn",
 
-		// The use of `@typescript-eslint/no-shadow` necessitates to disable `no-shadow`, see https://typescript-eslint.io/rules/no-shadow
-		"no-shadow": "off",
-
 		// Disallow ternary operators when simpler alternatives exist; example: prevent `const x = y === 1 ? true : false` in favour of `const x = y === 1`
 		"no-unneeded-ternary": "warn",
 
@@ -88,7 +86,8 @@ module.exports = {
 		// Disallow non-null assertions using the `!` postfix operator
 		"@typescript-eslint/no-non-null-assertion": "warn",
 
-		// Disallow variable declarations from shadowing variables declared in the outer scope
+		// Disallow variable declarations from shadowing variables declared in the outer scope; necessitates to disable `no-shadow`, see https://typescript-eslint.io/rules/no-shadow
+		"no-shadow": "off",
 		"@typescript-eslint/no-shadow": "warn",
 
 		// Type-checked rules disabled – see above
