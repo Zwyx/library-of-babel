@@ -56,6 +56,7 @@
 		"eslint-plugin-only-warn": "^1.1.0",
 		"eslint-plugin-react": "^7.33.2",
 		"eslint-plugin-react-hooks": "^4.6.0",
+		"eslint-plugin-react-ref": "^1.0.0",
 		"eslint-plugin-react-refresh": "^0.4.5",
 		"postcss": "^8.4.33",
 		"prettier": "^3.2.4",
