@@ -26,7 +26,7 @@ import { encrypt } from "@/lib/crypto";
 import { ExpiryDuration, Progress, expiryDurations, sendToPb } from "@/lib/pb";
 import { LucideInfo } from "lucide-react";
 import { useEffect, useState } from "react";
-import { ButtonLoading } from "../common/ButtonLoading";
+import { ButtonStatus } from "../common/ButtonStatus";
 import { LinkCopy } from "../common/LinkCopy";
 import { ProgressStatus } from "../common/ProgressStatus";
 import { RequestError } from "../common/RequestError";
@@ -295,9 +295,9 @@ export const ShareDialog = ({
 							</span>
 						)}
 
-						<ButtonLoading className="mt-2" loading={loading} onClick={getLink}>
+						<ButtonStatus className="mt-2" loading={loading} onClick={getLink}>
 							Get link
-						</ButtonLoading>
+						</ButtonStatus>
 					</>
 				)}
 

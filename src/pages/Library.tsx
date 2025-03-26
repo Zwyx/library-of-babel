@@ -1,4 +1,4 @@
-import { ButtonLoading } from "@/components/common/ButtonLoading";
+import { ButtonStatus } from "@/components/common/ButtonStatus";
 import { HighCapacityTextarea } from "@/components/common/HighCapacityTextarea";
 import { SmallAlert } from "@/components/common/SmallAlert";
 import { BookMetadataDialog } from "@/components/library/BookMetadataDialog";
@@ -399,7 +399,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					}}
 				/>
 
-				<ButtonLoading
+				<ButtonStatus
 					disabled={!canRun}
 					loading={loadingBook}
 					onClick={() => getBook()}
@@ -409,7 +409,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					: mode === "search" ?
 						"Find a book"
 					:	"Pick a random book"}
-				</ButtonLoading>
+				</ButtonStatus>
 
 				<OptionsDialog
 					mode={mode}

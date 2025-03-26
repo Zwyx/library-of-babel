@@ -1,33 +1,48 @@
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
+	DialogClose,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { usePwaContext } from "@/lib/PwaContext.const";
 import { useHistoryState } from "@/lib/useHistoryState.const";
-import { cn } from "@/lib/utils";
-import { LucideLoader2, LucideMenu } from "lucide-react";
-import { useState } from "react";
+import { LucideMenu } from "lucide-react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { ButtonStatus } from "./common/ButtonStatus";
 import { Code } from "./common/Code";
 import { ExternalLink } from "./common/ExternalLink";
 import { AboutDialogIntro } from "./library/about/AboutDialog";
 
 export const HeaderMenu = () => {
 	const pwa = usePwaContext();
-	const { t } = useTranslation(["headerMenu"]);
+	const { t } = useTranslation("headerMenu");
 
-	const { state, pushStateOrNavigateBack } = useHistoryState<{
+	const { state, navigate, pushStateOrNavigateBack } = useHistoryState<{
 		headerMenuOpen: boolean;
 		termsOfUseDialogOpen?: boolean;
 		privacyPolicyDialogOpen?: boolean;
 	}>();
 
-	const [checkForUpdateLoading, setCheckForUpdateLoading] = useState(false);
+	const [checkForUpdatesLoading, setCheckForUpdatesLoading] = useState(false);
+	const [newFeaturesReloading, setNewFeaturesReloading] = useState(false);
+	const [updateReloading, setUpdateReloading] = useState(false);
+
+	const touchStartX = useRef(0);
+
+	const showNewFeaturesPing =
+		pwa.newMajorVersionReady && !pwa.newMajorVersionAcknowledged;
 
 	return (
 		<Sheet
@@ -38,19 +53,19 @@ export const HeaderMenu = () => {
 		>
 			<SheetTrigger asChild>
 				<Button
-					className="relative"
 					variant="ghost"
 					size="icon"
+					className="relative"
 					onClick={() => {
-						if (pwa.refreshNeeded && !pwa.refreshNeededAcknowledged) {
-							pwa.setRefreshNeededAcknowledged(true);
+						if (showNewFeaturesPing) {
+							pwa.setNewMajorVersionAcknowledged(true);
 						}
 					}}
 				>
 					<LucideMenu />
 					<span className="sr-only">{t("openMenu")}</span>
 
-					{pwa.refreshNeeded && !pwa.refreshNeededAcknowledged && (
+					{showNewFeaturesPing && (
 						<span className="absolute right-0 top-0 flex h-3 w-3">
 							<span className="absolute h-full w-full animate-ping rounded-full bg-info opacity-75" />
 							<span className="absolute left-[2px] top-[2px] h-2 w-2 rounded-full bg-info" />
@@ -62,25 +77,54 @@ export const HeaderMenu = () => {
 			<SheetContent
 				side="left"
 				className="flex w-auto flex-col items-start gap-0 overflow-auto"
-			>
-				<div className="mb-2 flex items-center gap-4">
-					<img
-						className="h-8 w-8"
-						src="favicon-196.png"
-						alt="Library of Babel logo"
-					/>
-					<span className="font-bold">{t("libraryOfBabel")}</span>
-				</div>
+				onTouchStart={(e) => {
+					touchStartX.current = e.changedTouches[0].screenX;
+				}}
+				onTouchEnd={(e) => {
+					const rem = getComputedStyle(document.documentElement).fontSize;
 
-				{pwa.refreshNeeded && (
+					if (
+						e.changedTouches[0].screenX <
+						touchStartX.current - 2 * parseFloat(rem)
+					) {
+						navigate(-1);
+					}
+				}}
+				noDescription
+			>
+				<SheetHeader>
+					<SheetTitle>
+						<div className="mb-2 flex items-center gap-4">
+							<img
+								className="h-8 w-8"
+								src="favicon-196.png"
+								alt="Library of Babel logo"
+							/>
+							<span className="font-bold">{t("libraryOfBabel")}</span>
+						</div>
+					</SheetTitle>
+				</SheetHeader>
+
+				{pwa.newMajorVersionReady && (
 					<div className="mt-2 flex w-full flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
-						<div className="w-full">New version available</div>
+						<div className="w-full">New features available</div>
+
 						<div className="w-full text-sm text-muted-foreground">
 							Save your changes then reload the app to update.
 						</div>
-						<Button className="m-1" size="sm" onClick={pwa.refresh}>
-							Reload app
-						</Button>
+
+						<ButtonStatus
+							size="sm"
+							className="m-1"
+							disabled={updateReloading}
+							loading={newFeaturesReloading}
+							onClick={() => {
+								setNewFeaturesReloading(true);
+								pwa.refresh?.();
+							}}
+						>
+							Reload
+						</ButtonStatus>
 					</div>
 				)}
 
@@ -110,7 +154,11 @@ export const HeaderMenu = () => {
 							</Button>
 						</DialogTrigger>
 
-						<DialogContent className="max-h-full max-w-3xl overflow-auto">
+						<DialogContent
+							className="max-h-full max-w-3xl overflow-auto"
+							onTouchEnd={(e) => e.stopPropagation()}
+							noDescription
+						>
 							<DialogHeader>
 								<DialogTitle>{"Terms of use"}</DialogTitle>
 							</DialogHeader>
@@ -170,6 +218,12 @@ export const HeaderMenu = () => {
 									no responsibility.
 								</p>
 							</div>
+
+							<DialogFooter className="mt-1">
+								<DialogClose asChild>
+									<Button variant="secondary">Close</Button>
+								</DialogClose>
+							</DialogFooter>
 						</DialogContent>
 					</Dialog>
 
@@ -188,13 +242,17 @@ export const HeaderMenu = () => {
 							<Button
 								variant="link"
 								size="sm"
-								className="mt-0.5 h-fit p-0 text-right text-xs font-bold text-muted-foreground hover:no-underline"
+								className="mt-0.5 h-fit p-0 text-xs font-bold text-muted-foreground hover:no-underline"
 							>
 								{"Privacy policy"}
 							</Button>
 						</DialogTrigger>
 
-						<DialogContent className="max-h-full max-w-3xl overflow-auto">
+						<DialogContent
+							className="max-h-full max-w-3xl overflow-auto"
+							onTouchEnd={(e) => e.stopPropagation()}
+							noDescription
+						>
 							<DialogHeader>
 								<DialogTitle>{"Privacy policy"}</DialogTitle>
 							</DialogHeader>
@@ -281,6 +339,12 @@ export const HeaderMenu = () => {
 									</li>
 								</ul>
 							</div>
+
+							<DialogFooter className="mt-1">
+								<DialogClose asChild>
+									<Button variant="secondary">Close</Button>
+								</DialogClose>
+							</DialogFooter>
 						</DialogContent>
 					</Dialog>
 				</div>
@@ -289,46 +353,49 @@ export const HeaderMenu = () => {
 
 				<div className="mt-3 w-full text-xs text-muted-foreground">
 					{"© "}
-					<ExternalLink href="https://zwyx.dev">{"Zwyx.dev"}</ExternalLink>
+					<ExternalLink href="https://zwyx.dev" showIcon>
+						{"Zwyx.dev"}
+					</ExternalLink>
 				</div>
 
 				<div className="mt-1 w-full text-xs text-muted-foreground">
 					{"Source code available at "}
-					<ExternalLink href="https://github.com/zwyx/library-of-babel">
+					<ExternalLink
+						href="https://github.com/zwyx/library-of-babel"
+						showIcon
+					>
 						{"github.com/zwyx/library-of-babel"}
 					</ExternalLink>
 				</div>
 
-				<div className="mt-2 w-full text-right text-xs text-muted-foreground">
-					{t("version")}{" "}
-					<span className="font-bold">{import.meta.env.VITE_APP_VERSION}</span>
-					{" – "}
-					{pwa.refreshNeeded ?
-						<span className="font-bold">Update available, see above</span>
-					:	<Button
-							variant="link"
-							size="sm"
-							className="mt-0.5 h-fit p-0 text-xs font-bold text-blue-600 hover:no-underline disabled:opacity-100 dark:text-info"
-							disabled={checkForUpdateLoading}
-							onClick={() => {
-								setCheckForUpdateLoading(true);
-								setTimeout(() => setCheckForUpdateLoading(false), 2500);
-								pwa.update?.();
-							}}
-						>
-							<div className={cn(checkForUpdateLoading && "opacity-15")}>
-								Check for updates
-							</div>
+				<div className="mt-3 flex w-full items-center justify-end gap-2 text-xs text-muted-foreground">
+					<span>
+						{t("version")} <span className="font-bold">{pwa.version}</span>
+					</span>
 
-							<LucideLoader2
-								className={cn(
-									"absolute",
-									!checkForUpdateLoading && "invisible",
-									checkForUpdateLoading && "animate-spin",
-								)}
-							/>
-						</Button>
-					}
+					<span className="font-bold text-muted-foreground">·</span>
+
+					<ButtonStatus
+						variant="link"
+						size="sm"
+						className="h-fit max-w-48 text-wrap p-0 text-xs font-bold text-muted-foreground hover:no-underline"
+						disabled={newFeaturesReloading}
+						loading={checkForUpdatesLoading || updateReloading}
+						onClick={() => {
+							if (pwa.refreshReady) {
+								setUpdateReloading(true);
+								pwa.refresh?.();
+							} else {
+								setCheckForUpdatesLoading(true);
+								pwa.checkForNewVersion();
+								setTimeout(() => setCheckForUpdatesLoading(false), 2500);
+							}
+						}}
+					>
+						{pwa.refreshReady ?
+							"Update available, finish your game and click here to update"
+						:	"Check for updates"}
+					</ButtonStatus>
 				</div>
 			</SheetContent>
 		</Sheet>

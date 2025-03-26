@@ -4,7 +4,7 @@ import { HeaderMenu } from "./HeaderMenu";
 import { ThemeSelector } from "./ThemeSelector";
 
 export const SiteHeader = () => {
-	const { t } = useTranslation(["siteHeader"]);
+	const { t } = useTranslation("siteHeader");
 
 	return (
 		<header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm">

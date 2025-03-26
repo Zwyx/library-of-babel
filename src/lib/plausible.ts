@@ -1,4 +1,4 @@
-import { domain, pwa, redactUrl } from "./analytics";
+import { pwa, redactUrl } from "./analytics";
 
 // This is a simplified version of Plausible's script, made to avoid loading
 // third-party scripts and ensure we never send any IDs or encryption keys
@@ -9,7 +9,6 @@ export const initPlausible = () => {
 
 	if (
 		!import.meta.env.PROD ||
-		!domain ||
 		!apiUrl ||
 		/^localhost$|^127(\.[0-9]+){0,2}\.[0-9]+$|^\[::1?\]$/.test(
 			location.hostname,
@@ -32,9 +31,9 @@ export const initPlausible = () => {
 		const payload = {
 			n: eventName,
 			u: `${redactedHref}${redactedHref.includes("?") ? "&" : "?"}utm_medium=${pwa}&utm_campaign=${appVersion}`,
-			d: domain,
+			d: location.host,
 			r:
-				document.referrer.includes(domain) ?
+				document.referrer.includes(location.host) ?
 					redactUrl(document.referrer)
 				:	document.referrer.split("?")[0].split("#")[0] || null,
 		};

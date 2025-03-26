@@ -7,7 +7,7 @@ import { fr } from "./locales/fr";
 export const resources = {
 	en,
 	fr,
-} as const;
+};
 
 export type I18nLocaleCode = keyof typeof resources;
 
@@ -16,7 +16,11 @@ const isLocaleCode = (value: unknown): value is I18nLocaleCode =>
 
 const storedLocaleCode = localStorage.getItem(LOCALE_KEY);
 
-void i18n.use(initReactI18next).init({
+i18n.on("languageChanged", (lng) => {
+	document.documentElement.lang = lng;
+});
+
+i18n.use(initReactI18next).init({
 	// debug: true,
 	lng: isLocaleCode(storedLocaleCode) ? storedLocaleCode : navigator.language,
 	fallbackLng: "en",

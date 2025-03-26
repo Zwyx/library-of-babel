@@ -1,4 +1,4 @@
-import { domain, pwa, redactUrl } from "./analytics";
+import { pwa, redactUrl } from "./analytics";
 import { getUrl } from "./utils";
 
 // This is a simplified version of Sentry's client SDK,
@@ -132,7 +132,7 @@ export const sendToSentry = (
 						url: redactUrl(location.href),
 						headers: {
 							Referer:
-								document.referrer.includes(domain) ?
+								document.referrer.includes(location.host) ?
 									redactUrl(document.referrer)
 								:	document.referrer.split("?")[0].split("#")[0],
 							"User-Agent": navigator.userAgent,

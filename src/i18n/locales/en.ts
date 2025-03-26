@@ -9,6 +9,7 @@ export const en = {
 
 	languageSelector: {
 		chooseLanguage: "Choose language",
+		language: "Language",
 	},
 
 	siteHeader: {
@@ -22,6 +23,6 @@ export const en = {
 		sameAsDevice: "Same as device",
 		theme: "Theme",
 	},
-} as const;
+};
 
 export type I18nLocale = DeepReplace<typeof en, [string, string]>;

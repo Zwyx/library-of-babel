@@ -1,5 +1,3 @@
-export const domain = import.meta.env.VITE_DOMAIN;
-
 export const pwa =
 	document.referrer.startsWith("android-app://") ? "twa"
 	: window.matchMedia("(display-mode: standalone)").matches ? "standalone"

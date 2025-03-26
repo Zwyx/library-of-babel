@@ -53,13 +53,16 @@ interface SheetContentProps
 
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
-  SheetContentProps
->(({ side = "right", className, children, ...props }, ref) => (
+  // Added `noDescription`
+  SheetContentProps & { noDescription?: boolean }
+>(({ side = "right", className, noDescription, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content
       ref={ref}
       className={cn(sheetVariants({ side }), className)}
+      // `aria-describedby` is to prevent a warning from Radix when `SheetContent` doesn't contain a `SheetDescription`
+      {...(noDescription ? { "aria-describedby": undefined } : {})}
       {...props}
     >
       {children}

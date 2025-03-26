@@ -16,12 +16,12 @@
 
 		/* Linting */
 		"strict": true,
-		// "noUncheckedIndexedAccess": true,
+		// "noUncheckedIndexedAccess": true, // See note in `.eslintrc.cjs`
 
 		"paths": {
-			"@/*": ["./src/*"],
-		},
+			"@/*": ["./src/*"]
+		}
 	},
 	"include": ["src"],
-	"references": [{ "path": "./tsconfig.node.json" }],
+	"references": [{ "path": "./tsconfig.node.json" }]
 }
