@@ -9,6 +9,7 @@ export const fr: I18nLocale = {
 
 	languageSelector: {
 		chooseLanguage: "Choisir la langue",
+		language: "Langue",
 	},
 
 	siteHeader: {
@@ -22,4 +23,4 @@ export const fr: I18nLocale = {
 		sameAsDevice: "Identique à l'appareil",
 		theme: "Thème",
 	},
-} as const;
+};

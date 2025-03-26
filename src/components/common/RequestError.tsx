@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ButtonLoading } from "./ButtonLoading";
+import { ButtonStatus } from "./ButtonStatus";
 import { RequestErrorType } from "./RequestError.const";
 
 export const RequestError = ({
@@ -34,14 +34,14 @@ export const RequestError = ({
 			</div>
 
 			{type === "network-error" && (
-				<ButtonLoading
+				<ButtonStatus
 					className="mt-4"
 					variant="outline"
 					loading={loading}
 					onClick={onRetryClick}
 				>
 					Try again
-				</ButtonLoading>
+				</ButtonStatus>
 			)}
 		</div>
 	);

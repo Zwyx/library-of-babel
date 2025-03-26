@@ -45,7 +45,8 @@
 	"cSpell.overrides": [
 		{
 			"filename": "src/i18n/locales/fr.ts",
-			"language": "fr-90"
+			"language": "fr-90",
+			"words": []
 		}
 	]
 }

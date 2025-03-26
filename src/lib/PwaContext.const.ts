@@ -4,10 +4,12 @@ import { Dispatch, createContext, useContext } from "react";
 
 export const PwaContext = createContext<
 	| {
-			update: (() => Promise<void>) | undefined;
-			refreshNeeded: boolean;
-			refreshNeededAcknowledged: boolean;
-			setRefreshNeededAcknowledged: Dispatch<boolean>;
+			version: string;
+			refreshReady: boolean;
+			newMajorVersionReady: boolean;
+			newMajorVersionAcknowledged: boolean;
+			setNewMajorVersionAcknowledged: Dispatch<boolean>;
+			checkForNewVersion: () => void;
 			refresh: (() => Promise<void>) | undefined;
 	  }
 	| undefined

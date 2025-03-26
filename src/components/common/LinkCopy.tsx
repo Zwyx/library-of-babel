@@ -1,8 +1,7 @@
 import { cn, copyToClipboard } from "@/lib/utils";
 import { useRef, useState } from "react";
-import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { SuccessWrapper } from "./SuccessWrapper";
+import { ButtonStatus } from "./ButtonStatus";
 
 export const LinkCopy = ({
 	className,
@@ -27,22 +26,21 @@ export const LinkCopy = ({
 				onFocus={() => inputRef.current?.select()}
 			/>
 
-			<SuccessWrapper showSuccess={showCopySuccess}>
-				<Button
-					className="shrink-0 rounded-bl-none rounded-tl-none border"
-					variant="secondary"
-					onClick={() =>
-						copyToClipboard(link).then(() => {
-							if (!showCopySuccess) {
-								setShowCopySuccess(true);
-								setTimeout(() => setShowCopySuccess(false), 2000);
-							}
-						})
-					}
-				>
-					{buttonLabel}
-				</Button>
-			</SuccessWrapper>
+			<ButtonStatus
+				variant="secondary"
+				className="shrink-0 rounded-bl-none rounded-tl-none border"
+				success={showCopySuccess}
+				onClick={() =>
+					copyToClipboard(link).then(() => {
+						if (!showCopySuccess) {
+							setShowCopySuccess(true);
+							setTimeout(() => setShowCopySuccess(false), 2000);
+						}
+					})
+				}
+			>
+				{buttonLabel}
+			</ButtonStatus>
 		</div>
 	);
 };

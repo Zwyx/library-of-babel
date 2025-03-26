@@ -1,5 +1,9 @@
 // Was extracted from the main file for React Refresh (see ESLint `react-refresh/only-export-components`)
 
+// Note: see the Detrak project for a more recent version of HistoryState,
+// which merges the new state with the current one to make it usable by multiple components
+// simultaneously without conflicts.
+
 import { useCallback } from "react";
 import {
 	Location,

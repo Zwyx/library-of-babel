@@ -21,7 +21,7 @@ export const ExternalLink = ({
 		>
 			<span className="font-semibold">{children}</span>
 			{showIcon && (
-				<LucideExternalLink className="h-[0.75rem] w-[0.75rem] stroke-[2.5]" />
+				<LucideExternalLink className="ml-0.5 h-[0.75rem] w-[0.75rem] stroke-[2.5]" />
 			)}
 		</a>
 	);

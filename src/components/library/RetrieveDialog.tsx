@@ -57,7 +57,7 @@ export const RetrieveDialog = ({
 	onShareDataReady: (data: ShareData) => void;
 }) => {
 	const navigate = useNavigate();
-	const { update, refreshNeeded, refresh } = usePwaContext();
+	const pwa = usePwaContext();
 
 	const firstRender = useRef<boolean>(true);
 	const [open, setOpen] = useState<boolean>(true);
@@ -139,10 +139,12 @@ export const RetrieveDialog = ({
 			setView("invalid-link");
 		} else if (onetimeLink) {
 			setView("app-version-check");
+			pwa.checkForNewVersion.call(undefined); // Using `.call` to prevent warning on the dependency array
+			setTimeout(() => setView("delete-confirmation"), 5000);
 		} else {
 			retrieveData();
 		}
-	}, [id, onetimeLink, retrieveData]);
+	}, [id, onetimeLink, retrieveData, pwa.checkForNewVersion]);
 
 	useEffect(() => {
 		// When `onShareDataReady` is called, the parent rerenders, which updates `onShareDataReady`,
@@ -165,25 +167,16 @@ export const RetrieveDialog = ({
 	}, [checkData]);
 
 	useEffect(() => {
-		if (view === "app-version-check" && update) {
-			update().then(() =>
-				// I'm not really happy with this potential race condition,
-				// but I haven't found a way to use the object returned by `update`
-				// to know if a new version is available
-				setTimeout(() => setView("delete-confirmation"), 5000),
-			);
-		}
-	}, [view, update]);
-
-	useEffect(() => {
 		if (
 			(view === "app-version-check" || view === "delete-confirmation") &&
-			refreshNeeded &&
-			refresh
+			pwa.refreshReady
 		) {
-			setTimeout(refresh, view === "app-version-check" ? 1000 : 0);
+			setTimeout(
+				() => pwa.refresh?.call(undefined), // Using `.call` to prevent warning on the dependency array
+				view === "app-version-check" ? 1000 : 0,
+			);
 		}
-	}, [view, refreshNeeded, refresh]);
+	}, [view, pwa.refreshReady, pwa.refresh]);
 
 	const onDecryptClick = () => {
 		if (!encryptedData.current) {
@@ -312,13 +305,13 @@ export const RetrieveDialog = ({
 							<OperationStatusGroup className="mt-2">
 								<OperationStatus
 									label={
-										refreshNeeded ? "New version available, updating"
+										pwa.refreshReady ? "New version available, updating"
 										: view === "app-version-check" ?
 											"Checking for new app version"
 										:	"Your app is up to date"
 									}
 									status={
-										view === "app-version-check" || refreshNeeded ?
+										view === "app-version-check" || pwa.refreshReady ?
 											"running"
 										:	"success"
 									}
@@ -328,7 +321,7 @@ export const RetrieveDialog = ({
 							<Button
 								className="mt-2 sm:mx-auto sm:w-fit"
 								variant="destructive"
-								disabled={view !== "delete-confirmation" || refreshNeeded}
+								disabled={view !== "delete-confirmation" || pwa.refreshReady}
 								onClick={retrieveData}
 							>
 								Confirm retrieval and deletion

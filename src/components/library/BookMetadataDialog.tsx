@@ -14,11 +14,11 @@ import { encode } from "fast-png";
 import { LucideHelpCircle } from "lucide-react";
 import { equals } from "ramda";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ButtonStatus } from "../common/ButtonStatus";
 import { Code } from "../common/Code";
 import { HighCapacityTextarea } from "../common/HighCapacityTextarea";
 import { SmallAlert } from "../common/SmallAlert";
 import { SourceChangedAlert } from "../common/SourceChangedAlert";
-import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Input } from "../ui/input";
 import { AboutDialogLink } from "./about/AboutDialog";
 
@@ -233,15 +233,14 @@ export const BookMetadataDialog = ({
 
 						<div className="flex-1" />
 
-						<SuccessWrapper showSuccess={showCopySuccess === "bookId"}>
-							<Button
-								variant="ghost"
-								size="sm"
-								onClick={() => copyOrSave("bookId", "copy")}
-							>
-								Copy
-							</Button>
-						</SuccessWrapper>
+						<ButtonStatus
+							variant="ghost"
+							size="sm"
+							success={showCopySuccess === "bookId"}
+							onClick={() => copyOrSave("bookId", "copy")}
+						>
+							Copy
+						</ButtonStatus>
 
 						<Button
 							variant="ghost"
@@ -350,15 +349,14 @@ export const BookMetadataDialog = ({
 						<div className="flex flex-1 justify-end">
 							{!dimensionsTooSmall && (
 								<>
-									<SuccessWrapper showSuccess={showCopySuccess === "image"}>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => copyOrSave("image", "copy")}
-										>
-											Copy
-										</Button>
-									</SuccessWrapper>
+									<ButtonStatus
+										variant="ghost"
+										size="sm"
+										success={showCopySuccess === "image"}
+										onClick={() => copyOrSave("image", "copy")}
+									>
+										Copy
+									</ButtonStatus>
 
 									<Button
 										variant="ghost"

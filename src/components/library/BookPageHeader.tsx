@@ -13,7 +13,7 @@ import {
 } from "@/lib/local-storage-keys";
 import { LucideMoreHorizontal } from "lucide-react";
 import { useLocalStorage, useWindowSize } from "usehooks-ts";
-import { ButtonLoading } from "../common/ButtonLoading";
+import { ButtonStatus } from "../common/ButtonStatus";
 import { SuccessWrapper } from "../common/SuccessWrapper";
 import { Button } from "../ui/button";
 
@@ -67,7 +67,7 @@ export const BookPageHeader = ({
 
 			<div className="flex-1" />
 
-			<ButtonLoading
+			<ButtonStatus
 				className="mb-1"
 				variant="ghost"
 				size="sm"
@@ -76,9 +76,9 @@ export const BookPageHeader = ({
 				onClick={onGetBookMetadataClick}
 			>
 				Get book info
-			</ButtonLoading>
+			</ButtonStatus>
 
-			<ButtonLoading
+			<ButtonStatus
 				className="mb-1"
 				variant="ghost"
 				size="sm"
@@ -87,7 +87,7 @@ export const BookPageHeader = ({
 				onClick={onShareClick}
 			>
 				Share
-			</ButtonLoading>
+			</ButtonStatus>
 
 			<DropdownMenu>
 				<SuccessWrapper showSuccess={showCopySuccess}>

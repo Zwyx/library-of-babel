@@ -13,7 +13,7 @@ import { LucideMoon, LucideSunMedium } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 export const ThemeSelector = () => {
-	const { t } = useTranslation(["themeSelector"]);
+	const { t } = useTranslation("themeSelector");
 
 	const { themeChoice, updateThemeChoice } = useThemeContext();
 
