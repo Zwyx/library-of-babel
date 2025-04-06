@@ -1,6 +1,6 @@
-export const pwa =
+export const appMode =
 	document.referrer.startsWith("android-app://") ? "twa"
-	: window.matchMedia("(display-mode: standalone)").matches ? "standalone"
+	: window.matchMedia("(display-mode: standalone)").matches ? "pwa"
 	: "browser";
 
 const SAFE_PATHNAMES = ["/", "/intro", "/browse", "/search", "/random"];

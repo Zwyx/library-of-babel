@@ -1,4 +1,4 @@
-import { pwa, redactUrl } from "./analytics";
+import { appMode, redactUrl } from "./analytics";
 import { getUrl } from "./utils";
 
 // This is a simplified version of Sentry's client SDK,
@@ -127,7 +127,7 @@ export const sendToSentry = (
 					timestamp: Date.now() / 1000,
 					environment: import.meta.env.VITE_ENVIRONMENT,
 					release: import.meta.env.VITE_APP_VERSION,
-					tags: { pwa },
+					tags: { appMode },
 					request: {
 						url: redactUrl(location.href),
 						headers: {
