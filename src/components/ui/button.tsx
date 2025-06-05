@@ -27,7 +27,7 @@ const buttonVariants = cva(
         default: "h-10 px-4 py-2",
         "2xs": "h-5 rounded-sm px-1", // custom
         xs: "h-7 rounded-sm px-3", // custom
-        sm: "h-9 rounded-md px-3",
+        sm: "h-9 rounded-md px-3 py-2", // Added `py-2` to prevent the button from being squished in a vertical flexbox with scroll
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
       },
