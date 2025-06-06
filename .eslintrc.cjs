@@ -60,6 +60,9 @@ module.exports = {
 		// Disallow `new` operators with the `Function` object, as this is similar to `eval()`; if necessary, use `// eslint-disable-next-line no-new-func` where it's needed
 		"no-new-func": "warn",
 
+		// Disallow reassigning function parameters
+		"no-param-reassign": "warn",
+
 		// Disallow ternary operators when simpler alternatives exist; example: prevent `const x = y === 1 ? true : false` in favour of `const x = y === 1`
 		"no-unneeded-ternary": "warn",
 
