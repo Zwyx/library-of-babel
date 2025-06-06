@@ -20,6 +20,7 @@ import { useHistoryState } from "@/lib/useHistoryState.const";
 import { LucideMenu } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AlertFrame } from "./common/AlertFrame";
 import { ButtonStatus } from "./common/ButtonStatus";
 import { Code } from "./common/Code";
 import { ExternalLink } from "./common/ExternalLink";
@@ -106,13 +107,10 @@ export const HeaderMenu = () => {
 				</SheetHeader>
 
 				{pwa.newMajorVersionReady && (
-					<div className="mt-2 flex w-full flex-col items-center gap-1 rounded-md border border-info bg-info/10 p-2">
-						<div className="w-full">New features available</div>
-
-						<div className="w-full text-sm text-muted-foreground">
-							Save your changes then reload the app to update.
-						</div>
-
+					<AlertFrame
+						title="New features available"
+						description="Save your changes then reload the app to update."
+					>
 						<ButtonStatus
 							size="sm"
 							className="m-1"
@@ -125,7 +123,7 @@ export const HeaderMenu = () => {
 						>
 							Reload
 						</ButtonStatus>
-					</div>
+					</AlertFrame>
 				)}
 
 				<div className="mt-4 flex flex-col gap-3">
