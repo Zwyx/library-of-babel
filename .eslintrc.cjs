@@ -63,6 +63,15 @@ module.exports = {
 		// Disallow reassigning function parameters
 		"no-param-reassign": "warn",
 
+		// "no-restricted-syntax": [
+		// 	"warn",
+		// 	{
+		// 		// "selector": ":not(BinaryExpression:matches([operator='!=='], [operator='==='])) > Literal[value=null]",
+		// 		selector: "Literal[value=null]",
+		// 		message: "Don't use 'null', use 'undefined'.",
+		// 	},
+		// ],
+
 		// Disallow ternary operators when simpler alternatives exist; example: prevent `const x = y === 1 ? true : false` in favour of `const x = y === 1`
 		"no-unneeded-ternary": "warn",
 
@@ -92,16 +101,23 @@ module.exports = {
 		"no-shadow": "off",
 		"@typescript-eslint/no-shadow": "warn",
 
+		// Type-checked rules disabled – see above
+		// Disallow certain types in boolean expressions
+		// "@typescript-eslint/strict-boolean-expressions": [
+		// 	"warn",
+		// 	{ allowNullableBoolean: true },
+		// ],
+
 		// ---------- React ----------
+
+		// TODO: remove this deactivation after translations are ready
+		"react/no-unescaped-entities": "off",
 
 		// Ensure React component can be updated with fast refresh
 		"react-refresh/only-export-components": [
 			"warn",
 			{ allowConstantExport: true },
 		],
-
-		// TODO: remove this deactivation after translations are ready
-		"react/no-unescaped-entities": "off",
 
 		// ---------- i18next ----------
 
