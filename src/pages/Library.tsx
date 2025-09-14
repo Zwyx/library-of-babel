@@ -49,8 +49,7 @@ type BookMetadataPurpose = "book-info" | "share";
 
 export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const { id } = useParams();
-	const [searchParams] = useSearchParams();
-	const search = searchParams.get("q");
+	const [searchParams, setSearchParams] = useSearchParams();
 	const deletion = searchParams.get("delete") === "";
 	const { hash } = useLocation();
 
@@ -63,7 +62,11 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 	const [bookId, setBookId] = useState<string>("");
 	const [bookImageDimensions, setBookImageDimensions] =
 		useState<BookImageDimensions>();
-	const [searchText, setSearchText] = useState<string>(search ?? "");
+
+	// `q` is not synced with the URL on purpose, to prevent users from sharing links this way thinking it's end-to-end encrypted
+	const [searchText, setSearchText] = useState<string>(
+		searchParams.get("q") ?? "",
+	);
 
 	const bookIdChanged = useRef<boolean>(false);
 	const bookImageChanged = useRef<boolean>(false);
@@ -296,10 +299,17 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 
 		firstRender.current = false;
 
-		if (search) {
+		if (searchParams.get("q")) {
 			getBook();
+
+			setSearchParams((prevSearchParams) => {
+				prevSearchParams.delete("q");
+				return prevSearchParams;
+			});
+
+			textareaRef.current?.setSelectionRange(-1, -1);
 		}
-	}, [search, getBook]);
+	}, [searchParams, setSearchParams, getBook]);
 
 	useEffect(() => {
 		worker.addEventListener("message", onWorkerMessage);
@@ -429,7 +439,7 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					pushStateOrNavigateBack(open, { invalidDataDialogOpen: true });
 
 					if (!open) {
-						// Ensures the textarea is accessible by our code
+						// `requestAnimationFrame` ensures the textarea is accessible by our code
 						requestAnimationFrame(() => textareaRef.current?.focus());
 					}
 				}}
