@@ -65,14 +65,15 @@ export const getReadableFileSize = (
 	const threshold = prefix === "binary" ? 1024 : 1000;
 	const prefixes = prefix === "binary" ? BINARY_PREFIXES : DECIMAL_PREFIXES;
 
+	let calcSize = size;
 	let i = 0;
 
-	while (Math.abs(size) >= threshold && i < prefixes.length) {
-		size /= threshold;
+	while (Math.abs(calcSize) >= threshold && i < prefixes.length) {
+		calcSize /= threshold;
 		++i;
 	}
 
-	const finalSize = i === 0 ? size : parseFloat(size.toFixed(1));
+	const finalSize = i === 0 ? calcSize : parseFloat(calcSize.toFixed(1));
 
 	return (
 		(language ? new Intl.NumberFormat(language).format(finalSize) : finalSize) +
