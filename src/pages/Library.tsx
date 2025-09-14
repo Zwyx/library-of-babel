@@ -389,7 +389,10 @@ export const Library = ({ mode }: { mode: LibraryMode }) => {
 					onKeyDown={(e) => {
 						if (e.key === "Enter" && !e.shiftKey) {
 							e.preventDefault();
-							getBook();
+
+							if (mode === "search" ? searchText : bookId) {
+								getBook();
+							}
 						}
 					}}
 				/>
