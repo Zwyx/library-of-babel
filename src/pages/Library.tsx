@@ -42,7 +42,7 @@ import {
 import { useHistoryState } from "@/lib/useHistoryState.const";
 import { copyToClipboard, saveToFile } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router";
 import { useLocalStorage } from "usehooks-ts";
 
 type BookMetadataPurpose = "book-info" | "share";

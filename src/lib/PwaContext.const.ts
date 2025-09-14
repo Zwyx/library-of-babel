@@ -10,6 +10,12 @@ export const PwaContext = createContext<
 			newMajorVersionAcknowledged: boolean;
 			setNewMajorVersionAcknowledged: Dispatch<boolean>;
 			checkForNewVersion: () => void;
+
+			/**
+			 * Note: the state's data of `useHistoryState` is preserved when using `refresh`,
+			 * which means that after the refresh, there might be data in the history state
+			 * that is incompatible with the new version of the app.
+			 */
 			refresh: (() => Promise<void>) | undefined;
 	  }
 	| undefined

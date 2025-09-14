@@ -1,6 +1,6 @@
 import { sendToSentry } from "@/lib/sentry";
 import { useEffect } from "react";
-import { useRouteError } from "react-router-dom";
+import { useRouteError } from "react-router";
 import { Button } from "../ui/button";
 
 export const RouteErrorElement = () => {

@@ -124,7 +124,7 @@ export const sendToSentry = (
 				JSON.stringify({
 					...eventPayload,
 					platform: "javascript",
-					timestamp: Date.now() / 1000,
+					timestamp: performance.now() / 1000,
 					environment: import.meta.env.VITE_ENVIRONMENT,
 					release: import.meta.env.VITE_APP_VERSION,
 					tags: { appMode },

@@ -11,7 +11,7 @@ import {
 import { PB_ID_REGEX, deleteFromPb } from "@/lib/pb";
 import { LucideAlertOctagon, LucideCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Code } from "../common/Code";
 import {
 	OperationStatus,

@@ -1,10 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import {
-	Navigate,
-	RouterProvider,
-	createBrowserRouter,
-} from "react-router-dom";
+import { Navigate, RouterProvider, createBrowserRouter } from "react-router";
 import { App } from "./App.tsx";
 import { RouteErrorElement } from "./components/error/RouteErrorElement.tsx";
 import "./i18n/i18n.ts";

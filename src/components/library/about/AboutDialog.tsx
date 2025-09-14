@@ -16,7 +16,7 @@ import {
 } from "@/lib/useHistoryState.const";
 import { cn } from "@/lib/utils";
 import { PropsWithChildren, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 import {
 	ABOUT,
 	ABOUT_DELIMITER,
@@ -97,11 +97,13 @@ export const AboutDialogIntro = ({
 		</p>
 
 		{showLearnMore && (
-			<AboutDialogLink
-				to={`?about=the-library${ABOUT_DELIMITER}${NO_HIGHLIGHT}`}
-			>
-				Learn more
-			</AboutDialogLink>
+			<Button asChild>
+				<AboutDialogLink
+					to={`?about=the-library${ABOUT_DELIMITER}${NO_HIGHLIGHT}`}
+				>
+					<div className="text-primary-foreground">Learn more</div>
+				</AboutDialogLink>
+			</Button>
 		)}
 	</>
 );
@@ -279,7 +281,7 @@ export const AboutDialog = ({
 							way to the beginning of the book) would be spaces. Then:
 						</p>
 
-						<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
+						<ul className="list-disc pl-8">
 							<li>
 								book index <Math>2</Math> would contain 1,311,999 spaces
 								followed by <Code>b</Code>,
@@ -328,7 +330,7 @@ export const AboutDialog = ({
 							the rest of the book consists of 1,311,999 spaces. Then:
 						</p>
 
-						<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
+						<ul className="list-disc pl-8">
 							<li>
 								book index <Math>2</Math> contains <Code>b</Code> followed by
 								1,311,999 spaces,
@@ -566,7 +568,7 @@ export const AboutDialog = ({
 						<div>
 							To represent a number containing 1,312,000 base-29 digits, we
 							need:
-							<ul className="ml-4 list-inside list-disc pl-4 indent-[-1.35rem]">
+							<ul className="list-disc pl-8">
 								<li>
 									<Math>1,312,000 * log(29) / log(2) = 6,373,672</Math> bits,
 									or,
