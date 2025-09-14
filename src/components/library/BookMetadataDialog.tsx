@@ -124,7 +124,7 @@ export const BookMetadataDialog = ({
 	]);
 
 	const drawBookImage = useCallback(() => {
-		// Ensures the canvas is accessible by our code
+		// `requestAnimationFrame` ensures the canvas is accessible by our code
 		requestAnimationFrame(() => {
 			if (!bookMetadata || dimensionsTooSmall) {
 				return;

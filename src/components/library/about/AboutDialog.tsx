@@ -128,7 +128,7 @@ export const AboutDialog = ({
 	const highlightedId = selectedId && !noHighlight ? selectedId : undefined;
 
 	useEffect(() => {
-		// Ensures the highlighted element is accessible by our code
+		// `requestAnimationFrame` ensures the highlighted element is accessible by our code
 		requestAnimationFrame(
 			() => selectedId && document.getElementById(selectedId)?.scrollIntoView(),
 		);
@@ -694,22 +694,30 @@ export const AboutDialog = ({
 								</ExternalLink>
 								,
 							</span>{" "}
-							has the narator stating that his father once saw a book consisting
-							of the letters <Code>M C V</Code> repeated from the first line to
-							the last. This seems to indicate that books might be ordered
-							randomly instead, otherwise there would be many very similar books
-							next to this one, and finding it wouldn't be like finding a needle
-							in a haystack. (Statistically though, finding such a repeating
-							pattern in randomly ordered books seems highly unlikely.)
+							has the narrator stating that his father once saw a book
+							consisting of the letters <Code>M C V</Code> repeated from the
+							first line to the last. This seems to indicate that books might be
+							ordered randomly instead, otherwise there would be many very
+							similar books next to this one, and finding it wouldn't be like
+							finding a needle in a haystack. (Statistically though, finding
+							such a repeating pattern in randomly ordered books seems highly
+							unlikely.)
 						</p>
 
 						<p>
 							We are most probably overthinking and pushing the concept further
 							than Jorge Luis Borges intended, so we can simply conclude that
-							the books order isn't explicitely mentioned in the novel, and that
+							the books order isn't explicitly mentioned in the novel, and that
 							some creators of digital Libraries of Babel have chosen to
 							consider the books ordered randomly, whereas I choose to consider
 							them ordered sequentially.
+						</p>
+
+						<p className="mt-2 text-sm font-semibold">Use as a search engine</p>
+
+						<p>
+							This app can be use as a custom search engine with the URL{" "}
+							<Code>{location.host}/search?q=%s</Code>.
 						</p>
 					</Section>
 				</div>
