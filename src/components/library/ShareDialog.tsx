@@ -317,6 +317,7 @@ export const ShareDialog = ({
 								Send decryption key separately
 							</Label>
 							<Switch
+								checked={sendDecryptionKeySeparately}
 								id="send-decryption-key-separately"
 								onCheckedChange={setSendDecryptionKeySeparately}
 							/>
