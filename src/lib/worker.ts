@@ -40,7 +40,7 @@ const getLastBookIndex = (): bigint => {
 };
 
 const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookId = rawBookId.replace(
 		new RegExp(`[^${BASE_94_ALPHABET_REGEX}]`, "g"),
@@ -53,13 +53,13 @@ const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
 
 	const bookIndex = fromBase94(bookId);
 
-	lg(`'getBookIndexFromBookId' took ${Date.now() - startTime}ms`);
+	lg(`'getBookIndexFromBookId' took ${performance.now() - startTime}ms`);
 
 	return bookIndex;
 };
 
 const getBookIndexFromBookImage = (bookImage: BookImageData): bigint | null => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookIndexHex = bookImage
 		.flatMap((value) => [
@@ -71,13 +71,13 @@ const getBookIndexFromBookImage = (bookImage: BookImageData): bigint | null => {
 
 	const bookIndex = fromBase16(bookIndexHex);
 
-	lg(`'getBookIndexFromBookImage' took ${Date.now() - startTime}ms`);
+	lg(`'getBookIndexFromBookImage' took ${performance.now() - startTime}ms`);
 
 	return bookIndex;
 };
 
 const getBookFromBookContent = (bookContent: string[]): Book => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const pages: Page[] = [];
 
@@ -98,35 +98,35 @@ const getBookFromBookContent = (bookContent: string[]): Book => {
 		}
 	}
 
-	lg(`'getBookFromBookContent' took ${Date.now() - startTime}ms`);
+	lg(`'getBookFromBookContent' took ${performance.now() - startTime}ms`);
 
 	return { pages };
 };
 
 const getBookFromBookIndex = (bookIndex: bigint): Book => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookContent = toBase29(bookIndex).split("").reverse();
 
 	const book = getBookFromBookContent(bookContent);
 
-	lg(`'getBookFromBookIndex' took ${Date.now() - startTime}ms`);
+	lg(`'getBookFromBookIndex' took ${performance.now() - startTime}ms`);
 
 	return book;
 };
 
 const getBookIdFromBookIndex = (bookIndex: bigint): string => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookId = toBase94(bookIndex);
 
-	lg(`'getBookIdFromBookIndex' took ${Date.now() - startTime}ms`);
+	lg(`'getBookIdFromBookIndex' took ${performance.now() - startTime}ms`);
 
 	return bookId;
 };
 
 const findBook = (searchText: string = "", numberOfPages: number): Book => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	let randomTextBefore = "";
 	let randomTextAfter = "";
@@ -157,7 +157,7 @@ const findBook = (searchText: string = "", numberOfPages: number): Book => {
 		`${randomTextBefore}${searchText}${randomTextAfter}`.split(""),
 	);
 
-	lg(`'findBook' took ${Date.now() - startTime}ms`);
+	lg(`'findBook' took ${performance.now() - startTime}ms`);
 
 	return {
 		...book,
@@ -169,7 +169,7 @@ const findBook = (searchText: string = "", numberOfPages: number): Book => {
 };
 
 const getBookIndexFromBook = (book: Book): bigint => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookIndexBase29 = book.pages
 		.reverse()
@@ -184,13 +184,13 @@ const getBookIndexFromBook = (book: Book): bigint => {
 
 	const bookIndex = fromBase29(bookIndexBase29);
 
-	lg(`'getBookIndexFromBook' took ${Date.now() - startTime}ms`);
+	lg(`'getBookIndexFromBook' took ${performance.now() - startTime}ms`);
 
 	return bookIndex;
 };
 
 const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const bookId = getBookIdFromBookIndex(bookIndex);
 
@@ -217,7 +217,7 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 	const shelfIndexInWallString = (shelfIndexInWall + 1n).toString();
 	const bookIndexInShelfString = (bookIndexInShelf + 1n).toString();
 
-	lg(`'getBookMetadataFromBookIndex' took ${Date.now() - startTime}ms`);
+	lg(`'getBookMetadataFromBookIndex' took ${performance.now() - startTime}ms`);
 
 	return {
 		bookId,
@@ -230,7 +230,7 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 };
 
 onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	const operation = data.operation;
 	let result: MessageFromWorker;
@@ -357,7 +357,7 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 		};
 	}
 
-	lg(`operation '${operation}' took ${Date.now() - startTime}ms`);
+	lg(`operation '${operation}' took ${performance.now() - startTime}ms`);
 
 	postMessage(result);
 };

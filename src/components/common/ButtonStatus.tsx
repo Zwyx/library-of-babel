@@ -1,23 +1,28 @@
 import { cn } from "@/lib/utils";
 import { LucideLoader2 } from "lucide-react";
+import { Ref, forwardRef } from "react";
 import { Button, ButtonProps } from "../ui/button";
 import "./ButtonStatus.css";
 
-export const ButtonStatus = ({
-	className,
-	disabled,
-	loading,
-	success,
-	children,
-	...props
-}: {
-	loading?: boolean;
-	success?: boolean;
-} & ButtonProps) => {
+export const ButtonStatus = forwardRef(function ButtonStatus(
+	{
+		className,
+		disabled,
+		loading,
+		success,
+		children,
+		...props
+	}: {
+		loading?: boolean;
+		success?: boolean;
+	} & ButtonProps,
+	ref: Ref<HTMLButtonElement>,
+) {
 	const hideChildren = loading || success;
 
 	return (
 		<Button
+			ref={ref}
 			className={cn("relative", success && "disabled:opacity-100", className)}
 			disabled={disabled || hideChildren}
 			{...props}
@@ -50,4 +55,4 @@ export const ButtonStatus = ({
 			</svg>
 		</Button>
 	);
-};
+});

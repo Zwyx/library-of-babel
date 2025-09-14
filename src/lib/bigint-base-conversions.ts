@@ -25,7 +25,7 @@ import { lg } from "@/lib/utils";
 // };
 
 const toBase = (value: bigint, base: bigint, alphabet: string): string => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	let result = "";
 
@@ -81,13 +81,13 @@ const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 
 	result = result.replace(new RegExp(`^${alphabet[0]}*`), "");
 
-	lg(`'toBase' took ${Date.now() - startTime}ms`);
+	lg(`'toBase' took ${performance.now() - startTime}ms`);
 
 	return result;
 };
 
 const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
-	const startTime = Date.now();
+	const startTime = performance.now();
 
 	// let result = 0n;
 	//
@@ -148,7 +148,7 @@ const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
 
 	const result = parts[0][0] * parts[1][1] + parts[1][0];
 
-	lg(`'fromBase' took ${Date.now() - startTime}ms`);
+	lg(`'fromBase' took ${performance.now() - startTime}ms`);
 
 	return result;
 };

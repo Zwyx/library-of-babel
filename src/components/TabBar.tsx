@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PB_ID_REGEX } from "@/lib/pb";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const tabs = [
 	{ path: "browse", label: "Browse" },

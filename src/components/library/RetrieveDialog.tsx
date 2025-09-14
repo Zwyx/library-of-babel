@@ -25,7 +25,7 @@ import { PB_ID_REGEX, Progress, getFromPb } from "@/lib/pb";
 import { cn, sleep } from "@/lib/utils";
 import { LucideAlertOctagon, LucideAlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
 	OperationStatus,
 	OperationStatusGroup,
@@ -279,12 +279,7 @@ export const RetrieveDialog = ({
 								</AlertTitle>
 
 								<AlertDescription>
-									<ul
-										className={cn(
-											"list-inside",
-											!key && "ml-4 list-disc pl-4 indent-[-1.15rem]",
-										)}
-									>
+									<ul className={cn(!key && "list-disc pl-8")}>
 										<li>
 											The book shared with this link can be retrieved only once.
 											It will be deleted once retrieved and only viewable on

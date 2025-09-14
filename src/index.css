@@ -90,9 +90,14 @@
 	* {
 		@apply border-border;
 	}
+
+	:root,
+	body {
+		overscroll-behavior-y: contain;
+	}
+
 	body {
 		@apply bg-background text-foreground;
-		overscroll-behavior-y: none;
 	}
 }
 

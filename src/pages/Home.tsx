@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { OutletContext } from "@/lib/common";
 import { cn } from "@/lib/utils";
-import { Link, useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router";
 
 export const Home = () => {
 	const { lastLibraryModeCheckDone } = useOutletContext<OutletContext>();

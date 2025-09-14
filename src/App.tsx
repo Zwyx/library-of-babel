@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Outlet, useLocation, useSearchParams } from "react-router-dom";
+import { Outlet, useLocation, useSearchParams } from "react-router";
 import { SiteHeader } from "./components/SiteHeader";
 import { TabBar } from "./components/TabBar";
 import { WorkersAlert } from "./components/WorkersAlert";
@@ -15,7 +15,8 @@ import {
 export const App = () => {
 	const { pathname, search } = useLocation();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const { state, navigate } = useHistoryState<HistoryStateUserAction>();
+	const { state, navigateTo, navigateBack } =
+		useHistoryState<HistoryStateUserAction>();
 
 	const [lastLibraryModeCheckDone, setLastLibraryModeCheckDone] =
 		useState<boolean>(false);
@@ -33,12 +34,12 @@ export const App = () => {
 			const lastLibraryMode = localStorage.getItem(LAST_LIBRARY_MODE_KEY);
 
 			if (isLibraryMode(lastLibraryMode)) {
-				navigate(lastLibraryMode, { replace: true });
+				navigateTo(lastLibraryMode, { replace: true });
 			}
 		}
 
 		setLastLibraryModeCheckDone(true);
-	}, [pathname, search, navigate]);
+	}, [pathname, search, navigateTo]);
 
 	const outletContext: OutletContext = { lastLibraryModeCheckDone };
 
@@ -62,7 +63,7 @@ export const App = () => {
 					open={typeof searchParams.get(ABOUT) === "string"}
 					onOpenChange={() => {
 						if (state.userAction) {
-							navigate(-1);
+							navigateBack();
 						} else {
 							searchParams.delete(ABOUT);
 							setSearchParams(searchParams, { replace: true });
