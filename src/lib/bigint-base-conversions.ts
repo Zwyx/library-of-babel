@@ -10,6 +10,73 @@ import {
 } from "@/lib/common";
 import { lg } from "@/lib/utils";
 
+const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
+	const startTime = performance.now();
+
+	// let result = 0n;
+	//
+	// Successive multiplications method; 30s for 500,000 random digits from base 10, compared to 100ms for BigInt
+	// for (let i = 0; i < text.length; i++) {
+	// 	result = result * base + BigInt(alphabet.indexOf(text.charAt(i)));
+	// }
+	//
+	// Digit power method; much slower that successive multiplications
+	// for (let i = text.length - 1; i >= 0; i--) {
+	// 	result +=
+	// 		BigInt(alphabet.indexOf(text.charAt(i))) *
+	// 		base ** BigInt(text.length - 1 - i);
+	// }
+	//
+	// Multiplier increase method; also slow
+	// let multiplier = 1n;
+	// for (let i = text.length - 1; i >= 0; i--) {
+	// 	result += BigInt(alphabet.indexOf(text.charAt(i))) * multiplier;
+	// 	multiplier *= base;
+	// }
+	// return result;
+
+	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10,
+	// just slightly slower than native BigInt
+	// https://github.com/v8/v8/blob/main/src/bigint/fromstring.cc
+	// https://zwyx.dev/blog/base-conversions-with-big-numbers-in-javascript
+
+	let parts = (text || " ")
+		.split("")
+		.map((part) => [BigInt(alphabet.indexOf(part)), base]);
+
+	if (parts.length === 1) {
+		return parts[0][0];
+	}
+
+	let pairFull: boolean;
+
+	while (parts.length > 2) {
+		pairFull = false;
+		parts = parts.reduce<bigint[][]>((acc, cur, i) => {
+			if (!pairFull) {
+				if (i === parts.length - 1) {
+					acc.push(cur);
+				} else {
+					acc.push([
+						cur[0] * parts[i + 1][1] + parts[i + 1][0],
+						cur[1] * parts[i + 1][1],
+					]);
+					pairFull = true;
+				}
+			} else {
+				pairFull = false;
+			}
+			return acc;
+		}, []);
+	}
+
+	const result = parts[0][0] * parts[1][1] + parts[1][0];
+
+	lg(`'fromBase' took ${performance.now() - startTime}ms`);
+
+	return result;
+};
+
 // Could be used in `toBase` to get the number of bits of the `value` argument,
 // but because we have to do `value.toString(2)`, it isn't more performant
 // than just doing `value.toString(2).length`
@@ -86,72 +153,14 @@ const toBase = (value: bigint, base: bigint, alphabet: string): string => {
 	return result;
 };
 
-const fromBase = (text: string, base: bigint, alphabet: string): bigint => {
-	const startTime = performance.now();
+export const fromBase16 = (text: string) =>
+	fromBase(text, BASE_16_BIGINT, BASE_16_ALPHABET);
 
-	// let result = 0n;
-	//
-	// Successive multiplications method; 30s for 500,000 random digits from base 10, compared to 100ms for BigInt
-	// for (let i = 0; i < text.length; i++) {
-	// 	result = result * base + BigInt(alphabet.indexOf(text.charAt(i)));
-	// }
-	//
-	// Digit power method; much slower that successive multiplications
-	// for (let i = text.length - 1; i >= 0; i--) {
-	// 	result +=
-	// 		BigInt(alphabet.indexOf(text.charAt(i))) *
-	// 		base ** BigInt(text.length - 1 - i);
-	// }
-	//
-	// Multiplier increase method; also slow
-	// let multiplier = 1n;
-	// for (let i = text.length - 1; i >= 0; i--) {
-	// 	result += BigInt(alphabet.indexOf(text.charAt(i))) * multiplier;
-	// 	multiplier *= base;
-	// }
-	// return result;
+export const fromBase29 = (text: string) =>
+	fromBase(text, BASE_29_BIGINT, BASE_29_ALPHABET);
 
-	// Pairing algorithm, taken from V8's source code; 120ms for 500,000 random digits from base 10,
-	// just slightly slower than native BigInt
-	// https://github.com/v8/v8/blob/main/src/bigint/fromstring.cc
-	// https://zwyx.dev/blog/base-conversions-with-big-numbers-in-javascript
-
-	let parts = (text || " ")
-		.split("")
-		.map((part) => [BigInt(alphabet.indexOf(part)), base]);
-
-	if (parts.length === 1) {
-		return parts[0][0];
-	}
-
-	let pairFull: boolean;
-
-	while (parts.length > 2) {
-		pairFull = false;
-		parts = parts.reduce<bigint[][]>((acc, cur, i) => {
-			if (!pairFull) {
-				if (i === parts.length - 1) {
-					acc.push(cur);
-				} else {
-					acc.push([
-						cur[0] * parts[i + 1][1] + parts[i + 1][0],
-						cur[1] * parts[i + 1][1],
-					]);
-					pairFull = true;
-				}
-			} else {
-				pairFull = false;
-			}
-			return acc;
-		}, []);
-	}
-
-	const result = parts[0][0] * parts[1][1] + parts[1][0];
-
-	lg(`'fromBase' took ${performance.now() - startTime}ms`);
-
-	return result;
-};
+export const fromBase94 = (text: string) =>
+	fromBase(text, BASE_94_BIGINT, BASE_94_ALPHABET);
 
 export const toBase10 = (value: bigint) =>
 	toBase(value, BASE_10_BIGINT, BASE_10_ALPHABET);
@@ -161,12 +170,3 @@ export const toBase29 = (value: bigint) =>
 
 export const toBase94 = (value: bigint) =>
 	toBase(value, BASE_94_BIGINT, BASE_94_ALPHABET);
-
-export const fromBase16 = (text: string) =>
-	fromBase(text, BASE_16_BIGINT, BASE_16_ALPHABET);
-
-export const fromBase29 = (text: string) =>
-	fromBase(text, BASE_29_BIGINT, BASE_29_ALPHABET);
-
-export const fromBase94 = (text: string) =>
-	fromBase(text, BASE_94_BIGINT, BASE_94_ALPHABET);
