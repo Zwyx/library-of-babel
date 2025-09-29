@@ -136,7 +136,7 @@ export const OptionsDialog = ({
 				</Button>
 			</DialogTrigger>
 
-			<DialogContent className="max-h-full overflow-auto">
+			<DialogContent className="max-h-full overflow-auto" noDescription>
 				<DialogHeader>
 					<DialogTitle>
 						{mode === "search" ? "Search settings" : "Settings"}
