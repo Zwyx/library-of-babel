@@ -24,6 +24,7 @@ import {
 	fromBase29,
 	fromBase94,
 	toBase10,
+	toBase16,
 	toBase29,
 	toBase94,
 } from "./bigint-base-conversions";
@@ -53,7 +54,7 @@ const getBookIndexFromBookId = (rawBookId: string): bigint | null => {
 
 	const bookIndex = fromBase94(bookId);
 
-	lg(`'getBookIndexFromBookId' took ${performance.now() - startTime}ms`);
+	lg(`'getBookIndexFromBookId' took ${performance.now() - startTime} ms`);
 
 	return bookIndex;
 };
@@ -71,7 +72,7 @@ const getBookIndexFromBookImage = (bookImage: BookImageData): bigint | null => {
 
 	const bookIndex = fromBase16(bookIndexHex);
 
-	lg(`'getBookIndexFromBookImage' took ${performance.now() - startTime}ms`);
+	lg(`'getBookIndexFromBookImage' took ${performance.now() - startTime} ms`);
 
 	return bookIndex;
 };
@@ -98,7 +99,7 @@ const getBookFromBookContent = (bookContent: string[]): Book => {
 		}
 	}
 
-	lg(`'getBookFromBookContent' took ${performance.now() - startTime}ms`);
+	lg(`'getBookFromBookContent' took ${performance.now() - startTime} ms`);
 
 	return { pages };
 };
@@ -110,7 +111,7 @@ const getBookFromBookIndex = (bookIndex: bigint): Book => {
 
 	const book = getBookFromBookContent(bookContent);
 
-	lg(`'getBookFromBookIndex' took ${performance.now() - startTime}ms`);
+	lg(`'getBookFromBookIndex' took ${performance.now() - startTime} ms`);
 
 	return book;
 };
@@ -120,7 +121,7 @@ const getBookIdFromBookIndex = (bookIndex: bigint): string => {
 
 	const bookId = toBase94(bookIndex);
 
-	lg(`'getBookIdFromBookIndex' took ${performance.now() - startTime}ms`);
+	lg(`'getBookIdFromBookIndex' took ${performance.now() - startTime} ms`);
 
 	return bookId;
 };
@@ -157,7 +158,7 @@ const findBook = (searchText: string = "", numberOfPages: number): Book => {
 		`${randomTextBefore}${searchText}${randomTextAfter}`.split(""),
 	);
 
-	lg(`'findBook' took ${performance.now() - startTime}ms`);
+	lg(`'findBook' took ${performance.now() - startTime} ms`);
 
 	return {
 		...book,
@@ -184,7 +185,7 @@ const getBookIndexFromBook = (book: Book): bigint => {
 
 	const bookIndex = fromBase29(bookIndexBase29);
 
-	lg(`'getBookIndexFromBook' took ${performance.now() - startTime}ms`);
+	lg(`'getBookIndexFromBook' took ${performance.now() - startTime} ms`);
 
 	return bookIndex;
 };
@@ -201,7 +202,7 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 	const shelfIndexInWall = bookIndexInWall / BOOKS_PER_SHELVES_BIGINT;
 	const bookIndexInShelf = bookIndexInWall % BOOKS_PER_SHELVES_BIGINT;
 
-	const bookContentHex = bookIndex.toString(16).split("").reverse();
+	const bookContentHex = toBase16(bookIndex).split("").reverse();
 
 	const bookImageData = bookContentHex.reduce((acc, cur, i) => {
 		if (i % 2 === 0) {
@@ -213,11 +214,11 @@ const getBookMetadataFromBookIndex = (bookIndex: bigint): BookMetadata => {
 	}, [] as number[]);
 
 	const roomIndexString = toBase10(roomIndex + 1n);
-	const wallIndexInRoomString = (wallIndexInRoom + 1n).toString();
-	const shelfIndexInWallString = (shelfIndexInWall + 1n).toString();
-	const bookIndexInShelfString = (bookIndexInShelf + 1n).toString();
+	const wallIndexInRoomString = toBase10(wallIndexInRoom + 1n);
+	const shelfIndexInWallString = toBase10(shelfIndexInWall + 1n);
+	const bookIndexInShelfString = toBase10(bookIndexInShelf + 1n);
 
-	lg(`'getBookMetadataFromBookIndex' took ${performance.now() - startTime}ms`);
+	lg(`'getBookMetadataFromBookIndex' took ${performance.now() - startTime} ms`);
 
 	return {
 		bookId,
@@ -309,7 +310,7 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 					let searchText;
 
 					const rawSearchText = data.searchText
-						.normalize("NFD")
+						.normalize("NFD") // ← & ↓ are to remove accents from the characters
 						.replace(/[\u0300-\u036f]/g, "")
 						.toLowerCase()
 						.replace(new RegExp(`[^${BASE_29_ALPHABET}]`, "g"), "");
@@ -357,7 +358,7 @@ onmessage = ({ data }: MessageEvent<MessageToWorker>) => {
 		};
 	}
 
-	lg(`operation '${operation}' took ${performance.now() - startTime}ms`);
+	lg(`operation '${operation}' took ${performance.now() - startTime} ms`);
 
 	postMessage(result);
 };
