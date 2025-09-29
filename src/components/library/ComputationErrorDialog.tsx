@@ -25,7 +25,7 @@ export const ComputationErrorDialog = ({
 }) => {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="border-destructive">
+			<DialogContent className="border-destructive" noDescription>
 				<DialogHeader>
 					<DialogTitle className="text-destructive">Error</DialogTitle>
 				</DialogHeader>

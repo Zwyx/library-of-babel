@@ -136,7 +136,7 @@ export const AboutDialog = ({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="h-full max-w-5xl p-4">
+			<DialogContent className="h-full max-w-5xl p-4" noDescription>
 				<DialogHeader>
 					<DialogTitle className="px-2 pt-2">How it works</DialogTitle>
 				</DialogHeader>

@@ -217,7 +217,10 @@ export const BookMetadataDialog = ({
 			}}
 		>
 			{bookMetadata && (
-				<DialogContent className="max-h-full max-w-xl gap-0 overflow-auto">
+				<DialogContent
+					className="max-h-full max-w-xl gap-0 overflow-auto"
+					noDescription
+				>
 					<DialogHeader>
 						<DialogTitle>Book info</DialogTitle>
 

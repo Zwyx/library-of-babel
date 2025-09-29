@@ -21,7 +21,7 @@ export const InvalidDataDialog = ({
 }) => {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent>
+			<DialogContent noDescription>
 				<DialogHeader>
 					<DialogTitle>
 						{mode === "browse" ? "Invalid book ID" : "Invalid search text"}
