@@ -18,7 +18,7 @@ export const RequestError = ({
 			<div className="text-center text-destructive">
 				<div className="font-semibold">
 					{type === "network-error" ?
-						"Error"
+						"Network error"
 					: type === "server-error" ?
 						"Server error"
 					:	"Not found"}
@@ -26,9 +26,9 @@ export const RequestError = ({
 
 				<div className="mt-2">
 					{type === "network-error" ?
-						"Please check your internet connection and try again."
+						"Please check your internet connection or try again later."
 					: type === "server-error" ?
-						"Please try again later. Sorry for the inconvenience."
+						"Please try again later."
 					:	"This link is invalid, has expired or has been deleted."}
 				</div>
 			</div>

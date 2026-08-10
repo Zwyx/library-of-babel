@@ -139,6 +139,10 @@ export const sendToSentry = (
 						},
 					},
 				}),
+		}).catch(() => {
+			// Swallow a network error (ad-blockers, offline, etc.) to prevent it from becoming
+			// an `unhandledrejection` and re-triggering `sendToSentry` via the listener above,
+			// which creates an infinite loop of hundreds of blocked requests per seconds
 		});
 	} catch {
 		//

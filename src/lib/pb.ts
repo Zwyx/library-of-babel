@@ -1,3 +1,5 @@
+// cSpell:ignore pasteid, deletetoken
+
 import { RequestErrorType } from "@/components/common/RequestError.const";
 import { EncryptedData } from "./crypto";
 import { sendToSentry } from "./sentry";
@@ -15,7 +17,13 @@ export const expiryDurationTypes = expiryDurations.map((e) => e[0]);
 export const expiryDurationTexts = expiryDurations.map((e) => e[1]);
 export type ExpiryDuration = (typeof expiryDurationTypes)[number];
 
-const PB_REQUEST_HEADERS = { "x-requested-with": "JSONHttpRequest" };
+const PB_REQUEST_HEADERS = {
+	"x-requested-with": "JSONHttpRequest",
+
+	// The status code for the errors "document doesn't exist" and "wrong deletion token" is the same: 1,
+	// so we need to read the error message, and there ensure they come in English
+	"accept-language": "en",
+};
 
 interface PbCommonBody {
 	/** Version number */
@@ -245,7 +253,10 @@ const getPbGetOrDeleteError = (
 	message: string,
 	instanceIndex: number,
 ): { error: RequestErrorType } => {
-	if (message === "Paste does not exist, has expired or has been deleted.") {
+	if (
+		message === "Paste does not exist, has expired or has been deleted." || // version 1.x
+		message === "Document does not exist, has expired or has been deleted." // version 2.x
+	) {
 		return { error: "not-found" };
 	}
 
@@ -322,7 +333,10 @@ export const deleteFromPb = async (
 	}
 
 	if (json.status !== 0) {
-		if (json.message === "Wrong deletion token. Paste was not deleted.") {
+		if (
+			json.message === "Wrong deletion token. Paste was not deleted." || // version 1.x
+			json.message === "Wrong deletion token. Document was not deleted." // version 2.x
+		) {
 			return { error: "wrong-delete-token" };
 		}
 
